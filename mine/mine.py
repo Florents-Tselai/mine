@@ -1,3 +1,6 @@
+from copy import copy
+from collections import OrderedDict
+
 def visualize_partition(points, x_partition=[], y_partition=[]):
     import matplotlib.pyplot as plt
     fig = plt.figure()
@@ -12,7 +15,6 @@ def visualize_partition(points, x_partition=[], y_partition=[]):
     
 def EquipartitionYAxis(D, y):
     D = sorted(D, key=lambda p: p[1])
-    print D
     n= len(D)
     
     desiredRowSize = float(n) / float(y)
@@ -43,6 +45,9 @@ def EquipartitionYAxis(D, y):
     return Q
 
 def GetClumpsPartition(D, Q):
+    D = sorted(D, key=lambda p: p[0])
+    #Q = OrderedDict(sorted(Q.items(), key=lambda p: p[0][0]))
+    
     n = len(D)
     
     i = 0
@@ -53,26 +58,26 @@ def GetClumpsPartition(D, Q):
         flag = False
         for j in range(i+1, n):
             if D[i][0] == D[j][0]:
-                if Q[D[i]] == Q[D[j]]:
+                if Q[D[i]] != Q[D[j]]:
                     flag = True
-                    s += 1
+                s += 1
             else:
                 break
             
-        if s > 1 and flag == True:
+        if s > 1 and flag:
             for j in range(0, s):
                 Q[D[i+j]] = c
-                c -= 1
-        i += s
+            c -= 1
+        i = i + s
     
     i = 0
     P = {}
-    P[D[0]] = 0
+    P[D[0]] = 0 + 1
     for j in range(1, n):
         if Q[D[j]] != Q[D[j-1]]:
-            i += 1
-        P[D[j]] = i
-        
+            i = i + 1
+        P[D[j]] = i + 1
+    
     return P
                     
 
