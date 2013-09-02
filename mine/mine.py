@@ -11,7 +11,8 @@ def visualize_partition(points, x_partition=[], y_partition=[]):
     plt.show()
     
 def EquipartitionYAxis(D, y):
-    D = sorted(D, key=lambda p: p[1], reverse=True)
+    D = sorted(D, key=lambda p: p[1])
+    print D
     n= len(D)
     
     desiredRowSize = float(n) / float(y)
@@ -34,7 +35,7 @@ def EquipartitionYAxis(D, y):
             temp2 = float(y) - float(currRow)
             desiredRowSize = temp1 / temp2
         
-        for j in range(0, len(S)): Q[D[i+j]] = currRow
+        for j in range(0, len(S)): Q[D[i+j]] = currRow + 1
         
         i += len(S)
         sharp += len(S)
@@ -42,13 +43,40 @@ def EquipartitionYAxis(D, y):
     return Q
 
 def GetClumpsPartition(D, Q):
-    pass
-
+    n = len(D)
+    
+    i = 0
+    c = -1 
+    
+    while(i < n):
+        s = 1
+        flag = False
+        for j in range(i+1, n):
+            if D[i][0] == D[j][0]:
+                if Q[D[i]] == Q[D[j]]:
+                    flag = True
+                    s += 1
+            else:
+                break
+            
+        if s > 1 and flag == True:
+            for j in range(0, s):
+                Q[D[i+j]] = c
+                c -= 1
+        i += s
+    
+    i = 0
+    P = {}
+    P[D[0]] = 0
+    for j in range(1, n):
+        if Q[D[j]] != Q[D[j-1]]:
+            i += 1
+        P[D[j]] = i
+        
+    return P
+                    
 
     
 D = [(1,1), (1,2), (1,3), (1,4), (2,3), (2,4), (3,5), (4,6), (5,6), (6,6), (7,5), (8,3), (9,2), (9,1)]
 x_partition = [1.8, 2.2, 7.8, 8.2]
 y_partition = [2.5, 4.6]
-
-for k,v in EquipartitionYAxis(D, 3).iteritems():
-    print k,v
