@@ -1,3 +1,6 @@
 .project
 .pydevproject
 *.pdf
+*.pyc
+.spyderproject
+
