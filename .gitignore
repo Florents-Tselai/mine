@@ -3,4 +3,5 @@
 *.pdf
 *.pyc
 .spyderproject
-
+*.xcf
+*.png

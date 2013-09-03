@@ -1,5 +1,6 @@
 from collections import OrderedDict
-from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition
+from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H
+import numpy as np
 
 """
 Example from Albanese et. al. pg. 4
@@ -14,6 +15,8 @@ y_partition = [2.5, 4.6]
 #visualize_partition(D, x_partition, y_partition)
 
 def test_EquipartitionYAxis():
+    D = [(1,1), (1,2), (1,3), (1,4), (2,3), (2,4), (3,5), (4,6), (5,6), (6,6), (7,5), (8,3), (9,2), (9,1)]
+    D = sorted(D, key=lambda p: p[1])
     Q = EquipartitionYAxis(D, y=3)
     
     assert Q[(1,1)] == 1
@@ -32,6 +35,8 @@ def test_EquipartitionYAxis():
     assert Q[(9,1)] == 1    
     
 def test_GetClumpsPartition():
+    D = [(1,1), (1,2), (1,3), (1,4), (2,3), (2,4), (3,5), (4,6), (5,6), (6,6), (7,5), (8,3), (9,2), (9,1)]
+
     Q = {}
     Q[(1,1)] = 1
     Q[(1,2)] = 1
@@ -48,6 +53,7 @@ def test_GetClumpsPartition():
     Q[(9,2)] = 1
     Q[(9,1)] = 1
     
+    D = sorted(D, key=lambda p: p[0])
     Q = OrderedDict(sorted(Q.items(), key=lambda p: p[0][0]))
     P = GetClumpsPartition(D, Q)
     
@@ -66,11 +72,14 @@ def test_GetClumpsPartition():
     assert P[(9,2)] == 5
     assert P[(9,1)] == 5 
 
+def test_H():
+    assert H(P=np.array([0.25,0.25,0.25,0.25])) == 2
+
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
+test_H()
 
 Q = EquipartitionYAxis(D, y=3)
-P = GetClumpsPartition(D,  OrderedDict(sorted(Q.items(), key=lambda p: p[0][0])))
-for p in Q.iterkeys():
-    print p, Q[p], P[p]
-   
+Q = OrderedDict(sorted(Q.items(), key=lambda p: p[0][0]))
+P = GetClumpsPartition(D, Q)
+
