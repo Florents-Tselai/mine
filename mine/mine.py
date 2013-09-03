@@ -1,5 +1,5 @@
 from copy import copy
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 import numpy as np
 from math import log
 
@@ -78,8 +78,6 @@ def GetClumpsPartition(D, Q):
     
     return P
 
-
-
 def GetSuperclumpsPartition(D, Q, k_hat):
     pass
 
@@ -90,12 +88,29 @@ def H(P=None, Q=None):
     elif Q is not None:
         assert P is None
         return - sum(q*log(q,2) for q in Q)
-    elif P is not None and Q is not None:
+    else:
+        assert P is not None and Q is not None
+        #Compute joint entropy
         probs = []
         for p in set(P):
             for q in set(Q):
                 probs.append(np.mean(np.logical_and(P == p, Q == q)))
                 return np.sum(-p * np.log2(p) for p in probs)
+
+def getPartitionIndices(P, axis='x', step=0.3):
+    d = defaultdict(list)
+    for k,v in P.iteritems(): d[v].append(k)
+    
+    indices = []
+    for k in sorted(d.keys()):
+        if axis == 'x':
+            indices.append(max([p[0] for p in d[k]]) + step)
+        elif axis == 'y':
+            indices.append(max([p[1] for p in d[k]]) + step)
+    del indices[len(indices)-1]
+    
+    return indices
+    
 
 D = [(1,1), (1,2), (1,3), (1,4), (2,3), (2,4), (3,5), (4,6), (5,6), (6,6), (7,5), (8,3), (9,2), (9,1)]
 x_partition = [1.8, 2.2, 7.8, 8.2]
