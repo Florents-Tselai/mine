@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, getPartitionIndices, GetPartitionGroups, GetProbabilityDistribution
+from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, GetPartitionIndices, GetPartitionGroups, GetProbabilityDistribution
 import numpy as np
 
 """
@@ -76,13 +76,12 @@ def test_H():
     assert H(P=[0.25,0.25,0.25,0.25]) == 2
 
 def test_getPartitionIndices():
-    Q = EquipartitionYAxis(sorted(D, key=lambda p: p[1]), y=3)    
-    P = GetClumpsPartition(sorted(D, key=lambda p: p[0]), OrderedDict(sorted(Q.items(), key=lambda p: p[0][0])))
-    x_p = getPartitionIndices(P, axis='x')
-    y_p = getPartitionIndices(Q, axis='y')
+    Q = EquipartitionYAxis(D, y=3)    
+    P = GetClumpsPartition(D, OrderedDict(sorted(Q.items(), key=lambda p: p[0][0])))
+    x_p = GetPartitionIndices(P, D, axis='x')
+    y_p = GetPartitionIndices(Q, D, axis='y')    
     
-    
-    #Tested with visual inspection: See Albane
+    #Tested with visual inspection: See Albanese
     #http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
     #visualize_partition(D, x_p, y_p)
     

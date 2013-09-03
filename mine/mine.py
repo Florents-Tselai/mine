@@ -3,6 +3,26 @@ from collections import OrderedDict, defaultdict
 import numpy as np
 from math import log
 
+"""
+Each point is a tuple, thus:
+P = (x, y) ==> 
+P[0] = x and P[1] = y
+"""
+
+p_x, p_y = lambda p: p[0], lambda p: p[1]
+
+def is_sorted_increasing_by(D, increasing_by = 'x'):
+    assert increasing_by == 'x' or increasing_by == 'y'
+    if increasing_by == 'x':
+        return all(D[i][0] <= D[i+1][0] for i in xrange(len(D)-1))
+    else:
+        return all(D[i][1] <= D[i+1][1] for i in xrange(len(D)-1))
+
+def sort_D_increasing_by(D, increasing_by = 'x'):
+    assert increasing_by == 'x' or increasing_by == 'y'
+    return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
+        
+
 def visualize_partition(points, x_partition=[], y_partition=[]):
     import matplotlib.pyplot as plt
     fig = plt.figure()
@@ -16,6 +36,8 @@ def visualize_partition(points, x_partition=[], y_partition=[]):
     plt.show()
     
 def EquipartitionYAxis(D, y):
+    if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
+    
     n= len(D)
     
     desiredRowSize = float(n) / float(y)
@@ -46,6 +68,8 @@ def EquipartitionYAxis(D, y):
     return Q
 
 def GetClumpsPartition(D, Q):
+    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
+    
     n = len(D)
     
     i = 0
@@ -79,6 +103,16 @@ def GetClumpsPartition(D, Q):
     return P
 
 def GetSuperclumpsPartition(D, Q, k_hat):
+    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
+
+    P_tilde = GetClumpsPartition(D, Q)
+    k = len(set(P_tilde.values()))
+    
+    if k > k_hat:
+        pass
+    else:
+        return P_tilde
+    
     pass
 
 def H(P=None, Q=None):
@@ -97,21 +131,26 @@ def H(P=None, Q=None):
                 probs.append(np.mean(np.logical_and(P == p, Q == q)))
                 return np.sum(-p * np.log2(p) for p in probs)
 
-def getPartitionIndices(P, axis='x', step=0.3):
-    d = GetPartitionGroups(P)
+def GetPartitionIndices(partition, D, axis='x', step=0.3):
+    assert axis == 'x' or axis == 'y'
     
-    indices = []
+    if axis == 'x' and not is_sorted_increasing_by(D, increasing_by='x'):
+        D = sort_D_increasing_by(D, increasing_by='x')
+    elif axis == 'y' and not is_sorted_increasing_by(D, increasing_by='y'):
+        D = sort_D_increasing_by(D, increasing_by='y')
+    
+    d = GetPartitionGroups(partition)
+    
+    endpoint_indices = []
     for k in sorted(d.keys()):
         if axis == 'x':
-            indices.append(max([p[0] for p in d[k]]) + step)
+            endpoint_x = max(d[k], key=lambda p: p[0])
+            endpoint_indices.append(D.index(endpoint_x))
         elif axis == 'y':
-            indices.append(max([p[1] for p in d[k]]) + step)
-            
-    del indices[len(indices)-1]
-    
-    return indices
+            endpoint_y = max(d[k], key=lambda p: p[1])
+            endpoint_indices.append(D.index(endpoint_y))
 
-def GetPartitionGroups(P):
+def GetPartitionGroups(P):    
     d = defaultdict(list)
     for k,v in P.iteritems(): 
         d[v].append(k)
@@ -123,6 +162,7 @@ def GetProbabilityDistribution(P, n):
     """
     d = GetPartitionGroups(P)    
     return [float( len(d[k])) / float(n) for k in sorted(d.keys())]
+
 
 D = [(1,1), (1,2), (1,3), (1,4), (2,3), (2,4), (3,5), (4,6), (5,6), (6,6), (7,5), (8,3), (9,2), (9,1)]
 x_partition = [1.8, 2.2, 7.8, 8.2]
