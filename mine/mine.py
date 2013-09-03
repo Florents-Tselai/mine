@@ -56,9 +56,9 @@ def GetClumpsPartition(D, Q):
         flag = False
         for j in range(i+1, n):
             if D[i][0] == D[j][0]:
+                s += 1
                 if Q[D[i]] != Q[D[j]]:
                     flag = True
-                s += 1
             else:
                 break
             
@@ -98,8 +98,7 @@ def H(P=None, Q=None):
                 return np.sum(-p * np.log2(p) for p in probs)
 
 def getPartitionIndices(P, axis='x', step=0.3):
-    d = defaultdict(list)
-    for k,v in P.iteritems(): d[v].append(k)
+    d = GetPartitionGroups(P)
     
     indices = []
     for k in sorted(d.keys()):
@@ -107,10 +106,23 @@ def getPartitionIndices(P, axis='x', step=0.3):
             indices.append(max([p[0] for p in d[k]]) + step)
         elif axis == 'y':
             indices.append(max([p[1] for p in d[k]]) + step)
+            
     del indices[len(indices)-1]
     
     return indices
-    
+
+def GetPartitionGroups(P):
+    d = defaultdict(list)
+    for k,v in P.iteritems(): 
+        d[v].append(k)
+    return d
+
+def GetProbabilityDistribution(P, n):
+    """
+    n: number of total points
+    """
+    d = GetPartitionGroups(P)    
+    return [float( len(d[k])) / float(n) for k in sorted(d.keys())]
 
 D = [(1,1), (1,2), (1,3), (1,4), (2,3), (2,4), (3,5), (4,6), (5,6), (6,6), (7,5), (8,3), (9,2), (9,1)]
 x_partition = [1.8, 2.2, 7.8, 8.2]

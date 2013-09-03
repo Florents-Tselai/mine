@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, getPartitionIndices
+from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, getPartitionIndices, GetPartitionGroups, GetProbabilityDistribution
 import numpy as np
 
 """
@@ -80,6 +80,7 @@ def test_getPartitionIndices():
     P = GetClumpsPartition(sorted(D, key=lambda p: p[0]), OrderedDict(sorted(Q.items(), key=lambda p: p[0][0])))
     x_p = getPartitionIndices(P, axis='x')
     y_p = getPartitionIndices(Q, axis='y')
+    
     
     #Tested with visual inspection: See Albane
     #http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
