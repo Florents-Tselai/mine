@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, GetPartitionEndpointIndices, GroupPartitionsPoints, GetProbabilityDistribution
+from mine import *
 import numpy as np
 
 """
@@ -12,7 +12,7 @@ D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6,
 x_partition = [1.8, 2.2, 7.8, 8.2]
 y_partition = [2.5, 4.6]
 
-# visualize_partition(D, x_partition, y_partition)
+# visualize_partition_by_endpoint_indices(D, x_partition, y_partition)
 
 def test_EquipartitionYAxis():
     # Albanese data
@@ -109,10 +109,16 @@ def test_GetPartitionEndpointIndices():
     
     # Tested with visual inspection: See Albanese
     # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
-    # visualize_partition(D, x_p, y_p)
+    # visualize_partition_by_endpoint_indices(D, x_p, y_p)
     
-    
+def test_visualize_partition_by_endpoints():
+    D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
+    #Expected visual output https://github.com/dspinellis/OpenMIC/blob/master/mine.cpp#L829
+    #visualize_partition_by_endpoints(D, [(0,0), (2,1), (5,0)], [(0,0), (2,1)])
+
+#Run tests    
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
 test_GetPartitionEndpointIndices()
+test_visualize_partition_by_endpoints()

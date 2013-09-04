@@ -24,7 +24,7 @@ def sort_D_increasing_by(D, increasing_by='x'):
     return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
         
 
-def visualize_partition(D, x_partition_endpoint_indices=[], y_partition_endpoint_indices=[], step=0.1):
+def visualize_partition_by_endpoint_indices(D, x_partition_endpoint_indices=[], y_partition_endpoint_indices=[], step=0.2):
     D_sorted_by_x = sort_D_increasing_by(D, 'x')
     D_sorted_by_y = sort_D_increasing_by(D, 'y')
     
@@ -40,6 +40,21 @@ def visualize_partition(D, x_partition_endpoint_indices=[], y_partition_endpoint
     
     plt.show()
     
+def visualize_partition_by_endpoints(D, x_endpoints, y_endpoints, step=0.2):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.scatter([p[0] for p in D], [p[1] for p in D])
+    
+    #Draw partition lines for each axis
+    ax.get_xaxis().set_ticks([p[0]+step for p in x_endpoints])
+    ax.get_yaxis().set_ticks([p[1]+step for p in y_endpoints])
+   
+    ax.grid(True)
+    
+    plt.show()
+    
+    pass
+
 def EquipartitionYAxis(D, y):
     if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
     
