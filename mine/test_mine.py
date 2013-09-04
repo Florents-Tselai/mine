@@ -74,6 +74,9 @@ def test_GetClumpsPartition():
 
 def test_H():
     assert H(P=[0.25, 0.25, 0.25, 0.25]) == 2
+    
+    #OpenMIC test case
+    assert H(P=[1./8, 1./4, 1./8, 1./2]) == 7./4
 
 def test_getPartitionIndices():
     Q = EquipartitionYAxis(D, y=3)    
