@@ -24,12 +24,17 @@ def sort_D_increasing_by(D, increasing_by='x'):
     return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
         
 
-def visualize_partition(points, x_partition=[], y_partition=[]):
+def visualize_partition(D, x_partition_endpoint_indices=[], y_partition_endpoint_indices=[], step=0.1):
+    D_sorted_by_x = sort_D_increasing_by(D, 'x')
+    D_sorted_by_y = sort_D_increasing_by(D, 'y')
+    
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.scatter([p[0] for p in points], [p[1] for p in points])
-    ax.get_xaxis().set_ticks(x_partition)
-    ax.get_yaxis().set_ticks(y_partition)
+    ax.scatter([p[0] for p in D], [p[1] for p in D])
+    
+    #Draw partition lines for each axis
+    ax.get_xaxis().set_ticks([D_sorted_by_x[c][0] + step for c in x_partition_endpoint_indices])
+    ax.get_yaxis().set_ticks([D_sorted_by_y[c][1] + step for c in y_partition_endpoint_indices])
    
     ax.grid(True)
     
@@ -50,10 +55,10 @@ def EquipartitionYAxis(D, y):
     while(i < n):
         S = [p for p in D if p[1] == D[i][1]]
         
-        temp1 = abs(float(sharp) + float(len(S)) - desiredRowSize)
-        temp2 = abs(float(sharp) - desiredRowSize)
+        lhs = abs(float(sharp) + float(len(S)) - desiredRowSize)
+        rhs = abs(float(sharp) - desiredRowSize)
         
-        if ((sharp != 0) and (temp1 >= temp2)):
+        if ((sharp != 0) and (lhs >= rhs)):
             currRow = currRow + 1
             sharp = 0
             temp1 = float(n) - float(i)
