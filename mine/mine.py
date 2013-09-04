@@ -1,5 +1,6 @@
-from copy import copy
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
+import matplotlib.pyplot as plt
+
 import numpy as np
 from math import log
 
@@ -24,7 +25,6 @@ def sort_D_increasing_by(D, increasing_by = 'x'):
         
 
 def visualize_partition(points, x_partition=[], y_partition=[]):
-    import matplotlib.pyplot as plt
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.scatter([p[0] for p in points], [p[1] for p in points])
@@ -116,20 +116,32 @@ def GetSuperclumpsPartition(D, Q, k_hat):
     pass
 
 def H(P=None, Q=None):
+    assert P is not None or Q is not None
+    
     if P is not None:
         assert Q is None
         return - sum(p*log(p,2) for p in P)
+    
     elif Q is not None:
         assert P is None
         return - sum(q*log(q,2) for q in Q)
+    
     else:
         assert P is not None and Q is not None
         #Compute joint entropy
-        probs = []
-        for p in set(P):
-            for q in set(Q):
-                probs.append(np.mean(np.logical_and(P == p, Q == q)))
-                return np.sum(-p * np.log2(p) for p in probs)
+        P = np.array(P)
+        Q = np.array(Q)
+        h = 0.0
+        for i in set(P):
+            for j in set(Q):
+                ppq = np.mean(np.logical_and(P == i, Q == j))
+                if ppq > 0:
+                    h += ppq * np.log2(ppq)
+                else:
+                    h += 0.0
+        return -h
+                    
+
 
 def GetPartitionIndices(partition, D, axis='x', step=0.3):
     assert axis == 'x' or axis == 'y'
