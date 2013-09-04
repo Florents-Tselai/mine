@@ -157,7 +157,7 @@ def I(P, Q):
                 h += 0
     return (-h - Hpq)
 
-def GetPartitionIndices(partition, D, axis='x', step=0.3):
+def GetPartitionEndpointIndices(partition, D, axis='x', step=0.3):
     assert axis == 'x' or axis == 'y'
     
     if axis == 'x' and not is_sorted_increasing_by(D, increasing_by='x'):

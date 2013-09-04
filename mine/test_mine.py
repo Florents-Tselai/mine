@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, GetPartitionIndices, GroupPartitionsPoints, GetProbabilityDistribution
+from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, GetPartitionEndpointIndices, GroupPartitionsPoints, GetProbabilityDistribution
 import numpy as np
 
 """
@@ -101,11 +101,11 @@ def test_H():
     #OpenMIC test case
     assert H(P=[1./8, 1./4, 1./8, 1./2]) == 7./4
 
-def test_getPartitionIndices():
+def test_GetPartitionEndpointIndices():
     Q = EquipartitionYAxis(D, y=3)    
     P = GetClumpsPartition(D, OrderedDict(sorted(Q.items(), key=lambda p: p[0][0])))
-    x_p = GetPartitionIndices(P, D, axis='x')
-    y_p = GetPartitionIndices(Q, D, axis='y')    
+    x_p = GetPartitionEndpointIndices(P, D, axis='x')
+    y_p = GetPartitionEndpointIndices(Q, D, axis='y')    
     
     # Tested with visual inspection: See Albanese
     # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
@@ -115,7 +115,7 @@ def test_getPartitionIndices():
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
-test_getPartitionIndices()
+test_GetPartitionEndpointIndices()
 
 Q = EquipartitionYAxis(D, y=3)
 Q = OrderedDict(sorted(Q.items(), key=lambda p: p[0][0]))
