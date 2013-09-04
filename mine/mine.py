@@ -106,14 +106,14 @@ def GetSuperclumpsPartition(D, Q, k_hat):
     if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
 
     P_tilde = GetClumpsPartition(D, Q)
-    k = len(set(P_tilde.values()))
-    
+    k = len(set(P_tilde.values()))    
     if k > k_hat:
-        pass
+        D_P_tilde = [(0, P_tilde[p]) for p in D]
+        P_hat = EquipartitionYAxis(D_P_tilde, k_hat)
+        P = {p:P_hat[(0, P_tilde[p])] for p in D}
+        return P
     else:
-        return P_tilde
-    
-    pass
+        return P_tilde    
 
 def H(P=None, Q=None):
     assert P is not None or Q is not None
