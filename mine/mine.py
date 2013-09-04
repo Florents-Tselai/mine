@@ -165,7 +165,7 @@ def GetPartitionIndices(partition, D, axis='x', step=0.3):
     elif axis == 'y' and not is_sorted_increasing_by(D, increasing_by='y'):
         D = sort_D_increasing_by(D, increasing_by='y')
     
-    d = GetPartitionGroups(partition)
+    d = GroupPartitionsPoints(partition)
     
     endpoint_indices = []
     for k in sorted(d.keys()):
@@ -176,7 +176,7 @@ def GetPartitionIndices(partition, D, axis='x', step=0.3):
             endpoint_y = max(d[k], key=lambda p: p[1])
             endpoint_indices.append(D.index(endpoint_y))
 
-def GetPartitionGroups(P):    
+def GroupPartitionsPoints(P):    
     d = defaultdict(list)
     for k, v in P.iteritems(): 
         d[v].append(k)
@@ -186,5 +186,5 @@ def GetProbabilityDistribution(P, n):
     """
     n: number of total points
     """
-    d = GetPartitionGroups(P)    
+    d = GroupPartitionsPoints(P)    
     return [float(len(d[k])) / float(n) for k in sorted(d.keys())]

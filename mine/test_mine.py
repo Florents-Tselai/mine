@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, GetPartitionIndices, GetPartitionGroups, GetProbabilityDistribution
+from mine import visualize_partition, EquipartitionYAxis, GetClumpsPartition, H, GetPartitionIndices, GroupPartitionsPoints, GetProbabilityDistribution
 import numpy as np
 
 """
@@ -15,6 +15,7 @@ y_partition = [2.5, 4.6]
 # visualize_partition(D, x_partition, y_partition)
 
 def test_EquipartitionYAxis():
+    #Albanese data
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
     D = sorted(D, key=lambda p: p[1])
     Q = EquipartitionYAxis(D, y=3)
@@ -32,9 +33,19 @@ def test_EquipartitionYAxis():
     assert Q[(7, 5)] == 3
     assert Q[(8, 3)] == 2
     assert Q[(9, 2)] == 1
-    assert Q[(9, 1)] == 1    
+    assert Q[(9, 1)] == 1
+    
+    #Spinellis OpenMIC data
+    D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
+    Q = EquipartitionYAxis(D, y=3)
+    partition_groups = GroupPartitionsPoints(Q)
+    assert (0, 0) and (5, 0) in partition_groups[1]
+    assert (1, 1) and (2, 1) in partition_groups[2]
+    assert (3, 2) and (4, 3) and (6, 4) in partition_groups[3]
     
 def test_GetClumpsPartition():
+    
+    # Albanese et.al. data
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
 
     Q = {}
@@ -70,7 +81,19 @@ def test_GetClumpsPartition():
     assert P[(7, 5)] == 3
     assert P[(8, 3)] == 4
     assert P[(9, 2)] == 5
-    assert P[(9, 1)] == 5 
+    assert P[(9, 1)] == 5
+    
+    #Spinellis OpenMIC data
+    D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
+    D = sorted(D, key=lambda p: p[0])
+    Q = EquipartitionYAxis(D, y=3)
+    P = GetClumpsPartition(D, Q)
+    clumps_partition_groups = GroupPartitionsPoints(P)
+    assert (0, 0) in clumps_partition_groups[1]
+    assert (1, 1) and (2, 1) in clumps_partition_groups[2]
+    assert (3, 2) and (4, 3) in clumps_partition_groups[3]
+    assert (5, 0) in clumps_partition_groups[4]
+    assert (6, 4) in clumps_partition_groups[5]
 
 def test_H():
     assert H(P=[0.25, 0.25, 0.25, 0.25]) == 2
