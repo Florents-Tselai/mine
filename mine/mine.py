@@ -12,14 +12,14 @@ P[0] = x and P[1] = y
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
-def is_sorted_increasing_by(D, increasing_by = 'x'):
+def is_sorted_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
     if increasing_by == 'x':
-        return all(D[i][0] <= D[i+1][0] for i in xrange(len(D)-1))
+        return all(D[i][0] <= D[i + 1][0] for i in xrange(len(D) - 1))
     else:
-        return all(D[i][1] <= D[i+1][1] for i in xrange(len(D)-1))
+        return all(D[i][1] <= D[i + 1][1] for i in xrange(len(D) - 1))
 
-def sort_D_increasing_by(D, increasing_by = 'x'):
+def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
     return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
         
@@ -38,7 +38,7 @@ def visualize_partition(points, x_partition=[], y_partition=[]):
 def EquipartitionYAxis(D, y):
     if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
     
-    n= len(D)
+    n = len(D)
     
     desiredRowSize = float(n) / float(y)
     
@@ -60,7 +60,7 @@ def EquipartitionYAxis(D, y):
             temp2 = float(y) - float(currRow)
             desiredRowSize = temp1 / temp2
         
-        for j in range(0, len(S)): Q[D[i+j]] = currRow + 1
+        for j in range(0, len(S)): Q[D[i + j]] = currRow + 1
         
         i += len(S)
         sharp += len(S)
@@ -78,7 +78,7 @@ def GetClumpsPartition(D, Q):
     while(i < n):
         s = 1
         flag = False
-        for j in range(i+1, n):
+        for j in range(i + 1, n):
             if D[i][0] == D[j][0]:
                 s += 1
                 if Q[D[i]] != Q[D[j]]:
@@ -88,7 +88,7 @@ def GetClumpsPartition(D, Q):
             
         if s > 1 and flag:
             for j in range(0, s):
-                Q[D[i+j]] = c
+                Q[D[i + j]] = c
             c -= 1
         i = i + s
     
@@ -96,7 +96,7 @@ def GetClumpsPartition(D, Q):
     P = {}
     P[D[0]] = 0 + 1
     for j in range(1, n):
-        if Q[D[j]] != Q[D[j-1]]:
+        if Q[D[j]] != Q[D[j - 1]]:
             i = i + 1
         P[D[j]] = i + 1
     
@@ -120,15 +120,15 @@ def H(P=None, Q=None):
     
     if P is not None:
         assert Q is None
-        return - sum(p*log(p,2) for p in P)
+        return -sum(p * log(p, 2) for p in P)
     
     elif Q is not None:
         assert P is None
-        return - sum(q*log(q,2) for q in Q)
+        return -sum(q * log(q, 2) for q in Q)
     
     else:
         assert P is not None and Q is not None
-        #Compute joint entropy
+        # Compute joint entropy
         P = np.array(P)
         Q = np.array(Q)
         h = 0.0
@@ -141,7 +141,21 @@ def H(P=None, Q=None):
                     h += 0.0
         return -h
                     
-
+def I(P, Q):
+    P = np.array(P)
+    Q = np.array(Q)
+    Hpq = H(P, Q)
+    h = 0.0
+    for j in set(Q):
+        for i in set(P):
+            ppq = np.mean(np.logical_and(P == i, Q == j))
+            pp = np.mean(P == i)
+            pq = np.mean(Q == j)
+            if ppq > 0 and pp > 0 and pq > 0:
+                h += ppq * np.log2(pp * pq)
+            else:
+                h += 0
+    return (-h - Hpq)
 
 def GetPartitionIndices(partition, D, axis='x', step=0.3):
     assert axis == 'x' or axis == 'y'
@@ -164,7 +178,7 @@ def GetPartitionIndices(partition, D, axis='x', step=0.3):
 
 def GetPartitionGroups(P):    
     d = defaultdict(list)
-    for k,v in P.iteritems(): 
+    for k, v in P.iteritems(): 
         d[v].append(k)
     return d
 
@@ -173,4 +187,4 @@ def GetProbabilityDistribution(P, n):
     n: number of total points
     """
     d = GetPartitionGroups(P)    
-    return [float( len(d[k])) / float(n) for k in sorted(d.keys())]
+    return [float(len(d[k])) / float(n) for k in sorted(d.keys())]
