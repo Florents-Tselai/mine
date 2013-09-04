@@ -116,8 +116,3 @@ test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
 test_GetPartitionEndpointIndices()
-
-Q = EquipartitionYAxis(D, y=3)
-Q = OrderedDict(sorted(Q.items(), key=lambda p: p[0][0]))
-P = GetClumpsPartition(D, Q)
-

@@ -176,7 +176,29 @@ def GetPartitionEndpointIndices(partition, D, axis='x', step=0.3):
             endpoint_y = max(d[k], key=lambda p: p[1])
             endpoint_indices.append(D.index(endpoint_y))
 
-def GroupPartitionsPoints(P):    
+def GroupPartitionsPoints(P):
+    """
+    P : point -> Partition index
+    Returns
+    d : partition index -> points
+    
+    Example:
+    P = 
+    {
+    p1 -> 1
+    p2 -> 2
+    P3 -> 1
+    p4 -> 2
+    }
+    
+    Returns
+    d = 
+    {
+    1 -> [p1, p3]
+    2 -> [p2, p4]
+    }
+      
+    """   
     d = defaultdict(list)
     for k, v in P.iteritems(): 
         d[v].append(k)
