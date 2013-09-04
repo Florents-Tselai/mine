@@ -15,7 +15,7 @@ y_partition = [2.5, 4.6]
 # visualize_partition(D, x_partition, y_partition)
 
 def test_EquipartitionYAxis():
-    #Albanese data
+    # Albanese data
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
     D = sorted(D, key=lambda p: p[1])
     Q = EquipartitionYAxis(D, y=3)
@@ -35,7 +35,7 @@ def test_EquipartitionYAxis():
     assert Q[(9, 2)] == 1
     assert Q[(9, 1)] == 1
     
-    #Spinellis OpenMIC data
+    # Spinellis OpenMIC data
     D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
     Q = EquipartitionYAxis(D, y=3)
     partition_groups = GroupPartitionsPoints(Q)
@@ -83,7 +83,7 @@ def test_GetClumpsPartition():
     assert P[(9, 2)] == 5
     assert P[(9, 1)] == 5
     
-    #Spinellis OpenMIC data
+    # Spinellis OpenMIC data
     D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
     D = sorted(D, key=lambda p: p[0])
     Q = EquipartitionYAxis(D, y=3)
@@ -98,8 +98,8 @@ def test_GetClumpsPartition():
 def test_H():
     assert H(P=[0.25, 0.25, 0.25, 0.25]) == 2
     
-    #OpenMIC test case
-    assert H(P=[1./8, 1./4, 1./8, 1./2]) == 7./4
+    # OpenMIC test case
+    assert H(P=[1. / 8, 1. / 4, 1. / 8, 1. / 2]) == 7. / 4
 
 def test_GetPartitionEndpointIndices():
     Q = EquipartitionYAxis(D, y=3)    
