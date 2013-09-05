@@ -172,12 +172,10 @@ def GetSuperclumpsPartition(D, Q, k_hat):
 def H(P=None, Q=None):
     assert P is not None or Q is not None
     
-    if P is not None:
-        assert Q is None
+    if P is not None and Q is None:
         return -sum(p * log(p, 2) for p in P)
     
-    elif Q is not None:
-        assert P is None
+    elif Q is not None and P is None:
         return -sum(q * log(q, 2) for q in Q)
     
     else:
