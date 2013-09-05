@@ -4,6 +4,7 @@ from itertools import chain
 import numpy as np
 from math import log
 from copy import copy
+from pprint import pprint
 
 """
 Each point is a tuple, thus:
@@ -262,3 +263,18 @@ def GetProbabilityDistribution(P, n):
     """
     d = GroupPartitionsPoints(P)    
     return [float(len(d[k])) / float(n) for k in sorted(d.keys())]
+
+def GetGridMatrix(P, Q):
+    """
+    Each matrix element equals the number of points in the corresponding grid cell.
+    """
+    P = GroupPartitionsPoints(P)
+    Q = GroupPartitionsPoints(Q)
+   
+    grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
+    for r in range(0, grid_matrix.shape[0]):
+        for c in range(0, grid_matrix.shape[1]):
+            grid_matrix[r][c] = len(set.intersection(set(Q[r+1]), set(P[c+1])))
+    flipped = np.flipud(grid_matrix)
+    return flipped
+            
