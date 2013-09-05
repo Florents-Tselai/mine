@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from itertools import chain
 import numpy as np
 from math import log
+from copy import copy
 
 """
 Each point is a tuple, thus:
@@ -123,6 +124,8 @@ def GetClumpsPartition(D, Q):
     
     n = len(D)
     
+    Q_tilde = copy(Q)
+    
     i = 0
     c = -1 
     
@@ -132,14 +135,14 @@ def GetClumpsPartition(D, Q):
         for j in range(i + 1, n):
             if D[i][0] == D[j][0]:
                 s += 1
-                if Q[D[i]] != Q[D[j]]:
+                if Q_tilde[D[i]] != Q_tilde[D[j]]:
                     flag = True
             else:
                 break
             
         if s > 1 and flag:
             for j in range(0, s):
-                Q[D[i + j]] = c
+                Q_tilde[D[i + j]] = c
             c -= 1
         i = i + s
     
@@ -147,7 +150,7 @@ def GetClumpsPartition(D, Q):
     P = {}
     P[D[0]] = 0 + 1
     for j in range(1, n):
-        if Q[D[j]] != Q[D[j - 1]]:
+        if Q_tilde[D[j]] != Q_tilde[D[j - 1]]:
             i = i + 1
         P[D[j]] = i + 1
     
