@@ -111,14 +111,20 @@ def test_GetPartitionEndpointIndices():
     # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
     # visualize_partition_by_endpoint_indices(D, x_p, y_p)
     
-def test_visualize_partition_by_endpoints():
-    D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
-    #Expected visual output https://github.com/dspinellis/OpenMIC/blob/master/mine.cpp#L829
-    #visualize_partition_by_endpoints(D, [(0,0), (2,1), (5,0)], [(0,0), (2,1)])
+def test_visualize_grid():
+    #D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3)]
+    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1), (0, 0), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
+    #D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
 
-#Run tests    
+    D = sorted(D, key=lambda p: p[0])
+    Q = EquipartitionYAxis(D, y=4)
+    P = GetClumpsPartition(D, Q)
+    
+    visualize_grid(P, Q)
+
+#Run tests
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
 test_GetPartitionEndpointIndices()
-test_visualize_partition_by_endpoints()
+test_visualize_grid()

@@ -1,6 +1,6 @@
 from collections import defaultdict
 import matplotlib.pyplot as plt
-
+from itertools import chain
 import numpy as np
 from math import log
 
@@ -11,6 +11,38 @@ P[0] = x and P[1] = y
 """
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
+
+def most_rightest_point(points):
+    return max(points, key=lambda p: p[0])
+
+def most_uppest_point(points):
+    return max(points, key=lambda p: p[1])
+
+def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
+    """
+    x_axis_parition: x-axis partition
+    y_axis_partition: p-axis partition
+    """
+    points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
+    
+    x_axis_parition = GroupPartitionsPoints(x_axis_parition)
+    y_axis_partition = GroupPartitionsPoints(y_axis_partition)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    ax.scatter([p[0] for p in points], [p[1] for p in points])
+    
+    x_ticks = [most_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
+    y_ticks = [most_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
+    if x_ticks: del[x_ticks[len(x_ticks)-1]]
+    if y_ticks: del[y_ticks[len(y_ticks)-1]]
+    
+    
+    ax.get_xaxis().set_ticks(x_ticks)
+    ax.get_yaxis().set_ticks(y_ticks)
+    ax.grid(True)
+    plt.show()
 
 def is_sorted_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
@@ -23,7 +55,6 @@ def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
     return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
         
-
 def visualize_partition_by_endpoint_indices(D, x_partition_endpoint_indices=[], y_partition_endpoint_indices=[], step=0.2):
     D_sorted_by_x = sort_D_increasing_by(D, 'x')
     D_sorted_by_y = sort_D_increasing_by(D, 'y')
