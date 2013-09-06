@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, Mapping
 import matplotlib.pyplot as plt
 from itertools import chain
 import numpy as np
@@ -14,10 +14,10 @@ P[0] = x and P[1] = y
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
-def most_rightest_point(points):
+def get_rightest_point(points):
     return max(points, key=lambda p: p[0])
 
-def most_uppest_point(points):
+def get_uppest_point(points):
     return max(points, key=lambda p: p[1])
 
 def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
@@ -35,10 +35,10 @@ def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
     
     ax.scatter([p[0] for p in points], [p[1] for p in points])
     
-    x_ticks = [most_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
-    y_ticks = [most_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
-    if x_ticks: del[x_ticks[len(x_ticks)-1]]
-    if y_ticks: del[y_ticks[len(y_ticks)-1]]
+    x_ticks = [get_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
+    y_ticks = [get_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
+    if x_ticks: del[x_ticks[len(x_ticks) - 1]]
+    if y_ticks: del[y_ticks[len(y_ticks) - 1]]
     
     
     ax.get_xaxis().set_ticks(x_ticks)
@@ -48,6 +48,7 @@ def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
 
 def is_sorted_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
+    
     if increasing_by == 'x':
         return all(D[i][0] <= D[i + 1][0] for i in xrange(len(D) - 1))
     else:
@@ -55,6 +56,7 @@ def is_sorted_increasing_by(D, increasing_by='x'):
 
 def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
+    
     return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
         
 def visualize_partition_by_endpoint_indices(D, x_partition_endpoint_indices=[], y_partition_endpoint_indices=[], step=0.2):
@@ -65,7 +67,7 @@ def visualize_partition_by_endpoint_indices(D, x_partition_endpoint_indices=[], 
     ax = fig.add_subplot(111)
     ax.scatter([p[0] for p in D], [p[1] for p in D])
     
-    #Draw partition lines for each axis
+    # Draw partition lines for each axis
     ax.get_xaxis().set_ticks([D_sorted_by_x[c][0] + step for c in x_partition_endpoint_indices])
     ax.get_yaxis().set_ticks([D_sorted_by_y[c][1] + step for c in y_partition_endpoint_indices])
    
@@ -78,16 +80,14 @@ def visualize_partition_by_endpoints(D, x_endpoints, y_endpoints, step=0.2):
     ax = fig.add_subplot(111)
     ax.scatter([p[0] for p in D], [p[1] for p in D])
     
-    #Draw partition lines for each axis
-    ax.get_xaxis().set_ticks([p[0]+step for p in x_endpoints])
-    ax.get_yaxis().set_ticks([p[1]+step for p in y_endpoints])
+    # Draw partition lines for each axis
+    ax.get_xaxis().set_ticks([p[0] + step for p in x_endpoints])
+    ax.get_yaxis().set_ticks([p[1] + step for p in y_endpoints])
    
     ax.grid(True)
     
     plt.show()
     
-    pass
-
 def EquipartitionYAxis(D, y):
     if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
     
@@ -173,11 +173,18 @@ def GetSuperclumpsPartition(D, Q, k_hat):
 def H(P=None, Q=None):
     assert P is not None or Q is not None
     
+    # TODO: Refactor code duplication
     if P is not None and Q is None:
-        return -sum(p * log(p, 2) for p in P if p>0)
-    
+        if isinstance(P, Mapping):
+            return entropy(GetProbabilityDistribution(P))
+        else:
+            return entropy(P)
+            
     elif Q is not None and P is None:
-        return -sum(q * log(q, 2) for q in Q if q>0)
+        if isinstance(Q, Mapping):
+            return entropy(GetProbabilityDistribution(P))
+        else:
+            return entropy(Q)
     
     else:
         assert P is not None and Q is not None
@@ -187,23 +194,13 @@ def H(P=None, Q=None):
         grid_matrix = GetGridMatrix(P, Q)
         probabilities = grid_matrix.flatten() / n_points
         
-        return -sum((p*log(p,2) for p in probabilities if p>0))
-                   
+        return entropy(probabilities)
+
+def entropy(probs): 
+    return -sum(p * log(p, 2) for p in probs if p > 0)
+                 
 def I(P, Q):
-    P = np.array(P)
-    Q = np.array(Q)
-    Hpq = H(P, Q)
-    h = 0.0
-    for j in set(Q):
-        for i in set(P):
-            ppq = np.mean(np.logical_and(P == i, Q == j))
-            pp = np.mean(P == i)
-            pq = np.mean(Q == j)
-            if ppq > 0 and pp > 0 and pq > 0:
-                h += ppq * np.log2(pp * pq)
-            else:
-                h += 0
-    return (-h - Hpq)
+    return H(P=P) + H(Q=Q) + H(P=P, Q=Q)
 
 def GetPartitionEndpointIndices(partition, D, axis='x', step=0.3):
     assert axis == 'x' or axis == 'y'
@@ -252,10 +249,11 @@ def GroupPartitionsPoints(P):
         d[v].append(k)
     return d
 
-def GetProbabilityDistribution(P, n):
+def GetProbabilityDistribution(P):
     """
     n: number of total points
     """
+    n = len(set(P.keys()))
     d = GroupPartitionsPoints(P)    
     return [float(len(d[k])) / float(n) for k in sorted(d.keys())]
 
@@ -269,7 +267,7 @@ def GetGridMatrix(P, Q):
     grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
     for r in range(0, grid_matrix.shape[0]):
         for c in range(0, grid_matrix.shape[1]):
-            grid_matrix[r][c] = len(set.intersection(set(Q[r+1]), set(P[c+1])))
+            grid_matrix[r][c] = len(set.intersection(set(Q[r + 1]), set(P[c + 1])))
     flipped = np.flipud(grid_matrix)
     return flipped
             

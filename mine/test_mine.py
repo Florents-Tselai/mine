@@ -50,8 +50,6 @@ def test_GetClumpsPartition():
     Q[(9, 2)] = 1
     Q[(9, 1)] = 1
     
-    D = sorted(D, key=lambda p: p[0])
-    Q = OrderedDict(sorted(Q.items(), key=lambda p: p[0][0]))
     P = GetClumpsPartition(D, Q)
     
     assert P[(1, 1)] == 1
@@ -71,7 +69,6 @@ def test_GetClumpsPartition():
     
     # Spinellis OpenMIC data
     D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
-    D = sorted(D, key=lambda p: p[0])
     Q = EquipartitionYAxis(D, y=3)
     P = GetClumpsPartition(D, Q)
     clumps_partition_groups = GroupPartitionsPoints(P)
@@ -87,7 +84,7 @@ def test_H():
     # OpenMIC test case
     assert H(P=[1. / 8, 1. / 4, 1. / 8, 1. / 2]) == 7. / 4
     
-    #Test case for joint partition
+    # Test case for joint partition
     """
       4  |   |     |x
       3  |   |  x  |
@@ -99,44 +96,44 @@ def test_H():
         0|1 2|3 4 5 6
          |   |     |
      """
-    #Constructing the grid above
-    P = {(0,0): 1,
-         (1,1): 2,
-         (2,1): 2,
-         (3,2): 3,
-         (4,3): 3,
-         (5,0): 3,
-         (6,4): 4
+    # Constructing the grid above
+    P = {(0, 0): 1,
+         (1, 1): 2,
+         (2, 1): 2,
+         (3, 2): 3,
+         (4, 3): 3,
+         (5, 0): 3,
+         (6, 4): 4
          }
     
-    Q = {(0,0): 1,
-         (1,1): 2,
-         (2,1): 2,
-         (3,2): 3,
-         (4,3): 3,
-         (5,0): 1,
-         (6,4): 3
+    Q = {(0, 0): 1,
+         (1, 1): 2,
+         (2, 1): 2,
+         (3, 2): 3,
+         (4, 3): 3,
+         (5, 0): 1,
+         (6, 4): 3
          }
     
-    #visualize_grid(P, Q)
+    # visualize_grid(P, Q)
     
-    #Joint entropy computation
-    assert (H(P,Q) == H([0 ,    0   ,    2./7,  1./7,
-                         0 ,    2./7 ,    0./7,   0   ,
-                        1./7,    0   ,    1./7,   0   ]))
+    # Joint entropy computation
+    assert (H(P, Q) == H([0 , 0   , 2. / 7, 1. / 7,
+                         0 , 2. / 7 , 0. / 7, 0   ,
+                        1. / 7, 0   , 1. / 7, 0   ]))
      
     
 def test_visualize_grid():
-    #Albanese dataset
-    #http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
+    # Albanese dataset
+    # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
     Q = EquipartitionYAxis(D, y=3)
     P = GetClumpsPartition(D, Q)
     
-    #visualize_grid(P, Q)
+    # visualize_grid(P, Q)
 
 def test_GetGridMatrix():
-    #Test case for joint partition
+    # Test case for joint partition
     """
       4  |   |     |x
       3  |   |  x  |
@@ -148,23 +145,23 @@ def test_GetGridMatrix():
         0|1 2|3 4 5 6
          |   |     |
      """
-    #Constructing the grid above
-    P = {(0,0): 1,
-         (1,1): 2,
-         (2,1): 2,
-         (3,2): 3,
-         (4,3): 3,
-         (5,0): 3,
-         (6,4): 4
+    # Constructing the grid above
+    P = {(0, 0): 1,
+         (1, 1): 2,
+         (2, 1): 2,
+         (3, 2): 3,
+         (4, 3): 3,
+         (5, 0): 3,
+         (6, 4): 4
          }
     
-    Q = {(0,0): 1,
-         (1,1): 2,
-         (2,1): 2,
-         (3,2): 3,
-         (4,3): 3,
-         (5,0): 1,
-         (6,4): 3
+    Q = {(0, 0): 1,
+         (1, 1): 2,
+         (2, 1): 2,
+         (3, 2): 3,
+         (4, 3): 3,
+         (5, 0): 1,
+         (6, 4): 3
          }
     
     grid_matrix = GetGridMatrix(P, Q)
@@ -175,7 +172,7 @@ def test_GetGridMatrix():
     assert grid_matrix[2][0] == 1
     assert grid_matrix[2][2] == 1
 
-#Run tests
+# Run tests
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
