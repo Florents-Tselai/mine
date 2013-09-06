@@ -174,26 +174,21 @@ def H(P=None, Q=None):
     assert P is not None or Q is not None
     
     if P is not None and Q is None:
-        return -sum(p * log(p, 2) for p in P)
+        return -sum(p * log(p, 2) for p in P if p>0)
     
     elif Q is not None and P is None:
-        return -sum(q * log(q, 2) for q in Q)
+        return -sum(q * log(q, 2) for q in Q if q>0)
     
     else:
         assert P is not None and Q is not None
         # Compute joint entropy
-        P = np.array(P)
-        Q = np.array(Q)
-        h = 0.0
-        for i in set(P):
-            for j in set(Q):
-                ppq = np.mean(np.logical_and(P == i, Q == j))
-                if ppq > 0:
-                    h += ppq * np.log2(ppq)
-                else:
-                    h += 0.0
-        return -h
-                    
+        n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
+        
+        grid_matrix = GetGridMatrix(P, Q)
+        probabilities = grid_matrix.flatten() / n_points
+        
+        return -sum((p*log(p,2) for p in probabilities if p>0))
+                   
 def I(P, Q):
     P = np.array(P)
     Q = np.array(Q)

@@ -120,9 +120,10 @@ def test_H():
     
     #visualize_grid(P, Q)
     
-    #assert (H(P,Q) == H([0,    0,    2./6,
-       #                  0,    2./6,    0./6,
-       #                  1./6,    0,    1./6,]))
+    #Joint entropy computation
+    assert (H(P,Q) == H([0 ,    0   ,    2./7,  1./7,
+                         0 ,    2./7 ,    0./7,   0   ,
+                        1./7,    0   ,    1./7,   0   ]))
      
     
 def test_visualize_grid():
