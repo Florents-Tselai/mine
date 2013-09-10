@@ -203,7 +203,31 @@ def GetPartitionOrdinals(D, P, axis='x'):
     return ordinals
     
 
-def Hp3(c_0, c_s, c_t):
+def GetPartitionFromOrdinals(D, ordinals, axis='x'):
+    P = {}
+    
+    if len(ordinals) == 3:
+        for i in range(0, ordinals[0]+1):
+            P[D[i]] = 1
+        for i in range(ordinals[0]+1, ordinals[1]+1):
+            P[D[i]] = 2
+        for i in range(ordinals[1]+1, ordinals[2]+1):
+            P[D[i]] = 3
+        for i in range(ordinals[2]+1, len(D)):
+            P[D[i]] = 4
+    if len(ordinals) == 2:
+        for i in range(0, ordinals[0]+1):
+            P[D[i]] = 1
+        for i in range(ordinals[0]+1, ordinals[1]+1):
+            P[D[i]] = 2
+        for i in range(ordinals[1]+1, len(D)):
+            P[D[i]] = 3
+    return P
+        
+    
+
+def Hp3(D, c_0, c_s, c_t):
+    
     pass
 
 def Hp3Q(c_0, c_s, c_t, Q):

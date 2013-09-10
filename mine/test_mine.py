@@ -199,14 +199,71 @@ def test_GetOrdinals():
          (6, 4): 4
          }
     
-    #The endpoints are (0,0), (2,1), (5,0)
+    #The endpoints are (0,0), (2,1), (5,0) and the corresponding ordinals are:
     expected_ordinals = [0, 2, 5]
     assert GetPartitionOrdinals(D, P) ==  expected_ordinals
+   
+def test_GetPartitionFromOrdinals():
+    #Points sorted by increasing x-value
+    D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
+    
+    #Given the following x-axis points ordinals
+    ordinals = [0, 2, 5]
+    #We should get the following x-axis partition
+    """
+      4  |   |     |x
+      3  |   |  x  |
+      2  |   |x    |
+         *----+---+-----+-
+      1  |x x|     |
+         *----+---+-----+-
+      0 x|   |    x|
+        0|1 2|3 4 5 6
+         |   |     |
+     """
+    #Which is described by this dictionary
+    P = {(0, 0): 1,
+         (1, 1): 2,
+         (2, 1): 2,
+         (3, 2): 3,
+         (4, 3): 3,
+         (5, 0): 3,
+         (6, 4): 4
+         }
+
+    assert GetPartitionFromOrdinals(D, ordinals) == P
+    
+    #Now test with two ordinals
+    
+    """
+      4      |     |x
+      3      |  x  |
+      2      |x    |
+         *----+---+-----+-
+      1  x x |     |
+         *----+---+-----+-
+      0 x    |    x|
+        0 1 2|3 4 5 6
+             |     |
+     """
+     
+    ordinals = [2, 5]
+    P = {(0, 0): 1,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 2,
+         (6, 4): 3
+         }
+    assert GetPartitionFromOrdinals(D, ordinals) == P
     
 
+#Run all tests
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
 test_visualize_grid()
 test_GetGridMatrix()
 test_GetOrdinals()
+test_GetPartitionFromOrdinals()
