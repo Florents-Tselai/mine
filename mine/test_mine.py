@@ -258,6 +258,12 @@ def test_GetPartitionFromOrdinals():
          }
     assert GetPartitionFromOrdinals(D, ordinals) == P
     
+def test_OptimizeXAxis():
+    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
+    Q = EquipartitionYAxis(D, y=3)
+    I = OptimizeXAxis(D, Q, x=2, k_hat=1)
+    print I
+    
 
 #Run all tests
 test_EquipartitionYAxis()
@@ -267,3 +273,4 @@ test_visualize_grid()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
+test_OptimizeXAxis()

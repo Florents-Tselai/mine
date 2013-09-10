@@ -5,6 +5,7 @@ import numpy as np
 from math import log
 from copy import copy
 from pprint import pprint
+import bisect
 
 """
 Each point is a tuple, thus:
@@ -171,31 +172,38 @@ def GetSuperclumpsPartition(D, Q, k_hat):
         return P_tilde    
 
 def OptimizeXAxis(D, Q, x, k_hat):
+    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
+
     c = GetPartitionOrdinals(GetSuperclumpsPartition(D, Q, k_hat), D, axis='x')
     
     #Find the optimal partitions of size 2
     k = len(c) - 1
-    P = np.array()
+    I = np.array(shape=(k, x))
     for t in range(2, k+1):
-        s = max(range(1,t+1), key=lambda s: Hp3(c[0], c[s], c[t]) - Hp3Q(c[0], c[s], c[t], Q))
-        P[t][2] = [c[0], c[s], c[t]]
-        I[t][2] = H(Q) + H[P[t][2]] - H[P[t][2], Q]
-        
+        s = max(range(1,t+1), 
+                key=lambda s: H(P=GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]])) - H(P=GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]]), Q=Q)
+                )
+        P_t_2 = GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]])
+        I[t][2] = H(Q=Q) + H(P=P_t_2) - H(P=P_t_2, Q=Q)
+    
+    #Inductively build the rest of the table of optimal partitions
     for l in range(3, x+1):
         for t in range(l, k+1):
-            def F(s):
-                return (c[s]/c[t]) * (I[s][l-1] - H(Q)) - ((c[t]-c[s]) / c[t]) * H([c[s], c[t]], Q)
-            s = max(range(l-1, t+1), key=F)
+            s = max(range(l-1, t+1), 
+                    key=lambda s: float((c[s]/c[t])) * (I[s][l-1] - H(Q)) - float(((c[t]-c[s]) / c[t])) * H([c[s], c[t]], Q)
+                    )
+            ordinals_s_l_1 = [s, l-1]
+            bisect.insort(ordinals_s_l_1, c[t])
+            P_t_l = GetPartitionFromOrdinals(D, ordinals_s_l_1)
+            I[t][l] = H(Q=Q) + H(P=P_t_l) - H(P=P_t_l, Q=Q)
+    
+    #for l in range(k+1, x+1): 
+    for l in range(k+1, x+1): I[k][l] = I[k,k]
+    return I
             
-            #P[t][l] = #BISECT HERE
-            #I[t][l] = H(Q) + H(P[t][l]) - H(P[t][l], Q)
-    
-    for l in range(k+1, x+1): P[k][l] = [k][k]
-    for l in range(k+1, x+1): I[k][l] = I[k][k]
-    
-    return [I[k][i] for i in range(2, x+1)]
         
 def GetPartitionOrdinals(D, P, axis='x'):
+    #TODO: Fix bug! We need a copy here
     P = GroupPartitionsPoints(P)
     ordinals = [D.index(get_rightest_point(P[k])) for k in sorted(P.keys())]
     #We don't need the last one
@@ -307,7 +315,7 @@ def GroupPartitionsPoints(P):
     2 -> [p2, p4]
     }
       
-    """   
+    """
     d = defaultdict(list)
     for k, v in P.iteritems(): 
         d[v].append(k)
