@@ -170,6 +170,42 @@ def GetSuperclumpsPartition(D, Q, k_hat):
     else:
         return P_tilde    
 
+def OptimizeXAxis(D, Q, x, k_hat):
+    c = GetPartitionOrdinals(GetSuperclumpsPartition(D, Q, k_hat), D, axis='x')
+    
+    #Find the optimal partitions of size 2
+    k = len(c) - 1
+    P = np.array()
+    for t in range(2, k+1):
+        s = max(range(1,t+1), key=lambda s: Hp3(c[0], c[s], c[t]) - Hp3Q(c[0], c[s], c[t], Q))
+        P[t][2] = [c[0], c[s], c[t]]
+        I[t][2] = H(Q) + H[P[t][2]] - H[P[t][2], Q]
+        
+    for l in range(3, x+1):
+        for t in range(l, k+1):
+            def F(s):
+                return (c[s]/c[t]) * (I[s][l-1] - H(Q)) - ((c[t]-c[s]) / c[t]) * H([c[s], c[t]], Q)
+            s = max(range(l-1, t+1), key=F)
+            
+            #P[t][l] = #BISECT HERE
+            #I[t][l] = H(Q) + H(P[t][l]) - H(P[t][l], Q)
+    
+    for l in range(k+1, x+1): P[k][l] = [k][k]
+    for l in range(k+1, x+1): I[k][l] = I[k][k]
+    
+    return [I[k][i] for i in range(2, x+1)]
+        
+
+def Hp3(c_0, c_s, c_t):
+    pass
+
+def Hp3Q(c_0, c_s, c_t, Q):
+    pass
+
+def GetPartitionOrdinals(P, D, axis = 'x'):
+    
+    pass
+
 def H(P=None, Q=None):
     assert P is not None or Q is not None
     
