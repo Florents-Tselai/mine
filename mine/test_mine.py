@@ -122,7 +122,6 @@ def test_H():
                          0 , 2. / 7 , 0. / 7, 0   ,
                         1. / 7, 0   , 1. / 7, 0   ]))
      
-    
 def test_visualize_grid():
     # Albanese dataset
     # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
@@ -173,8 +172,41 @@ def test_GetGridMatrix():
     assert grid_matrix[2][2] == 1
 
 # Run tests
+
+def test_GetOrdinals():
+    #Points sorted by increasing x-value
+    D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
+    
+    #Given the following x-axis partition
+    """
+      4  |   |     |x
+      3  |   |  x  |
+      2  |   |x    |
+         *----+---+-----+-
+      1  |x x|     |
+         *----+---+-----+-
+      0 x|   |    x|
+        0|1 2|3 4 5 6
+         |   |     |
+     """
+     
+    P = {(0, 0): 1,
+         (1, 1): 2,
+         (2, 1): 2,
+         (3, 2): 3,
+         (4, 3): 3,
+         (5, 0): 3,
+         (6, 4): 4
+         }
+    
+    #The endpoints are (0,0), (2,1), (5,0)
+    expected_ordinals = [0, 2, 5]
+    assert GetPartitionOrdinals(D, P) ==  expected_ordinals
+    
+
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
 test_visualize_grid()
 test_GetGridMatrix()
+test_GetOrdinals()

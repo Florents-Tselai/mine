@@ -195,6 +195,13 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     return [I[k][i] for i in range(2, x+1)]
         
+def GetPartitionOrdinals(D, P, axis='x'):
+    P = GroupPartitionsPoints(P)
+    ordinals = [D.index(get_rightest_point(P[k])) for k in sorted(P.keys())]
+    #We don't need the last one
+    del ordinals[len(ordinals)-1]
+    return ordinals
+    
 
 def Hp3(c_0, c_s, c_t):
     pass
@@ -202,9 +209,6 @@ def Hp3(c_0, c_s, c_t):
 def Hp3Q(c_0, c_s, c_t, Q):
     pass
 
-def GetPartitionOrdinals(P, D, axis = 'x'):
-    
-    pass
 
 def H(P=None, Q=None):
     assert P is not None or Q is not None
