@@ -102,22 +102,23 @@ def EquipartitionYAxis(D, y):
     
     Q = {}
     while(i < n):
-        S = [p for p in D if p[1] == D[i][1]]
+        s = len([p for p in D if p[1] == D[i][1]])
         
-        lhs = abs(float(sharp) + float(len(S)) - desiredRowSize)
+        lhs = abs(float(sharp) + float(s) - desiredRowSize)
         rhs = abs(float(sharp) - desiredRowSize)
         
         if ((sharp != 0) and (lhs >= rhs)):
-            currRow = currRow + 1
+            currRow += 1
             sharp = 0
             temp1 = float(n) - float(i)
             temp2 = float(y) - float(currRow)
             desiredRowSize = temp1 / temp2
         
-        for j in range(0, len(S)): Q[D[i + j]] = currRow + 1
+        for j in range(s): 
+            Q[D[i + j]] = currRow
         
-        i += len(S)
-        sharp += len(S)
+        i += s
+        sharp += s
     
     return Q
 

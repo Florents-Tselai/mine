@@ -2,32 +2,53 @@ from collections import OrderedDict
 from mine import *
 
 def test_EquipartitionYAxis():
-    # Albanese data
+    # Albanese et. al. data
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
+    
     Q = EquipartitionYAxis(D, y=3)
     
-    assert Q[(1, 1)] == 1
-    assert Q[(1, 2)] == 1
-    assert Q[(1, 3)] == 2
-    assert Q[(1, 4)] == 2
-    assert Q[(2, 3)] == 2
-    assert Q[(2, 4)] == 2
-    assert Q[(3, 5)] == 3
-    assert Q[(4, 6)] == 3
-    assert Q[(5, 6)] == 3
-    assert Q[(6, 6)] == 3
-    assert Q[(7, 5)] == 3
-    assert Q[(8, 3)] == 2
-    assert Q[(9, 2)] == 1
-    assert Q[(9, 1)] == 1
+    assert Q[(1, 1)] == 0
+    assert Q[(1, 2)] == 0
+    assert Q[(9, 2)] == 0
+    assert Q[(9, 1)] == 0
+    
+    assert Q[(1, 3)] == 1
+    assert Q[(1, 4)] == 1
+    assert Q[(2, 3)] == 1
+    assert Q[(2, 4)] == 1
+    assert Q[(8, 3)] == 1
+    
+    assert Q[(3, 5)] == 2
+    assert Q[(4, 6)] == 2
+    assert Q[(5, 6)] == 2
+    assert Q[(6, 6)] == 2
+    assert Q[(7, 5)] == 2
     
     # Spinellis OpenMIC data
     D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
+    
+    '''
+    -------------
+    3         x
+    2       x
+    -------------
+    1   x x
+    -------------
+    0 x         x
+    -------------
+      0 1 2 3 4 5
+     '''
     Q = EquipartitionYAxis(D, y=3)
-    partition_groups = GroupPartitionsPoints(Q)
-    assert (0, 0) and (5, 0) in partition_groups[1]
-    assert (1, 1) and (2, 1) in partition_groups[2]
-    assert (3, 2) and (4, 3) and (6, 4) in partition_groups[3]
+    
+    assert Q[(0,0)] == 0
+    assert Q[(5,0)] == 0
+    
+    assert Q[(1,1)] == 1
+    assert Q[(2,1)] == 1
+    
+    assert Q[(3,2)] == 2
+    assert Q[(4,3)] == 2
+    
     
 def test_GetClumpsPartition():
     
@@ -171,7 +192,6 @@ def test_GetGridMatrix():
     assert grid_matrix[2][0] == 1
     assert grid_matrix[2][2] == 1
 
-# Run tests
 
 def test_GetOrdinals():
     #Points sorted by increasing x-value
@@ -267,6 +287,7 @@ def test_OptimizeXAxis():
 
 #Run all tests
 test_EquipartitionYAxis()
+'''
 test_GetClumpsPartition()
 test_H()
 test_visualize_grid()
@@ -274,3 +295,4 @@ test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
 test_OptimizeXAxis()
+'''
