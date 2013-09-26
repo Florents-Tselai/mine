@@ -107,7 +107,7 @@ def EquipartitionYAxis(D, y):
         lhs = abs(float(sharp) + float(s) - desiredRowSize)
         rhs = abs(float(sharp) - desiredRowSize)
         
-        if ((sharp != 0) and (lhs >= rhs)):
+        if (sharp != 0 and lhs >= rhs):
             currRow += 1
             sharp = 0
             temp1 = float(n) - float(i)
@@ -263,7 +263,7 @@ def entropy(probs):
     return -sum(p * log(p, 2) for p in probs if p > 0)
                  
 def I(P, Q):
-    return H(P=P) + H(Q=Q) + H(P=P, Q=Q)
+    return H(P) + H(Q) + H(P,Q)
 
 def GetPartitionEndpointIndices(partition, D, axis='x', step=0.3):
     assert axis == 'x' or axis == 'y'
