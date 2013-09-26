@@ -108,30 +108,31 @@ def test_H():
          |   |     |
      """
     # Constructing the grid above
-    P = {(0, 0): 1,
-         (1, 1): 2,
-         (2, 1): 2,
-         (3, 2): 3,
-         (4, 3): 3,
-         (5, 0): 3,
-         (6, 4): 4
+    P = {(0, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 2,
+         (6, 4): 3
          }
     
-    Q = {(0, 0): 1,
-         (1, 1): 2,
-         (2, 1): 2,
-         (3, 2): 3,
-         (4, 3): 3,
-         (5, 0): 1,
-         (6, 4): 3
+    Q = {(0, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 0,
+         (6, 4): 2
          }
     
     # visualize_grid(P, Q)
     
     # Joint entropy computation
-    assert (H(P, Q) == H([0 , 0   , 2. / 7, 1. / 7,
-                         0 , 2. / 7 , 0. / 7, 0   ,
-                        1. / 7, 0   , 1. / 7, 0   ]))
+    assert (H(P, Q) == H(
+                         [0  , 0    , 2. / 7 , 1. / 7,
+                          0  , 2./7 , 0. / 7 , 0   ,
+                        1./7 , 0    , 1. / 7 , 0   ]))
      
 def test_visualize_grid():
     # Albanese dataset
@@ -156,22 +157,22 @@ def test_GetGridMatrix():
          |   |     |
      """
     # Constructing the grid above
-    P = {(0, 0): 1,
-         (1, 1): 2,
-         (2, 1): 2,
-         (3, 2): 3,
-         (4, 3): 3,
-         (5, 0): 3,
-         (6, 4): 4
+    P = {(0, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 2,
+         (6, 4): 3
          }
     
-    Q = {(0, 0): 1,
-         (1, 1): 2,
-         (2, 1): 2,
-         (3, 2): 3,
-         (4, 3): 3,
-         (5, 0): 1,
-         (6, 4): 3
+    Q = {(0, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 0,
+         (6, 4): 2
          }
     
     grid_matrix = GetGridMatrix(P, Q)
@@ -200,13 +201,13 @@ def test_GetOrdinals():
          |   |     |
      """
      
-    P = {(0, 0): 1,
-         (1, 1): 2,
-         (2, 1): 2,
-         (3, 2): 3,
-         (4, 3): 3,
-         (5, 0): 3,
-         (6, 4): 4
+    P = {(0, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 2,
+         (6, 4): 3
          }
     
     #The endpoints are (0,0), (2,1), (5,0) and the corresponding ordinals are:
@@ -232,13 +233,13 @@ def test_GetPartitionFromOrdinals():
          |   |     |
      """
     #Which is described by this dictionary
-    P = {(0, 0): 1,
-         (1, 1): 2,
-         (2, 1): 2,
-         (3, 2): 3,
-         (4, 3): 3,
-         (5, 0): 3,
-         (6, 4): 4
+    P = {(0, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (5, 0): 2,
+         (6, 4): 3
          }
 
     assert GetPartitionFromOrdinals(D, ordinals) == P
@@ -258,13 +259,13 @@ def test_GetPartitionFromOrdinals():
      """
      
     ordinals = [2, 5]
-    P = {(0, 0): 1,
-         (1, 1): 1,
-         (2, 1): 1,
-         (3, 2): 2,
-         (4, 3): 2,
-         (5, 0): 2,
-         (6, 4): 3
+    P = {(0, 0): 0,
+         (1, 1): 0,
+         (2, 1): 0,
+         (3, 2): 1,
+         (4, 3): 1,
+         (5, 0): 1,
+         (6, 4): 2
          }
     assert GetPartitionFromOrdinals(D, ordinals) == P
     
@@ -278,11 +279,9 @@ def test_OptimizeXAxis():
 #Run all tests
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
-'''
 test_H()
 test_visualize_grid()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
-test_OptimizeXAxis()
-'''
+#test_OptimizeXAxis()

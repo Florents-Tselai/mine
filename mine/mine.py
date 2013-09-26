@@ -216,21 +216,21 @@ def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     P = {}
     
     if len(ordinals) == 3:
-        for i in range(0, ordinals[0]+1):
-            P[D[i]] = 1
+        for i in range(ordinals[0]+1):
+            P[D[i]] = 0
         for i in range(ordinals[0]+1, ordinals[1]+1):
-            P[D[i]] = 2
+            P[D[i]] = 1
         for i in range(ordinals[1]+1, ordinals[2]+1):
-            P[D[i]] = 3
+            P[D[i]] = 2
         for i in range(ordinals[2]+1, len(D)):
-            P[D[i]] = 4
+            P[D[i]] = 3
     if len(ordinals) == 2:
         for i in range(0, ordinals[0]+1):
-            P[D[i]] = 1
+            P[D[i]] = 0
         for i in range(ordinals[0]+1, ordinals[1]+1):
-            P[D[i]] = 2
+            P[D[i]] = 1
         for i in range(ordinals[1]+1, len(D)):
-            P[D[i]] = 3
+            P[D[i]] = 2
     return P
         
     
@@ -338,9 +338,10 @@ def GetGridMatrix(P, Q):
     Q = GroupPartitionsPoints(Q)
    
     grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
-    for r in range(0, grid_matrix.shape[0]):
-        for c in range(0, grid_matrix.shape[1]):
-            grid_matrix[r][c] = len(set.intersection(set(Q[r + 1]), set(P[c + 1])))
+    num_rows, num_columns = grid_matrix.shape[0], grid_matrix.shape[1]
+    for r in range(num_rows):
+        for c in range(num_columns):
+            grid_matrix[r][c] = len(set(Q[r]) & set(P[c]))
     flipped = np.flipud(grid_matrix)
     return flipped
             
