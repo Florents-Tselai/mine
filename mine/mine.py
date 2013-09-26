@@ -38,8 +38,8 @@ def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
     
     x_ticks = [get_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
     y_ticks = [get_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
-    if x_ticks: del[x_ticks[len(x_ticks) - 1]]
-    if y_ticks: del[y_ticks[len(y_ticks) - 1]]
+    if x_ticks: del x_ticks[-1]
+    if y_ticks: del y_ticks[-1]
     
     
     ax.get_xaxis().set_ticks(x_ticks)
@@ -199,7 +199,8 @@ def OptimizeXAxis(D, Q, x, k_hat):
             I[t][l] = H(Q=Q) + H(P=P_t_l) - H(P=P_t_l, Q=Q)
     
     #for l in range(k+1, x+1): 
-    for l in range(k+1, x+1): I[k][l] = I[k,k]
+    for l in range(k+1, x+1):
+        I[k][l] = I[k,k]
     return I
             
         
@@ -208,7 +209,7 @@ def GetPartitionOrdinals(D, P, axis='x'):
     P = GroupPartitionsPoints(P)
     ordinals = [D.index(get_rightest_point(P[k])) for k in sorted(P.keys())]
     #We don't need the last one
-    del ordinals[len(ordinals)-1]
+    del ordinals[-1]
     return ordinals
     
 
@@ -243,24 +244,13 @@ def Hp3Q(c_0, c_s, c_t, Q):
     pass
 
 
-def H(P=None, Q=None):
-    assert P is not None or Q is not None
-    
-    # TODO: Refactor code duplication
-    if P is not None and Q is None:
-        if isinstance(P, Mapping):
-            return entropy(GetProbabilityDistribution(P))
-        else:
-            return entropy(P)
-            
-    elif Q is not None and P is None:
-        if isinstance(Q, Mapping):
-            return entropy(GetProbabilityDistribution(P))
-        else:
-            return entropy(Q)
+def H(P, *Q):
+
+    if not Q:
+        return entropy(GetProbabilityDistribution(P)) if isinstance(P, Mapping) else entropy(P)
     
     else:
-        assert P is not None and Q is not None
+        Q = Q[0]
         # Compute joint entropy
         n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
         

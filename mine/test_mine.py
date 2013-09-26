@@ -141,7 +141,7 @@ def test_visualize_grid():
     Q = EquipartitionYAxis(D, y=3)
     P = GetClumpsPartition(D, Q)
     
-    # visualize_grid(P, Q)
+    #visualize_grid(P, Q)
 
 def test_GetGridMatrix():
     # Test case for joint partition
