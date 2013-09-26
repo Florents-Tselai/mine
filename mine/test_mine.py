@@ -1,5 +1,7 @@
 from collections import OrderedDict
+
 from mine import *
+
 
 def test_EquipartitionYAxis():
     # Albanese et. al. data
@@ -209,9 +211,9 @@ def test_GetOrdinals():
          (5, 0): 2,
          (6, 4): 3
          }
-    
-    #The endpoints are (0,0), (2,1), (5,0) and the corresponding ordinals are:
-    expected_ordinals = [0, 2, 5]
+    partition_size = len(set(P.values()))
+    expected_ordinals = [0, 2, 5, 6]
+    assert len(GetPartitionOrdinals(D, P)) == partition_size
     assert GetPartitionOrdinals(D, P) ==  expected_ordinals
    
 def test_GetPartitionFromOrdinals():

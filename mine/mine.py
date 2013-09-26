@@ -1,17 +1,19 @@
-from collections import defaultdict, Mapping
-import matplotlib.pyplot as plt
-from itertools import chain
-import numpy as np
-from math import log
-from copy import copy
-from pprint import pprint
-import bisect
-
 """
 Each point is a tuple, thus:
 P = (x, y) ==> 
 P[0] = x and P[1] = y
 """
+
+import bisect
+from collections import defaultdict, Mapping
+from copy import copy
+from itertools import chain
+from math import log
+from pprint import pprint
+
+import matplotlib.pyplot as plt
+import numpy as np
+
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
@@ -102,7 +104,9 @@ def EquipartitionYAxis(D, y):
     
     Q = {}
     while(i < n):
-        s = len([p for p in D if p[1] == D[i][1]])
+        #s = len([p for p in D if p[1] == D[i][1]])
+        #Performance improvement
+        s = sum(1 for p in D if p[1] == D[i][1])
         
         lhs = abs(float(sharp) + float(s) - desiredRowSize)
         rhs = abs(float(sharp) - desiredRowSize)
@@ -205,16 +209,22 @@ def OptimizeXAxis(D, Q, x, k_hat):
             
         
 def GetPartitionOrdinals(D, P, axis='x'):
-    #TODO: Fix bug! We need a copy here
     P = GroupPartitionsPoints(P)
-    ordinals = [D.index(get_rightest_point(P[k])) for k in sorted(P.keys())]
-    #We don't need the last one
-    del ordinals[-1]
-    return ordinals
+    if axis == 'x':
+        return [D.index(get_rightest_point(P[k])) for k in sorted(P.keys())]
+    elif axis == 'y':
+        return [D.index(get_uppest_point(P[k])) for k in sorted(P.keys())]
     
 
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     P = {}
+    
+    for i, c in enumerate(ordinals):
+        pass    
+    
+    
+    
+    
     
     if len(ordinals) == 3:
         for i in range(ordinals[0]+1):
