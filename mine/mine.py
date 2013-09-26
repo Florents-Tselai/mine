@@ -144,18 +144,18 @@ def GetClumpsPartition(D, Q):
                 break
             
         if s > 1 and flag:
-            for j in range(0, s):
+            for j in range(s):
                 Q_tilde[D[i + j]] = c
             c -= 1
-        i = i + s
+        i += s
     
     i = 0
     P = {}
-    P[D[0]] = 0 + 1
+    P[D[0]] = 0
     for j in range(1, n):
         if Q_tilde[D[j]] != Q_tilde[D[j - 1]]:
-            i = i + 1
-        P[D[j]] = i + 1
+            i += 1
+        P[D[j]] = i
     
     return P
 

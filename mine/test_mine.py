@@ -55,49 +55,39 @@ def test_GetClumpsPartition():
     # Albanese et.al. data
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
 
-    Q = {}
-    Q[(1, 1)] = 1
-    Q[(1, 2)] = 1
-    Q[(1, 3)] = 2
-    Q[(1, 4)] = 2
-    Q[(2, 3)] = 2
-    Q[(2, 4)] = 2
-    Q[(3, 5)] = 3
-    Q[(4, 6)] = 3
-    Q[(5, 6)] = 3
-    Q[(6, 6)] = 3
-    Q[(7, 5)] = 3
-    Q[(8, 3)] = 2
-    Q[(9, 2)] = 1
-    Q[(9, 1)] = 1
+    Q = EquipartitionYAxis(D, 3)
     
     P = GetClumpsPartition(D, Q)
     
-    assert P[(1, 1)] == 1
-    assert P[(1, 2)] == 1
-    assert P[(1, 3)] == 1
-    assert P[(1, 4)] == 1
-    assert P[(2, 3)] == 2
-    assert P[(2, 4)] == 2
-    assert P[(3, 5)] == 3
-    assert P[(4, 6)] == 3
-    assert P[(5, 6)] == 3
-    assert P[(6, 6)] == 3
-    assert P[(7, 5)] == 3
-    assert P[(8, 3)] == 4
-    assert P[(9, 2)] == 5
-    assert P[(9, 1)] == 5
+    assert P[(1, 1)] == 0
+    assert P[(1, 2)] == 0
+    assert P[(1, 3)] == 0
+    assert P[(1, 4)] == 0
+    
+    assert P[(2, 3)] == 1
+    assert P[(2, 4)] == 1
+    
+    assert P[(3, 5)] == 2
+    assert P[(4, 6)] == 2
+    assert P[(5, 6)] == 2
+    assert P[(6, 6)] == 2
+    assert P[(7, 5)] == 2
+    
+    assert P[(8, 3)] == 3
+    
+    assert P[(9, 2)] == 4
+    assert P[(9, 1)] == 4
     
     # Spinellis OpenMIC data
     D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
     Q = EquipartitionYAxis(D, y=3)
     P = GetClumpsPartition(D, Q)
     clumps_partition_groups = GroupPartitionsPoints(P)
-    assert (0, 0) in clumps_partition_groups[1]
-    assert (1, 1) and (2, 1) in clumps_partition_groups[2]
-    assert (3, 2) and (4, 3) in clumps_partition_groups[3]
-    assert (5, 0) in clumps_partition_groups[4]
-    assert (6, 4) in clumps_partition_groups[5]
+    assert (0, 0) in clumps_partition_groups[0]
+    assert (1, 1) and (2, 1) in clumps_partition_groups[1]
+    assert (3, 2) and (4, 3) in clumps_partition_groups[2]
+    assert (5, 0) in clumps_partition_groups[3]
+    assert (6, 4) in clumps_partition_groups[4]
 
 def test_H():
     assert H(P=[0.25, 0.25, 0.25, 0.25]) == 2
@@ -287,8 +277,8 @@ def test_OptimizeXAxis():
 
 #Run all tests
 test_EquipartitionYAxis()
-'''
 test_GetClumpsPartition()
+'''
 test_H()
 test_visualize_grid()
 test_GetGridMatrix()
