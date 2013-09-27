@@ -7,7 +7,7 @@ P[0] = x and P[1] = y
 import bisect
 from collections import defaultdict, Mapping
 from copy import copy
-from itertools import chain
+from itertools import chain, imap
 from math import log
 from pprint import pprint
 
@@ -105,7 +105,8 @@ def EquipartitionYAxis(D, y):
     Q = {}
     while(i < n):
         #s = len([p for p in D if p[1] == D[i][1]])
-        #Performance improvement
+        #s = sum(imap(lambda p: p[1] == D[i][1], D))
+        
         s = sum(1 for p in D if p[1] == D[i][1])
         
         lhs = abs(float(sharp) + float(s) - desiredRowSize)
@@ -182,38 +183,41 @@ def OptimizeXAxis(D, Q, x, k_hat):
     c = GetPartitionOrdinals(GetSuperclumpsPartition(D, Q, k_hat), D, axis='x')
     
     #Find the optimal partitions of size 2
-    k = len(c) - 1
-    I = np.array(shape=(k, x))
+    k = len(c)
+    I = np.array(shape=(k+1, x+1))
     for t in range(2, k+1):
         s = max(range(1,t+1), 
-                key=lambda s: H(P=GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]])) - H(P=GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]]), Q=Q)
+                key=lambda s: H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]]), axis='x') - H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q)
                 )
-        P_t_2 = GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]])
-        I[t][2] = H(Q=Q) + H(P=P_t_2) - H(P=P_t_2, Q=Q)
+        P_t_2 = GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')
+        I[t][2] = H(Q) + H(P_t_2) - H(P_t_2, Q)
     
     #Inductively build the rest of the table of optimal partitions
     for l in range(3, x+1):
         for t in range(l, k+1):
             s = max(range(l-1, t+1), 
-                    key=lambda s: float((c[s]/c[t])) * (I[s][l-1] - H(Q)) - float(((c[t]-c[s]) / c[t])) * H([c[s], c[t]], Q)
+                    key=lambda s: float((c[s]/c[t])) * (I[s][l-1] - H(Q)) - float(((c[t]-c[s]) / c[t])) * H(GetPartitionFromOrdinals(D, [c[s],c[t]], axis='x'), Q)
                     )
-            ordinals_s_l_1 = [s, l-1]
-            bisect.insort(ordinals_s_l_1, c[t])
-            P_t_l = GetPartitionFromOrdinals(D, ordinals_s_l_1)
-            I[t][l] = H(Q=Q) + H(P=P_t_l) - H(P=P_t_l, Q=Q)
+            
+            ordinals_t_l_1 = [s, l-1]
+            bisect.insort(ordinals_t_l_1, c[t])
+            P_t_l = GetPartitionFromOrdinals(D, ordinals_t_l_1, axis='x')
+            I[t][l] = H(Q) + H(P_t_l) - H(P_t_l, Q)
     
     #for l in range(k+1, x+1): 
     for l in range(k+1, x+1):
         I[k][l] = I[k,k]
-    return I
+    for l in range(k+1, x+1):
+        I[k][l] = I[k][k]
+    return [I[k][i] for i in range(2, x+1)]
             
         
 def GetPartitionOrdinals(D, P, axis='x'):
-    P = GroupPartitionsPoints(P)
+    P_tilde = GroupPartitionsPoints(P)
     if axis == 'x':
-        return [D.index(get_rightest_point(P[k])) for k in sorted(P.keys())]
+        return [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
-        return [D.index(get_uppest_point(P[k])) for k in sorted(P.keys())]
+        return [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     
 
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
