@@ -215,20 +215,13 @@ def OptimizeXAxis(D, Q, x, k_hat):
 def GetPartitionOrdinals(D, P, axis='x'):
     P_tilde = GroupPartitionsPoints(P)
     if axis == 'x':
-        return [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+        return [0] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
         return [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     
 
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     P = {}
-    
-    for i, c in enumerate(ordinals):
-        pass    
-    
-    
-    
-    
     
     if len(ordinals) == 3:
         for i in range(ordinals[0]+1):

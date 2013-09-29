@@ -203,18 +203,50 @@ def test_GetOrdinals():
          |   |     |
      """
      
-    P = {(0, 0): 0,
-         (1, 1): 1,
-         (2, 1): 1,
-         (3, 2): 2,
-         (4, 3): 2,
-         (5, 0): 2,
-         (6, 4): 3
+    P1 = {
+          (0, 0): 0,
+          (1, 1): 1,
+          (2, 1): 1,
+          (3, 2): 2,
+          (4, 3): 2,
+          (5, 0): 2,
+          (6, 4): 3
          }
-    partition_size = len(set(P.values()))
-    expected_ordinals = [0, 2, 5, 6]
-    assert len(GetPartitionOrdinals(D, P)) == partition_size
-    assert GetPartitionOrdinals(D, P) ==  expected_ordinals
+    
+    partition_size = len(set(P1.values()))
+    assert partition_size == 4
+    
+    expected_ordinals = [0, 0, 2, 5, 6]
+    assert len(GetPartitionOrdinals(D, P1)) == partition_size + 1
+    assert GetPartitionOrdinals(D, P1) ==  expected_ordinals
+    
+    #Another test
+    """
+      4            |x
+      3         x  |
+      2       x    |
+         *----+---+-----+-
+      1   x x      |
+         *----+---+-----+-
+      0 x         x|
+        0 1 2 3 4 5 6
+                   |
+     """
+    P2 = {
+          (0, 0): 0,
+          (1, 1): 0,
+          (2, 1): 0,
+          (3, 2): 0,
+          (4, 3): 0,
+          (5, 0): 0,
+          (6, 4): 1
+         }
+    partition_size = len(set(P2.values()))
+    assert partition_size == 2
+    
+    expected_ordinals = [0, 5, 6]
+    assert len(GetPartitionOrdinals(D, P2)) == partition_size + 1
+    assert GetPartitionOrdinals(D, P2) ==  expected_ordinals
    
 def test_GetPartitionFromOrdinals():
     #Points sorted by increasing x-value
