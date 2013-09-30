@@ -179,11 +179,15 @@ def GetSuperclumpsPartition(D, Q, k_hat):
 
 def OptimizeXAxis(D, Q, x, k_hat):
     if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
-
-    c = GetPartitionOrdinals(GetSuperclumpsPartition(D, Q, k_hat), D, axis='x')
     
-    #Find the optimal partitions of size 2
-    k = len(c)
+    super_clumps_partition = GetSuperclumpsPartition(D, Q, k_hat)
+    c = GetPartitionOrdinals(D, super_clumps_partition, axis='x')
+    #visualize_grid(super_clumps_partition)
+    
+    k = len(set(super_clumps_partition.values()))
+    assert k == len(c) - 1
+    
+    #Find the optimal partitions of size 2 
     I = np.array(shape=(k+1, x+1))
     for t in range(2, k+1):
         s = max(range(1,t+1), 
@@ -317,7 +321,7 @@ def GroupPartitionsPoints(P):
     d = defaultdict(list)
     for k, v in P.iteritems(): 
         d[v].append(k)
-    return d
+    return dict(d)
 
 def GetProbabilityDistribution(P):
     """
