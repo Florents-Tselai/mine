@@ -186,14 +186,18 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     k = len(set(super_clumps_partition.values()))
     assert k == len(c) - 1
-    
+
     #Find the optimal partitions of size 2 
-    I = np.array(shape=(k+1, x+1))
-    for t in range(2, k+1):
-        s = max(range(1,t+1), 
-                key=lambda s: H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]]), axis='x') - H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q)
-                )
+    I = np.zeros(shape=(k+1, x+1))
+    for t in range(1, len(c)):
+        print t
+        s = max(range(0,t), 
+                key=lambda s: 
+                            H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')) - 
+                            H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q))
+        print [c[0], c[s], c[t]]
         P_t_2 = GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')
+        print P_t_2
         I[t][2] = H(Q) + H(P_t_2) - H(P_t_2, Q)
     
     #Inductively build the rest of the table of optimal partitions
@@ -202,7 +206,6 @@ def OptimizeXAxis(D, Q, x, k_hat):
             s = max(range(l-1, t+1), 
                     key=lambda s: float((c[s]/c[t])) * (I[s][l-1] - H(Q)) - float(((c[t]-c[s]) / c[t])) * H(GetPartitionFromOrdinals(D, [c[s],c[t]], axis='x'), Q)
                     )
-            
             ordinals_t_l_1 = [s, l-1]
             bisect.insort(ordinals_t_l_1, c[t])
             P_t_l = GetPartitionFromOrdinals(D, ordinals_t_l_1, axis='x')
