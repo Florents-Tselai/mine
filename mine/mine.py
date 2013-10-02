@@ -51,8 +51,8 @@ def EquipartitionYAxis(D, y):
         rhs = abs(float(sharp) - desiredRowSize)
         
         if (sharp != 0 and lhs >= rhs):
-            currRow += 1
             sharp = 0
+            currRow += 1
             temp1 = float(n) - float(i)
             temp2 = float(y) - float(currRow)
             desiredRowSize = temp1 / temp2
@@ -218,11 +218,11 @@ def H(P, *Q):
         assert len(Q) == 1
         
         Q = Q[0]
+        
         # Compute joint entropy
         n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
         
-        grid_matrix = GetGridMatrix(P, Q)
-        probabilities = grid_matrix.flatten() / n_points
+        probabilities = GetGridMatrix(P, Q).flatten() / n_points
         
         return entropy(probabilities)
 
@@ -246,10 +246,10 @@ Utils
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
 def get_rightest_point(points):
-    return max(points, key=lambda p: p[0])
+    return max(points, key=p_x)
 
 def get_uppest_point(points):
-    return max(points, key=lambda p: p[1])
+    return max(points, key=p_y)
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
