@@ -26,50 +26,9 @@ from math import log
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-p_x, p_y = lambda p: p[0], lambda p: p[1]
-
-def get_rightest_point(points):
-    return max(points, key=lambda p: p[0])
-
-def get_uppest_point(points):
-    return max(points, key=lambda p: p[1])
-
-def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
-    points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
-    
-    x_axis_parition = GroupPartitionsPoints(x_axis_parition)
-    y_axis_partition = GroupPartitionsPoints(y_axis_partition)
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    
-    ax.scatter([p[0] for p in points], [p[1] for p in points])
-    
-    x_ticks = [get_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
-    y_ticks = [get_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
-    if x_ticks: del x_ticks[-1]
-    if y_ticks: del y_ticks[-1]
-    
-    
-    ax.get_xaxis().set_ticks(x_ticks)
-    ax.get_yaxis().set_ticks(y_ticks)
-    ax.grid(True)
-    plt.show()
-
-def is_sorted_increasing_by(D, increasing_by='x'):
-    assert increasing_by == 'x' or increasing_by == 'y'
-    
-    if increasing_by == 'x':
-        return all(D[i][0] <= D[i + 1][0] for i in xrange(len(D) - 1))
-    else:
-        return all(D[i][1] <= D[i + 1][1] for i in xrange(len(D) - 1))
-
-def sort_D_increasing_by(D, increasing_by='x'):
-    assert increasing_by == 'x' or increasing_by == 'y'
-    
-    return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
-           
+'''
+Algorithms
+'''          
 def EquipartitionYAxis(D, y):
     if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
     
@@ -204,12 +163,6 @@ def GetPartitionOrdinals(D, P, axis='x'):
     elif axis == 'y':
         return [-1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
   
-def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
-    a, b = tee(iterable)
-    next(b, None)
-    return izip(a, b)
-
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
     P = {}
@@ -224,29 +177,6 @@ def GetPartitionFromOrdinals(D, ordinals, axis='x'):
         current_partition += 1
     
     return P
-
-def H(P, *Q):
-
-    if not Q:
-        return entropy(GetProbabilityDistribution(P)) if isinstance(P, Mapping) else entropy(P)   
-    else:
-        # Not implemented for len(Q) > 1
-        assert len(Q) == 1
-        
-        Q = Q[0]
-        # Compute joint entropy
-        n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
-        
-        grid_matrix = GetGridMatrix(P, Q)
-        probabilities = grid_matrix.flatten() / n_points
-        
-        return entropy(probabilities)
-
-def entropy(probs): 
-    return -sum(p * log(p, 2) for p in probs if p > 0)
-                 
-def I(P, Q):
-    return H(P) + H(Q) + H(P, Q)
 
 def GroupPartitionsPoints(P):
     """
@@ -276,6 +206,32 @@ def GroupPartitionsPoints(P):
         d[v].append(k)
     return dict(d)
 
+'''
+Computations
+'''
+def H(P, *Q):
+
+    if not Q:
+        return entropy(GetProbabilityDistribution(P)) if isinstance(P, Mapping) else entropy(P)   
+    else:
+        # Not implemented for len(Q) > 1
+        assert len(Q) == 1
+        
+        Q = Q[0]
+        # Compute joint entropy
+        n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
+        
+        grid_matrix = GetGridMatrix(P, Q)
+        probabilities = grid_matrix.flatten() / n_points
+        
+        return entropy(probabilities)
+
+def entropy(probs): 
+    return -sum(p * log(p, 2) for p in probs if p > 0)
+                 
+def I(P, Q):
+    return H(P) + H(Q) + H(P, Q)
+
 def GetProbabilityDistribution(P):
     """
     n: number of total points
@@ -283,6 +239,37 @@ def GetProbabilityDistribution(P):
     n = len(set(P.keys()))
     d = GroupPartitionsPoints(P)    
     return [float(len(d[k])) / float(n) for k in sorted(d.keys())]
+
+'''
+Utils
+'''
+p_x, p_y = lambda p: p[0], lambda p: p[1]
+
+def get_rightest_point(points):
+    return max(points, key=lambda p: p[0])
+
+def get_uppest_point(points):
+    return max(points, key=lambda p: p[1])
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
+
+def is_sorted_increasing_by(D, increasing_by='x'):
+    assert increasing_by == 'x' or increasing_by == 'y'
+    
+    if increasing_by == 'x':
+        return all(D[i][0] <= D[i + 1][0] for i in xrange(len(D) - 1))
+    else:
+        return all(D[i][1] <= D[i + 1][1] for i in xrange(len(D) - 1))
+
+def sort_D_increasing_by(D, increasing_by='x'):
+    assert increasing_by == 'x' or increasing_by == 'y'
+    
+    return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
+
 
 def GetGridMatrix(P, Q):
     """
@@ -298,4 +285,31 @@ def GetGridMatrix(P, Q):
             grid_matrix[r][c] = len(set(Q[r]) & set(P[c]))
     flipped = np.flipud(grid_matrix)
     return flipped
-            
+
+
+p_x, p_y = lambda p: p[0], lambda p: p[1]
+
+'''
+I/O
+'''
+def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
+    points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
+    
+    x_axis_parition = GroupPartitionsPoints(x_axis_parition)
+    y_axis_partition = GroupPartitionsPoints(y_axis_partition)
+    
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    
+    ax.scatter([p[0] for p in points], [p[1] for p in points])
+    
+    x_ticks = [get_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
+    y_ticks = [get_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
+    if x_ticks: del x_ticks[-1]
+    if y_ticks: del y_ticks[-1]
+    
+    
+    ax.get_xaxis().set_ticks(x_ticks)
+    ax.get_yaxis().set_ticks(y_ticks)
+    ax.grid(True)
+    plt.show()
