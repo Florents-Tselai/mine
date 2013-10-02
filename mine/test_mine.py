@@ -65,7 +65,6 @@ def test_EquipartitionYAxis():
     assert Q[(3,2)] == 2
     assert Q[(4,3)] == 2
     
-    
 def test_GetClumpsPartition():
     
     # Albanese et.al. data
@@ -199,7 +198,6 @@ def test_GetGridMatrix():
     assert grid_matrix[2][0] == 1
     assert grid_matrix[2][2] == 1
 
-
 def test_GetOrdinals():
     #Points sorted by increasing x-value
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
@@ -230,7 +228,7 @@ def test_GetOrdinals():
     partition_size = len(set(P1.values()))
     assert partition_size == 4
     
-    expected_ordinals = [0, 0, 2, 5, 6]
+    expected_ordinals = [-1, 0, 2, 5, 6]
     assert len(GetPartitionOrdinals(D, P1)) == partition_size + 1
     assert GetPartitionOrdinals(D, P1) ==  expected_ordinals
     
@@ -258,7 +256,7 @@ def test_GetOrdinals():
     partition_size = len(set(P2.values()))
     assert partition_size == 2
     
-    expected_ordinals = [0, 5, 6]
+    expected_ordinals = [-1, 5, 6]
     assert len(GetPartitionOrdinals(D, P2)) == partition_size + 1
     assert GetPartitionOrdinals(D, P2) ==  expected_ordinals
    
@@ -267,7 +265,7 @@ def test_GetPartitionFromOrdinals():
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
     
     #Given the following x-axis points ordinals
-    ordinals = [0, 2, 5]
+    ordinals = [-1, 0, 2, 5, 6]
     #We should get the following x-axis partition
     """
       4  |   |     |x
@@ -289,7 +287,6 @@ def test_GetPartitionFromOrdinals():
          (5, 0): 2,
          (6, 4): 3
          }
-
     assert GetPartitionFromOrdinals(D, ordinals) == P
     
     #Now test with two ordinals
@@ -306,7 +303,7 @@ def test_GetPartitionFromOrdinals():
              |     |
      """
      
-    ordinals = [2, 5]
+    ordinals = [-1, 2, 5, 6]
     P = {(0, 0): 0,
          (1, 1): 0,
          (2, 1): 0,
@@ -331,4 +328,4 @@ test_visualize_grid()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
-test_OptimizeXAxis()
+#test_OptimizeXAxis()

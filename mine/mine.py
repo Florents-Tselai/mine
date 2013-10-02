@@ -236,41 +236,33 @@ def OptimizeXAxis(D, Q, x, k_hat):
 def GetPartitionOrdinals(D, P, axis='x'):
     P_tilde = GroupPartitionsPoints(P)
     if axis == 'x':
-        return [0] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+        return [-1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
         return [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
-    
+  
+  
+from itertools import tee, izip
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
+
 
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
+    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
     P = {}
     
-    if len(ordinals) == 3:
-        for i in range(ordinals[0]+1):
-            P[D[i]] = 0
-        for i in range(ordinals[0]+1, ordinals[1]+1):
-            P[D[i]] = 1
-        for i in range(ordinals[1]+1, ordinals[2]+1):
-            P[D[i]] = 2
-        for i in range(ordinals[2]+1, len(D)):
-            P[D[i]] = 3
-    if len(ordinals) == 2:
-        for i in range(0, ordinals[0]+1):
-            P[D[i]] = 0
-        for i in range(ordinals[0]+1, ordinals[1]+1):
-            P[D[i]] = 1
-        for i in range(ordinals[1]+1, len(D)):
-            P[D[i]] = 2
-    return P
+    current_partition = 0
+    for i, j in pairwise(ordinals):
+        from_point = i + 1
+        to_point = j
+        for p_index in range(from_point,to_point+1):
+            P[D[p_index]] = current_partition
         
+        current_partition += 1
     
-
-def Hp3(D, c_0, c_s, c_t):
-    
-    pass
-
-def Hp3Q(c_0, c_s, c_t, Q):
-    pass
-
+    return P
 
 def H(P, *Q):
 
@@ -278,6 +270,9 @@ def H(P, *Q):
         return entropy(GetProbabilityDistribution(P)) if isinstance(P, Mapping) else entropy(P)
     
     else:
+        # Not implemented for len(Q) > 1
+        assert len(Q) == 1
+        
         Q = Q[0]
         # Compute joint entropy
         n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
