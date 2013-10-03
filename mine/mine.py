@@ -22,13 +22,56 @@ import bisect
 from collections import defaultdict, Mapping
 from copy import copy
 from itertools import chain, tee, izip
-from math import log
+from math import log, floor
 import matplotlib.pyplot as plt
 import numpy as np
 
 '''
 Algorithms
-'''          
+'''
+'''
+Algorithm 4
+'''
+def ApproxMaxMI(D, x, y, k_hat):
+    assert x>1 and y>1 and k_hat >1 
+    
+    Q = EquipartitionYAxis(D, y)
+    D = sort_D_increasing_by(D, increasing_by='x')
+    return OptimizeXAxis(D, Q, x, k_hat)
+
+'''
+Algorithm 5
+'''
+def ApproxCharacteristicMatrix(D, B, c):
+    assert B > 3 and c > 0
+    
+    D_orth = [tuple(reversed(p)) for p in D]
+    I = np.zeros(shape=(1000,1000))
+    I_orth = np.zeros(shape=(1000,1000))
+    M = np.zeros(shape=(1000,1000))
+    
+    '''
+    Lines 2-6
+    '''
+    for y in range(2, int(floor(B/2))+1):
+        x = int(floor(B/y))
+        temp = ApproxMaxMI(D, x, y, c*x)
+        temp = ApproxMaxMI(D_orth, x, y, c*x)
+        
+    '''
+    Lines 7-10
+    '''
+    for x in range(2,int(floor(B/2))+1):
+        for y in range(2,int(floor(B/2))+1):
+            if x*y > B:
+                continue
+            else:
+                I[x][y] = max(I[x][y], I_orth[y][x])
+                M[x][y] = float(I[x][y]) / min(log(x), log(y))
+    
+'''
+Algorithm 3
+'''
 def EquipartitionYAxis(D, y):
     if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
     
@@ -114,7 +157,10 @@ def GetSuperclumpsPartition(D, Q, k_hat):
         return P
     else:
         return P_tilde    
-
+    
+'''
+Algorithm 2
+'''
 def OptimizeXAxis(D, Q, x, k_hat):
     if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
     
