@@ -141,7 +141,7 @@ def test_H():
          (6, 4): 2
          }
     
-    # visualize_grid(P, Q)
+    # visualize(P, Q)
     
     # Joint entropy computation
     assert (H(P, Q) == H(
@@ -149,14 +149,14 @@ def test_H():
                           0  , 2. / 7 , 0. / 7 , 0   ,
                         1. / 7 , 0    , 1. / 7 , 0   ]))
      
-def test_visualize_grid():
+def test_visualize():
     # Albanese dataset
     # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
     D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
     Q = EquipartitionYAxis(D, y=3)
     P = GetClumpsPartition(D, Q)
     
-    visualize_grid(P)
+    visualize(P, Q)
 
 def test_GetGridMatrix():
     # Test case for joint partition
@@ -325,19 +325,13 @@ def test_OptimizeXAxis():
     #I = OptimizeXAxis(D, Q, x=10, k_hat=10)
 
 def test_ApproxCharacteristicMatrix():
-    x = range(1000)
-    y = [a*a*a*a+a*a-a*a*a+2*a for a in x]
-    D = []
-    for i in range(1000):
-        D.append((x[i],y[i]))
-    n = len(D)
-    ApproxCharacteristicMatrix(D, pow(n, 0.6), 1)  
+    pass 
 
 # Run all tests
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
-#test_visualize_grid()
+#test_visualize()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()

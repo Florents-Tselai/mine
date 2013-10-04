@@ -166,7 +166,6 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     super_clumps_partition = GetSuperclumpsPartition(D, Q, k_hat)
     c = GetPartitionOrdinals(D, super_clumps_partition, axis='x')
-    #visualize_grid(super_clumps_partition, Q)
     
     # Total number of clumps
     k = len(set(super_clumps_partition.values()))
@@ -292,12 +291,10 @@ def GetProbabilityDistribution(P):
 Utils
 '''
 p_x, p_y = lambda p: p[0], lambda p: p[1]
-
-def get_rightest_point(points):
-    return max(points, key=p_x)
-
-def get_uppest_point(points):
-    return max(points, key=p_y)
+get_rightest_point = lambda points: max(points, key=p_x)
+get_uppest_point = lambda points: max(points, key=p_y)
+last_abscissa = lambda x_bin: p_x(get_rightest_point(x_bin))
+last_ordinate = lambda y_bin: p_y(get_uppest_point(y_bin))
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -334,13 +331,10 @@ def GetGridMatrix(P, Q):
     flipped = np.flipud(grid_matrix)
     return flipped
 
-
-p_x, p_y = lambda p: p[0], lambda p: p[1]
-
 '''
 I/O
 '''
-def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
+def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
     
     x_axis_parition = GroupPartitionsPoints(x_axis_parition)
@@ -349,15 +343,20 @@ def visualize_grid(x_axis_parition={}, y_axis_partition={}, step=0.2):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     
-    ax.scatter([p[0] for p in points], [p[1] for p in points])
+    #Scatter points
+    ax.scatter(map(p_x, points), map(p_y, points))
     
-    x_ticks = [get_rightest_point(x_axis_parition[x_bin])[0] + step for x_bin in x_axis_parition.iterkeys()]
-    y_ticks = [get_uppest_point(y_axis_partition[y_bin])[1] + step for y_bin in y_axis_partition.iterkeys()]
-    if x_ticks: del x_ticks[-1]
-    if y_ticks: del y_ticks[-1]
-    
+    #Set partition ticks
+    x_ticks = [last_abscissa(x_bin) + step for x_bin in x_axis_parition.itervalues()]
+    y_ticks = [last_ordinate(y_bin) + step for y_bin in y_axis_partition.itervalues()]
     
     ax.get_xaxis().set_ticks(x_ticks)
     ax.get_yaxis().set_ticks(y_ticks)
-    ax.grid(True)
+    
+    #Format grid appearance
+    ax.grid(True,  alpha=0.5, color='red', linestyle='-.', linewidth=1.5)
+    
+    x_partition_size = len(x_axis_parition.values())
+    y_partition_size = len(y_axis_partition.values())
+    plt.title(str(x_partition_size)+' - by - '+str(y_partition_size) + ' Grid')
     plt.show()
