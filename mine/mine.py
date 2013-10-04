@@ -321,13 +321,14 @@ def GetGridMatrix(P, Q):
     Each matrix element equals the number of points in the corresponding grid cell.
     """
     P = GroupPartitionsPoints(P)
-    x_partition_size, y_parition_size = len(P.keys()), len(Q.keys())
     Q = GroupPartitionsPoints(Q)
+    
+    x_partition_size, y_parition_size = len(P.keys()), len(Q.keys())
 
     #Returns the number of points that lie in the r-th row o Q and the c-th column of P
-    cell_size = np.vectorize(lambda r,c: len(set(Q[r]) & set(P[c])), (y_parition_size, x_partition_size))
+    cell_size = np.vectorize(lambda r,c: len(set(Q[r]) & set(P[c])))
     
-    grid_matrix = np.fromfunction(cell_size, dtype=int)
+    grid_matrix = np.fromfunction(cell_size, shape=(y_parition_size, x_partition_size), dtype=int)
     flipped = np.flipud(grid_matrix)
     return flipped
 
