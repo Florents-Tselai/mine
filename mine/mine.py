@@ -127,7 +127,7 @@ def GetClumpsPartition(D, Q):
         s = 1
         flag = False
         for j in range(i + 1, n):
-            if D[i][0] == D[j][0]:
+            if p_x(D[i]) == p_x(D[j]):
                 s += 1
                 if Q_tilde[D[i]] != Q_tilde[D[j]]:
                     flag = True
@@ -209,7 +209,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
     return I[k][2:x+1]
                   
 def GetPartitionOrdinals(D, P, axis='x'):
-    P_tilde = GroupPartitionsPoints(P)
+    P_tilde = GroupPointsByPartition(P)
     if axis == 'x':
         return [-1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
@@ -230,7 +230,7 @@ def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     
     return P
 
-def GroupPartitionsPoints(P):
+def GroupPointsByPartition(P):
     """
     P : point -> Partition index
     Returns
@@ -271,10 +271,11 @@ def H(P, *Q):
         
         Q = Q[0]
         
-        # Compute joint entropy
-        n_points = float(len(set(chain(P.iterkeys(), Q.iterkeys()))))
+        # Number of total points
+        n_points = len(set(P.iterkeys()) | set(Q.iterkeys()))
         
-        probabilities = GetGridMatrix(P, Q).flatten() / n_points
+        # Probability vector for the P-by-Q grid
+        probabilities = GetGridMatrix(P, Q).flatten() / float(n_points)
         
         return entropy(probabilities)
 
@@ -285,12 +286,10 @@ def I(P, Q):
     return H(P) + H(Q) + H(P, Q)
 
 def GetProbabilityDistribution(P):
-    """
-    n: number of total points
-    """
-    n = len(set(P.keys()))
-    d = GroupPartitionsPoints(P)    
-    return [float(len(d[k])) / float(n) for k in sorted(d.keys())]
+    partittions = GroupPointsByPartition(P)
+    #The probability mass of each partition is the fraction of points that lie in this partition
+    prob_mass = lambda partition: len(d[k]) / float(len(P))
+    return map(prob_mass(par) for par in partittions)
 
 '''
 Utils
@@ -311,9 +310,9 @@ def is_sorted_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
     
     if increasing_by == 'x':
-        return all(D[i][0] <= D[i + 1][0] for i in xrange(len(D) - 1))
+        return all(p_x(D[i]) <= p_x(D[i + 1]) for i in xrange(len(D) - 1))
     else:
-        return all(D[i][1] <= D[i + 1][1] for i in xrange(len(D) - 1))
+        return all(p_y(D[i]) <= p_y(D[i + 1]) for i in xrange(len(D) - 1))
 
 def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
@@ -325,15 +324,14 @@ def GetGridMatrix(P, Q):
     """
     Each matrix element equals the number of points in the corresponding grid cell.
     """
-    P = GroupPartitionsPoints(P)
-    Q = GroupPartitionsPoints(Q)
+    P = GroupPointsByPartition(P)
+    Q = GroupPointsByPartition(Q)
     
-    x_partition_size, y_parition_size = len(P.keys()), len(Q.keys())
+    x_partition_size, y_parition_size = len(P), len(Q)
 
     #Returns the number of points that lie in the r-th row o Q and the c-th column of P
-    cell_size = np.vectorize(lambda r,c: len(set(Q[r]) & set(P[c])))
-    
-    grid_matrix = np.fromfunction(cell_size, shape=(y_parition_size, x_partition_size), dtype=int)
+    cell_size = lambda r,c: len(set(Q[r]) & set(P[c]))
+    grid_matrix = np.fromfunction(np.vectorize(cell_size), shape=(y_parition_size, x_partition_size), dtype=int)
     flipped = np.flipud(grid_matrix)
     return flipped
 
@@ -343,8 +341,8 @@ I/O
 def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
     
-    x_axis_parition = GroupPartitionsPoints(x_axis_parition)
-    y_axis_partition = GroupPartitionsPoints(y_axis_partition)
+    x_axis_parition = GroupPointsByPartition(x_axis_parition)
+    y_axis_partition = GroupPointsByPartition(y_axis_partition)
     
     fig = plt.figure()
     ax = fig.add_subplot(111)
@@ -352,9 +350,11 @@ def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     #Scatter points
     ax.scatter(map(p_x, points), map(p_y, points))
     
-    #Set partition ticks
-    x_ticks = [last_abscissa(x_bin) + step for x_bin in x_axis_parition.itervalues()]
-    y_ticks = [last_ordinate(y_bin) + step for y_bin in y_axis_partition.itervalues()]
+    x_bin_edge = lambda x_bin :last_abscissa(x_bin) + step
+    y_bin_edge = lambda y_bin:  last_ordinate(y_bin) + step
+    
+    x_ticks = map(x_bin_edge, x_axis_parition.itervalues())
+    y_ticks = map(y_bin_edge, y_axis_partition.itervalues())
     
     ax.get_xaxis().set_ticks(x_ticks)
     ax.get_yaxis().set_ticks(y_ticks)

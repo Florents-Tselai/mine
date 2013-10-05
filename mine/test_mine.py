@@ -97,7 +97,7 @@ def test_GetClumpsPartition():
     D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
     Q = EquipartitionYAxis(D, y=3)
     P = GetClumpsPartition(D, Q)
-    clumps_partition_groups = GroupPartitionsPoints(P)
+    clumps_partition_groups = GroupPointsByPartition(P)
     assert (0, 0) in clumps_partition_groups[0]
     assert (1, 1) and (2, 1) in clumps_partition_groups[1]
     assert (3, 2) and (4, 3) in clumps_partition_groups[2]
@@ -343,5 +343,5 @@ test_H()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
-test_OptimizeXAxis()
-test_ApproxCharacteristicMatrix()
+#test_OptimizeXAxis()
+#test_ApproxCharacteristicMatrix()
