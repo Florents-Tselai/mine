@@ -46,17 +46,21 @@ def ApproxCharacteristicMatrix(D, B, c):
     assert B > 3 and c > 0
     
     D_orth = [tuple(reversed(p)) for p in D]
-    I = np.zeros(shape=(1000,1000))
-    I_orth = np.zeros(shape=(1000,1000))
-    M = np.zeros(shape=(1000,1000))
+    
+    I = np.zeros(shape=(2,int(floor(B/2))))
+    I_orth = np.zeros(shape=(2,int(floor(B/2))))
+    M = np.zeros(shape=(int(floor(B/2))+1,int(floor(B/2))+1))
     
     '''
     Lines 2-6
     '''
     for y in range(2, int(floor(B/2))+1):
         x = int(floor(B/y))
-        temp = ApproxMaxMI(D, x, y, c*x)
-        temp = ApproxMaxMI(D_orth, x, y, c*x)
+        temp1 = ApproxMaxMI(D, x, y, c*x)
+        
+        I = np.append(I, temp1, axis=0)
+        temp2 = ApproxMaxMI(D_orth, x, y, c*x)
+        I_orth = np.append(I_orth, temp2, axis=0)
         
     '''
     Lines 7-10
@@ -68,6 +72,7 @@ def ApproxCharacteristicMatrix(D, B, c):
             else:
                 I[x][y] = max(I[x][y], I_orth[y][x])
                 M[x][y] = float(I[x][y]) / min(log(x), log(y))
+    return M
     
 '''
 Algorithm 3

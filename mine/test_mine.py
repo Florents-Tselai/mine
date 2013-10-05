@@ -325,7 +325,15 @@ def test_OptimizeXAxis():
     #I = OptimizeXAxis(D, Q, x=10, k_hat=10)
 
 def test_ApproxCharacteristicMatrix():
-    pass 
+    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (10, 1), (11,2), (12,3)]
+    x = range(1000)
+    y = [a*a*a*a+a*a-a*a*a+2*a for a in x]
+    D = []
+    for i in range(1000):
+        D.append((x[i],y[i]))
+    B = pow(len(D), 0.6)
+    c = 2
+    print ApproxCharacteristicMatrix(D, B, c) 
 
 # Run all tests
 test_EquipartitionYAxis()
