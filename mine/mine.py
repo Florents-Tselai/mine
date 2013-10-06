@@ -33,7 +33,7 @@ Algorithms
 Algorithm 4
 '''
 def ApproxMaxMI(D, x, y, k_hat):
-    assert x>1 and y>1 and k_hat >1 
+    assert x > 1 and y > 1 and k_hat > 1 
     
     Q = EquipartitionYAxis(D, y)
     D = sort_D_increasing_by(D, increasing_by='x')
@@ -47,26 +47,28 @@ def ApproxCharacteristicMatrix(D, B, c):
     
     D_orth = [tuple(reversed(p)) for p in D]
     
-    I = np.zeros(shape=(2,int(floor(B/2))))
-    I_orth = np.zeros(shape=(2,int(floor(B/2))))
-    M = np.zeros(shape=(int(floor(B/2))+1,int(floor(B/2))+1))
+    s = int(floor(B/2))+1
     
+    I = np.zeros(shape=(s,s))
+    I_orth = np.zeros(shape=(s,s))
+    M = np.zeros(shape=(s,s))
+
     '''
     Lines 2-6
     '''
-    for y in range(2, int(floor(B/2))+1):
+    for y in xrange(2, s):
         x = int(floor(B/y))
-        temp1 = ApproxMaxMI(D, x, y, c*x)
         
-        I = np.append(I, temp1, axis=0)
-        temp2 = ApproxMaxMI(D_orth, x, y, c*x)
-        I_orth = np.append(I_orth, temp2, axis=0)
+        for i,v in enumerate(ApproxMaxMI(D, x, y, c*x)): I[i+2][y] = v
+ 
+        for i,v in enumerate(ApproxMaxMI(D_orth, x, y, c*x)): I_orth[i+2][y] = v
+        
         
     '''
     Lines 7-10
     '''
-    for x in range(2,int(floor(B/2))+1):
-        for y in range(2,int(floor(B/2))+1):
+    for x in xrange(2,s):
+        for y in xrange(2,s):
             if x*y > B:
                 continue
             else:
@@ -179,24 +181,25 @@ def OptimizeXAxis(D, Q, x, k_hat):
     # Find the optimal partitions of size 2 
     I = np.zeros(shape=(k + 1, x + 1))
     
-    for t in range(2, k+1):
-        s = max(range(1, t+1),
+    for t in xrange(2, k+1):
+        s = max(xrange(1, t+1),
                 key=lambda s: 
                             H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')) - 
                             H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q))
+        
         # Optimal partition of size 2 on the first t clumps
         optimal_2_partition_ordinals =  [c[0], c[s], c[t]]
         P_t_2 = GetPartitionFromOrdinals(D, ordinals=optimal_2_partition_ordinals, axis='x')
         I[t][2] = H(Q) + H(P_t_2) - H(P_t_2, Q)
    
     # Inductively build the rest of the table of optimal partitions
-    for l in range(3, x + 1):
-        for t in range(l, k + 1):
+    for l in xrange(3, x + 1):
+        for t in xrange(l, k + 1):
             
             s = max(range(l - 1, t + 1),
                     key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - H(Q)) - float(((c[t] - c[s]) / c[t])) * H(GetPartitionFromOrdinals(D, [c[s], c[t]], axis='x'), Q)
                     )
-            ordinals_t_l_1 = [c[0]] + [c[i] for i in range(1, l)]
+            ordinals_t_l_1 = [c[0]] + [c[i] for i in xrange(1, l)]
             bisect.insort(ordinals_t_l_1, c[t])
             ordinals_t_l = ordinals_t_l_1
             assert (len(ordinals_t_l)-1) == l
@@ -205,7 +208,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
             P_t_l = GetPartitionFromOrdinals(D, ordinals_t_l_1, axis='x')
             I[t][l] = H(Q) + H(P_t_l) - H(P_t_l, Q)
 
-    for l in range(k+1, x+1): I[k][l] = I[k][k]
+    for l in xrange(k+1, x+1): I[k][l] = I[k][k]
     
     return I[k][2:x+1]
                   
@@ -224,7 +227,7 @@ def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     for i, j in pairwise(ordinals):
         from_point = i + 1
         to_point = j
-        for p_index in range(from_point, to_point + 1):
+        for p_index in xrange(from_point, to_point + 1):
             P[D[p_index]] = current_partition
         
         current_partition += 1
@@ -276,9 +279,7 @@ def H(P, *Q):
         n_points = len(set(P.iterkeys()) | set(Q.iterkeys()))
         
         # Probability vector for the P-by-Q grid
-        G = GetGridMatrix(P, Q).flatten() 
-        probabilities = G / float(n_points)
-        
+        probabilities = GetGridMatrix(P, Q).flatten() / float(n_points)
         return entropy(probabilities)
 
 def entropy(probs): 
@@ -330,10 +331,12 @@ def GetGridMatrix(P, Q):
     Q = GroupPointsByPartition(Q)
    
     grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
-    num_rows, num_columns = grid_matrix.shape[0], grid_matrix.shape[1]
-    for r in range(num_rows):
-        for c in range(num_columns):
+    num_rows, num_columns = len(Q.keys()), len(P.keys())
+    for r in xrange(num_rows):
+        for c in xrange(num_columns):
             grid_matrix[r][c] = len(set(Q[r]) & set(P[c]))
+            
+    
     flipped = np.flipud(grid_matrix)
     return flipped
 
