@@ -283,7 +283,7 @@ def entropy(probs):
     return -sum(p * log(p, 2) for p in probs if p > 0)
                  
 def I(P, Q):
-    return H(P) + H(Q) + H(P, Q)
+    return H(P) + H(Q) - H(P, Q)
 
 def GetProbabilityDistribution(P):
     partittions = GroupPointsByPartition(P)
@@ -295,10 +295,10 @@ def GetProbabilityDistribution(P):
 Utils
 '''
 p_x, p_y = lambda p: p[0], lambda p: p[1]
-get_rightest_point = lambda points: max(points, key=p_x)
-get_uppest_point = lambda points: max(points, key=p_y)
-last_abscissa = lambda x_bin: p_x(get_rightest_point(x_bin))
-last_ordinate = lambda y_bin: p_y(get_uppest_point(y_bin))
+def get_rightest_point(points): return max(points, key=p_x)
+def get_uppest_point(points): return max(points, key=p_y)
+def last_abscissa(x_bin): return p_x(get_rightest_point(x_bin))
+def last_ordinate(y_bin): return p_y(get_uppest_point(y_bin))
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
