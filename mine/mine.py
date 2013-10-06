@@ -178,17 +178,17 @@ def OptimizeXAxis(D, Q, x, k_hat):
 
     # Find the optimal partitions of size 2 
     I = np.zeros(shape=(k + 1, x + 1))
+    
     for t in range(2, k+1):
         s = max(range(1, t+1),
                 key=lambda s: 
                             H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')) - 
                             H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q))
-        
         # Optimal partition of size 2 on the first t clumps
         optimal_2_partition_ordinals =  [c[0], c[s], c[t]]
         P_t_2 = GetPartitionFromOrdinals(D, ordinals=optimal_2_partition_ordinals, axis='x')
         I[t][2] = H(Q) + H(P_t_2) - H(P_t_2, Q)
-    
+   
     # Inductively build the rest of the table of optimal partitions
     for l in range(3, x + 1):
         for t in range(l, k + 1):
@@ -206,6 +206,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
             I[t][l] = H(Q) + H(P_t_l) - H(P_t_l, Q)
 
     for l in range(k+1, x+1): I[k][l] = I[k][k]
+    
     return I[k][2:x+1]
                   
 def GetPartitionOrdinals(D, P, axis='x'):
@@ -275,7 +276,8 @@ def H(P, *Q):
         n_points = len(set(P.iterkeys()) | set(Q.iterkeys()))
         
         # Probability vector for the P-by-Q grid
-        probabilities = GetGridMatrix(P, Q).flatten() / float(n_points)
+        G = GetGridMatrix(P, Q).flatten() 
+        probabilities = G / float(n_points)
         
         return entropy(probabilities)
 
@@ -288,8 +290,8 @@ def I(P, Q):
 def GetProbabilityDistribution(P):
     partittions = GroupPointsByPartition(P)
     #The probability mass of each partition is the fraction of points that lie in this partition
-    prob_mass = lambda partition: len(d[k]) / float(len(P))
-    return map(prob_mass(par) for par in partittions)
+    prob_mass = lambda p: len(partittions[p]) / float(len(P))
+    return map(prob_mass, partittions)
 
 '''
 Utils
@@ -326,12 +328,12 @@ def GetGridMatrix(P, Q):
     """
     P = GroupPointsByPartition(P)
     Q = GroupPointsByPartition(Q)
-    
-    x_partition_size, y_parition_size = len(P), len(Q)
-
-    #Returns the number of points that lie in the r-th row o Q and the c-th column of P
-    cell_size = lambda r,c: len(set(Q[r]) & set(P[c]))
-    grid_matrix = np.fromfunction(np.vectorize(cell_size), shape=(y_parition_size, x_partition_size), dtype=int)
+   
+    grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
+    num_rows, num_columns = grid_matrix.shape[0], grid_matrix.shape[1]
+    for r in range(num_rows):
+        for c in range(num_columns):
+            grid_matrix[r][c] = len(set(Q[r]) & set(P[c]))
     flipped = np.flipud(grid_matrix)
     return flipped
 
@@ -360,7 +362,7 @@ def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     ax.get_yaxis().set_ticks(y_ticks)
     
     #Format grid appearance
-    ax.grid(True,  alpha=0.5, color='red', linestyle='-.', linewidth=1.5)
+    ax.grid(True,  alpha=0.5, color='red', linestyle='-', linewidth=1.5)
     
     x_partition_size = len(x_axis_parition.values())
     y_partition_size = len(y_axis_partition.values())

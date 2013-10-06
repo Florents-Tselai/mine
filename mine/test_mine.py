@@ -315,25 +315,17 @@ def test_GetPartitionFromOrdinals():
     assert GetPartitionFromOrdinals(D, ordinals) == P
     
 def test_OptimizeXAxis():
-    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (10, 1), (11,2), (12,3)]
-    x = range(1000)
-    y = [a*a*a*a+a*a-a*a*a+2*a for a in x]
-    D = []
-    for i in range(1000):
-        D.append((x[i],y[i]))
+    x = np.linspace(0, 1, 1000)
+    y = np.sin(10 * np.pi * x) + x
+    D = zip(x,y)
+    
     Q = EquipartitionYAxis(D, y=10)
-    #I = OptimizeXAxis(D, Q, x=10, k_hat=10)
+
+    P = GetSuperclumpsPartition(D, Q, 10)
+    OptimizeXAxis(D, Q, x=18, k_hat=5)
 
 def test_ApproxCharacteristicMatrix():
-    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (10, 1), (11,2), (12,3)]
-    x = range(1000)
-    y = [a*a*a*a+a*a-a*a*a+2*a for a in x]
-    D = []
-    for i in range(1000):
-        D.append((x[i],y[i]))
-    B = pow(len(D), 0.6)
-    c = 2
-    print ApproxCharacteristicMatrix(D, B, c) 
+    pass
 
 # Run all tests
 test_EquipartitionYAxis()
@@ -343,5 +335,5 @@ test_H()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
-#test_OptimizeXAxis()
+test_OptimizeXAxis()
 #test_ApproxCharacteristicMatrix()
