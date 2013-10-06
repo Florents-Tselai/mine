@@ -18,20 +18,23 @@ P = (x, y) ==>
 P[0] = x and P[1] = y
 """
 
-import bisect
-from collections import defaultdict, Mapping
-from copy import copy
-from itertools import chain, tee, izip
-from math import log, floor
-import matplotlib.pyplot as plt
-import numpy as np
-
 '''
 Algorithms
 '''
 '''
 Algorithm 4
 '''
+
+import bisect
+from collections import defaultdict, Mapping
+from copy import copy
+from itertools import chain, tee, izip
+from math import log, floor
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
     
@@ -47,29 +50,29 @@ def ApproxCharacteristicMatrix(D, B, c):
     
     D_orth = [tuple(reversed(p)) for p in D]
     
-    s = int(floor(B/2))+1
+    s = int(floor(B / 2)) + 1
     
-    I = np.zeros(shape=(s,s))
-    I_orth = np.zeros(shape=(s,s))
-    M = np.zeros(shape=(s,s))
+    I = np.zeros(shape=(s, s))
+    I_orth = np.zeros(shape=(s, s))
+    M = np.zeros(shape=(s, s))
 
     '''
     Lines 2-6
     '''
     for y in xrange(2, s):
-        x = int(floor(B/y))
+        x = int(floor(B / y))
         
-        for i,v in enumerate(ApproxMaxMI(D, x, y, c*x)): I[i+2][y] = v
+        for i, v in enumerate(ApproxMaxMI(D, x, y, c * x)): I[i + 2][y] = v
  
-        for i,v in enumerate(ApproxMaxMI(D_orth, x, y, c*x)): I_orth[i+2][y] = v
+        for i, v in enumerate(ApproxMaxMI(D_orth, x, y, c * x)): I_orth[i + 2][y] = v
         
         
     '''
     Lines 7-10
     '''
-    for x in xrange(2,s):
-        for y in xrange(2,s):
-            if x*y > B:
+    for x in xrange(2, s):
+        for y in xrange(2, s):
+            if x * y > B:
                 continue
             else:
                 I[x][y] = max(I[x][y], I_orth[y][x])
@@ -181,14 +184,14 @@ def OptimizeXAxis(D, Q, x, k_hat):
     # Find the optimal partitions of size 2 
     I = np.zeros(shape=(k + 1, x + 1))
     
-    for t in xrange(2, k+1):
-        s = max(xrange(1, t+1),
+    for t in xrange(2, k + 1):
+        s = max(xrange(1, t + 1),
                 key=lambda s: 
                             H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')) - 
                             H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q))
         
         # Optimal partition of size 2 on the first t clumps
-        optimal_2_partition_ordinals =  [c[0], c[s], c[t]]
+        optimal_2_partition_ordinals = [c[0], c[s], c[t]]
         P_t_2 = GetPartitionFromOrdinals(D, ordinals=optimal_2_partition_ordinals, axis='x')
         I[t][2] = H(Q) + H(P_t_2) - H(P_t_2, Q)
    
@@ -202,15 +205,15 @@ def OptimizeXAxis(D, Q, x, k_hat):
             ordinals_t_l_1 = [c[0]] + [c[i] for i in xrange(1, l)]
             bisect.insort(ordinals_t_l_1, c[t])
             ordinals_t_l = ordinals_t_l_1
-            assert (len(ordinals_t_l)-1) == l
+            assert (len(ordinals_t_l) - 1) == l
 
             # Optimal partition of size l on the first t clumps of D
             P_t_l = GetPartitionFromOrdinals(D, ordinals_t_l_1, axis='x')
             I[t][l] = H(Q) + H(P_t_l) - H(P_t_l, Q)
 
-    for l in xrange(k+1, x+1): I[k][l] = I[k][k]
+    for l in xrange(k + 1, x + 1): I[k][l] = I[k][k]
     
-    return I[k][2:x+1]
+    return I[k][2:x + 1]
                   
 def GetPartitionOrdinals(D, P, axis='x'):
     P_tilde = GroupPointsByPartition(P)
@@ -290,7 +293,7 @@ def I(P, Q):
 
 def GetProbabilityDistribution(P):
     partittions = GroupPointsByPartition(P)
-    #The probability mass of each partition is the fraction of points that lie in this partition
+    # The probability mass of each partition is the fraction of points that lie in this partition
     prob_mass = lambda p: len(partittions[p]) / float(len(P))
     return map(prob_mass, partittions)
 
@@ -352,7 +355,7 @@ def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     
-    #Scatter points
+    # Scatter points
     ax.scatter(map(p_x, points), map(p_y, points))
     
     x_bin_edge = lambda x_bin :last_abscissa(x_bin) + step
@@ -364,10 +367,10 @@ def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     ax.get_xaxis().set_ticks(x_ticks)
     ax.get_yaxis().set_ticks(y_ticks)
     
-    #Format grid appearance
-    ax.grid(True,  alpha=0.5, color='red', linestyle='-', linewidth=1.5)
+    # Format grid appearance
+    ax.grid(True, alpha=0.5, color='red', linestyle='-', linewidth=1.5)
     
     x_partition_size = len(x_axis_parition.values())
     y_partition_size = len(y_axis_partition.values())
-    plt.title(str(x_partition_size)+' - by - '+str(y_partition_size) + ' Grid')
+    plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
     plt.show()

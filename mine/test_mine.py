@@ -320,7 +320,7 @@ def test_OptimizeXAxis():
 def test_ApproxCharacteristicMatrix():
     x = range(100)
     y = [a for a in x]
-    D = zip(x,y)
+    D = zip(x, y)
     n = len(D)
     B = pow(n, 0.6)
     c = 15
@@ -333,7 +333,7 @@ def test_ApproxCharacteristicMatrix():
 test_EquipartitionYAxis()
 test_GetClumpsPartition()
 test_H()
-#test_visualize()
+# test_visualize()
 test_GetGridMatrix()
 test_GetOrdinals()
 test_GetPartitionFromOrdinals()
