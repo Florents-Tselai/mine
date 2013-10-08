@@ -343,6 +343,31 @@ def GetGridMatrix(P, Q):
     flipped = np.flipud(grid_matrix)
     return flipped
 
+def GetPartitionHistogram(D, ordinals, axis='x'):
+    assert is_sorted_increasing_by(D, axis)
+    
+    to_be_binned = range(len(D))
+    
+    #Translate Reshef's convention to adhere to Numpy's one
+    bins = [o+1 for o in ordinals[:-1]] + [ordinals[-1]]
+    
+    #Assign point indices to bins formed by the partition ordinals
+    hist = np.histogram(to_be_binned, bins)
+    return hist[0], hist[0]/float(len(D))
+
+def GetPartitionMap(D, ordinals, axis='x'):
+    assert is_sorted_increasing_by(D, axis)
+    
+    to_be_binned = range(len(Dx))
+    
+    #Translate Reshef's convention to adhere to Numpy's one
+    bins = [o+1 for o in ordinals[:-1]] + [ordinals[-1]]
+    
+    #Assign point indices to bins formed by the partition ordinals
+    map = {Dx[point_index]:partition-1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
+    
+    return map
+
 '''
 I/O
 '''

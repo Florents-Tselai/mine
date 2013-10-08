@@ -330,12 +330,58 @@ def test_ApproxCharacteristicMatrix():
     
 
 # Run all tests
-test_EquipartitionYAxis()
-test_GetClumpsPartition()
-test_H()
+
+def test_GetPartitionHistogram():
+    """
+      4      |     |x
+      3      |  x  |
+      2      |x    |
+         *----+---+-----+-
+      1  x x |     |
+         *----+---+-----+-
+      0 x    |    x|
+        0 1 2|3 4 5 6
+             |     |
+     """
+    D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
+
+    ordinals = [-1, 2, 5, 6]
+    assignments, probs = GetPartitionHistogram(D, ordinals)
+    assert list(assignments) == [3,3,1]
+    assert sum(probs) == 1.0
+    
+    ############ Another Test Case ##############
+    
+    
+     # Points sorted by increasing x-value
+    D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
+    
+    # Given the following x-axis points ordinals
+    ordinals = [-1, 0, 2, 5, 6]
+    # We should get the following x-axis partition
+    """
+      4  |   |     |x
+      3  |   |  x  |
+      2  |   |x    |
+         *----+---+-----+-
+      1  |x x|     |
+         *----+---+-----+-
+      0 x|   |    x|
+        0|1 2|3 4 5 6
+         |   |     |
+     """
+    assignments, probs = GetPartitionHistogram(D, ordinals)
+    assert list(assignments) == [1,2,3,1]
+    assert sum(probs) == 1.0
+    
+
+#test_EquipartitionYAxis()
+#test_GetClumpsPartition()
+#test_H()
 # test_visualize()
-test_GetGridMatrix()
-test_GetOrdinals()
-test_GetPartitionFromOrdinals()
-test_OptimizeXAxis()
-test_ApproxCharacteristicMatrix()
+#test_GetGridMatrix()
+#test_GetOrdinals()
+#test_GetPartitionFromOrdinals()
+#test_OptimizeXAxis()
+#test_ApproxCharacteristicMatrix()
+test_GetPartitionHistogram()
