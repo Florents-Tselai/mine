@@ -381,7 +381,7 @@ def test_GetPartitionHistogram():
 # test_visualize()
 #test_GetGridMatrix()
 #test_GetOrdinals()
-#test_GetPartitionFromOrdinals()
+test_GetPartitionFromOrdinals()
 #test_OptimizeXAxis()
 #test_ApproxCharacteristicMatrix()
 test_GetPartitionHistogram()

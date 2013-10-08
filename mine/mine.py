@@ -223,19 +223,16 @@ def GetPartitionOrdinals(D, P, axis='x'):
         return [-1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
   
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
-    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
-    P = {}
+    assert is_sorted_increasing_by(D, axis)
     
-    current_partition = 0
-    for i, j in pairwise(ordinals):
-        from_point = i + 1
-        to_point = j
-        for p_index in xrange(from_point, to_point + 1):
-            P[D[p_index]] = current_partition
+    to_be_binned = range(len(D))
         
-        current_partition += 1
+    #Translate Reshef's convention to adhere to Numpy's one
+    bins = [o+1 for o in ordinals[:-1]]  
+    #Assign point indices to bins formed by the partition ordinals
+    map = {D[point_index]:partition-1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
     
-    return P
+    return map
 
 def GroupPointsByPartition(P):
     """
