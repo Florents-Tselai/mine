@@ -1,5 +1,6 @@
 from collections import defaultdict, Mapping
 from mine_utils import *
+import numpy as np
 
 def test_GetPartitionOrdinalsFromMap():
     # Points sorted by increasing x-value
@@ -203,7 +204,57 @@ def test_visualize():
     P = GetClumpsPartition(D, Q)
     
     visualize(P, Q)   
+ 
+def test_GetGridHistogram():
+    """
+      4  |   |     |x
+      3  |   |  x  |
+      2  |   |x    |
+         *----+---+-----+-
+      1  |x x|     |
+         *----+---+-----+-
+      0 x|   |    x|
+        0|1 2|3 4 5 6
+         |   |     |
+    """
+    D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
+    Dy = sort_D_increasing_by(D, 'y')
+    Dx = sort_D_increasing_by(D, 'x')
     
+    Q1 = {
+         (0,0): 0,
+         (5,0): 0,
+         (1,1): 1,
+         (2,1): 1,
+         (3,2): 2,
+         (4,3): 2,
+         (6,4):2
+         }
+    
+    P1 = {
+         (3, 2): 1, 
+         (5, 0): 1, 
+         (2, 1): 0, 
+         (4, 3): 1, 
+         (1, 1): 0
+         }
+    
+    assert GetGridHistogram(Q,P1) == [0,2,2,0,0,1]
+    
+    P2 = {
+         (3, 2): 2, 
+         (5, 0): 2, 
+         (2, 1): 1,
+         (1, 1): 1, 
+         (4, 3): 2, 
+         (0, 0): 0,
+         (6, 4): 3
+         }
+    
+    assert GetGridHistogram(Q,P2) == [0,0,2,1,0,2,0,0,1,0,1,0]
+    
+     
 test_GetPartitionOrdinalsFromMap()
 test_GetParitionMapFromOrdinals()
 test_GetPartitionHistogram()
+test_GetGridHistogram()

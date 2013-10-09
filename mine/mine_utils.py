@@ -1,4 +1,5 @@
 from collections import defaultdict, Mapping
+from itertools import combinations
 import numpy as np
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
@@ -121,3 +122,18 @@ def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     y_partition_size = len(y_axis_partition.values())
     plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
     plt.show()
+
+def GetGridHistogram(Q, P):
+    columns = GroupPointsByPartition(P)
+    rows = GroupPointsByPartition(Q)
+    
+    grid_matrix = np.zeros(shape=(len(rows), len(columns)), dtype=int)
+    
+    for r in range(len(rows)):
+        for c in range(len(columns)):
+            rows_points = rows[r]
+            column_points = columns[c]
+            n = len(set(rows_points).intersection(column_points))
+            grid_matrix[r][c] = n
+        
+    return list(np.flipud(grid_matrix).flatten())
