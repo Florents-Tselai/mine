@@ -12,19 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Each point is a tuple, thus:
-P = (x, y) ==> 
-P[0] = x and P[1] = y
-"""
-
-'''
-Algorithms
-'''
-'''
-Algorithm 4
-'''
-
 import bisect
 from collections import defaultdict, Mapping
 from copy import copy
@@ -42,9 +29,6 @@ def ApproxMaxMI(D, x, y, k_hat):
     D = sort_D_increasing_by(D, increasing_by='x')
     return OptimizeXAxis(D, Q, x, k_hat)
 
-'''
-Algorithm 5
-'''
 def ApproxCharacteristicMatrix(D, B, c):
     assert B > 3 and c > 0
     
@@ -79,9 +63,6 @@ def ApproxCharacteristicMatrix(D, B, c):
                 M[x][y] = float(I[x][y]) / min(log(x), log(y))
     return M
     
-'''
-Algorithm 3
-'''
 def EquipartitionYAxis(D, y):
     if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
     
@@ -168,9 +149,6 @@ def GetSuperclumpsPartition(D, Q, k_hat):
     else:
         return P_tilde    
     
-'''
-Algorithm 2
-'''
 def OptimizeXAxis(D, Q, x, k_hat):
     if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
     
@@ -214,185 +192,3 @@ def OptimizeXAxis(D, Q, x, k_hat):
     for l in xrange(k + 1, x + 1): I[k][l] = I[k][k]
     
     return I[k][2:x + 1]
-                  
-def GetPartitionOrdinals(D, P, axis='x'):
-    P_tilde = GroupPointsByPartition(P)
-    if axis == 'x':
-        return [-1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
-    elif axis == 'y':
-        return [-1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
-  
-def GetPartitionFromOrdinals(D, ordinals, axis='x'):
-    assert is_sorted_increasing_by(D, axis)
-    
-    to_be_binned = range(len(D))
-        
-    #Translate Reshef's convention to adhere to Numpy's one
-    bins = [o+1 for o in ordinals[:-1]]  
-    #Assign point indices to bins formed by the partition ordinals
-    map = {D[point_index]:partition-1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
-    
-    return map
-
-def GroupPointsByPartition(P):
-    """
-    P : point -> Partition index
-    Returns
-    d : partition index -> points
-    
-    Example:
-    P = 
-    {
-    p1 -> 1
-    p2 -> 2
-    P3 -> 1
-    p4 -> 2
-    }
-    
-    Returns
-    d = 
-    {
-    1 -> [p1, p3]
-    2 -> [p2, p4]
-    }
-      
-    """
-    d = defaultdict(list)
-    for k, v in P.iteritems(): 
-        d[v].append(k)
-    return dict(d)
-
-'''
-Computations
-'''
-def H(P, *Q):
-
-    if not Q:
-        return entropy(GetProbabilityDistribution(P)) if isinstance(P, Mapping) else entropy(P)   
-    else:
-        # Not implemented for len(Q) > 1
-        assert len(Q) == 1
-        
-        Q = Q[0]
-        
-        # Number of total points
-        n_points = len(set(P.iterkeys()) | set(Q.iterkeys()))
-        
-        # Probability vector for the P-by-Q grid
-        probabilities = GetGridMatrix(P, Q).flatten() / float(n_points)
-        return entropy(probabilities)
-
-def entropy(probs): 
-    return -sum(p * log(p, 2) for p in probs if p > 0)
-                 
-def I(P, Q):
-    return H(P) + H(Q) - H(P, Q)
-
-def GetProbabilityDistribution(P):
-    partittions = GroupPointsByPartition(P)
-    # The probability mass of each partition is the fraction of points that lie in this partition
-    prob_mass = lambda p: len(partittions[p]) / float(len(P))
-    return map(prob_mass, partittions)
-
-'''
-Utils
-'''
-p_x, p_y = lambda p: p[0], lambda p: p[1]
-def get_rightest_point(points): return max(points, key=p_x)
-def get_uppest_point(points): return max(points, key=p_y)
-def last_abscissa(x_bin): return p_x(get_rightest_point(x_bin))
-def last_ordinate(y_bin): return p_y(get_uppest_point(y_bin))
-
-def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
-    a, b = tee(iterable)
-    next(b, None)
-    return izip(a, b)
-
-def is_sorted_increasing_by(D, increasing_by='x'):
-    assert increasing_by == 'x' or increasing_by == 'y'
-    
-    if increasing_by == 'x':
-        return all(p_x(D[i]) <= p_x(D[i + 1]) for i in xrange(len(D) - 1))
-    else:
-        return all(p_y(D[i]) <= p_y(D[i + 1]) for i in xrange(len(D) - 1))
-
-def sort_D_increasing_by(D, increasing_by='x'):
-    assert increasing_by == 'x' or increasing_by == 'y'
-    
-    return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
-
-
-def GetGridMatrix(P, Q):
-    """
-    Each matrix element equals the number of points in the corresponding grid cell.
-    """
-    P = GroupPointsByPartition(P)
-    Q = GroupPointsByPartition(Q)
-   
-    grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
-    num_rows, num_columns = len(Q.keys()), len(P.keys())
-    for r in xrange(num_rows):
-        for c in xrange(num_columns):
-            grid_matrix[r][c] = len(set(Q[r]) & set(P[c]))
-            
-    
-    flipped = np.flipud(grid_matrix)
-    return flipped
-
-def GetPartitionHistogram(D, ordinals, axis='x'):
-    assert is_sorted_increasing_by(D, axis)
-    
-    to_be_binned = range(len(D))
-    
-    #Translate Reshef's convention to adhere to Numpy's one
-    bins = [o+1 for o in ordinals[:-1]] + [ordinals[-1]]
-    
-    #Assign point indices to bins formed by the partition ordinals
-    hist = np.histogram(to_be_binned, bins)
-    return hist[0], hist[0]/float(len(D))
-
-def GetPartitionMap(D, ordinals, axis='x'):
-    assert is_sorted_increasing_by(D, axis)
-    
-    to_be_binned = range(len(Dx))
-    
-    #Translate Reshef's convention to adhere to Numpy's one
-    bins = [o+1 for o in ordinals[:-1]] + [ordinals[-1]]
-    
-    #Assign point indices to bins formed by the partition ordinals
-    map = {Dx[point_index]:partition-1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
-    
-    return map
-
-'''
-I/O
-'''
-def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
-    points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
-    
-    x_axis_parition = GroupPointsByPartition(x_axis_parition)
-    y_axis_partition = GroupPointsByPartition(y_axis_partition)
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    
-    # Scatter points
-    ax.scatter(map(p_x, points), map(p_y, points))
-    
-    x_bin_edge = lambda x_bin :last_abscissa(x_bin) + step
-    y_bin_edge = lambda y_bin:  last_ordinate(y_bin) + step
-    
-    x_ticks = map(x_bin_edge, x_axis_parition.itervalues())
-    y_ticks = map(y_bin_edge, y_axis_partition.itervalues())
-    
-    ax.get_xaxis().set_ticks(x_ticks)
-    ax.get_yaxis().set_ticks(y_ticks)
-    
-    # Format grid appearance
-    ax.grid(True, alpha=0.5, color='red', linestyle='-', linewidth=1.5)
-    
-    x_partition_size = len(x_axis_parition.values())
-    y_partition_size = len(y_axis_partition.values())
-    plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
-    plt.show()
