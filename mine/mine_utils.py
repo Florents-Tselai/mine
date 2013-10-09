@@ -1,6 +1,7 @@
 from collections import defaultdict, Mapping
 from itertools import combinations
 import numpy as np
+from math import log
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 def get_rightest_point(points): return max(points, key=p_x)

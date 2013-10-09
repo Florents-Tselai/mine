@@ -1,25 +1,12 @@
-def H(P, *Q):
-
-    if not Q:
-        return entropy(GetProbabilityDistribution(P)) if isinstance(P, Mapping) else entropy(P)   
-    else:
-        # Not implemented for len(Q) > 1
-        assert len(Q) == 1
-        
-        Q = Q[0]
-        
-        # Number of total points
-        n_points = len(set(P.iterkeys()) | set(Q.iterkeys()))
-        
-        # Probability vector for the P-by-Q grid
-        probabilities = GetGridMatrix(P, Q).flatten() / float(n_points)
-        return entropy(probabilities)
+from mine_utils import *
+import numpy as np
+from math import log
 
 def entropy(probs): 
     return -sum(p * log(p, 2) for p in probs if p > 0)
                  
-def I(P, Q):
-    return H(P) + H(Q) - H(P, Q)
+def I(P_ordinals, Q_map):
+    return HQ(Q_map) + HP(P_ordinals) - HPQ(P_ordinals, Q_map)
 
 def GetProbabilityDistribution(P):
     partittions = GroupPointsByPartition(P)
@@ -71,4 +58,15 @@ def test_H():
                           0  , 2. / 7 , 0. / 7 , 0   ,
                         1. / 7 , 0    , 1. / 7 , 0   ]))
      
+def HP(Dx, P_ordinals):
+    assert is_sorted_increasing_by(Dx, 'x')
+    
+    #Number of points in the partition
+    m = P_ordinals[-1] + abs(P_ordinals[0])
+    return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(m))
 
+def HQ(Q_map):
+    pass
+
+def HPQ(P_ordinals, Q_map):
+    pass
