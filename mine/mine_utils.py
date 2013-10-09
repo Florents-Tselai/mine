@@ -1,5 +1,5 @@
 from collections import defaultdict, Mapping
-
+import numpy as np
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 def get_rightest_point(points): return max(points, key=p_x)
@@ -31,9 +31,8 @@ def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
     
     return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
-
                   
-def GetPartitionOrdinals(D, P, axis='x'):
+def GetPartitionOrdinalsFromMap(D, P, axis='x'):
     assert is_sorted_increasing_by(D, axis)
     
     P_tilde = GroupPointsByPartition(P)
@@ -43,7 +42,7 @@ def GetPartitionOrdinals(D, P, axis='x'):
     elif axis == 'y':
         return [D.index(get_downest_point(Q_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
   
-def GetPartitionFromOrdinals(D, ordinals, axis='x'):
+def GetPartitionMapFromOrdinals(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)
     
     to_be_binned = range(len(D))
@@ -109,8 +108,7 @@ def GetPartitionHistogram(D, ordinals, axis='x'):
     bins = [o+1 for o in ordinals[:-1]] + [ordinals[-1]]
     
     #Assign point indices to bins formed by the partition ordinals
-    hist = np.histogram(to_be_binned, bins)
-    return hist[0], hist[0]/float(len(D))
+    return list(np.histogram(to_be_binned, bins)[0])
 
 def GetPartitionMap(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)

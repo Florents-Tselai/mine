@@ -1,5 +1,5 @@
 from collections import defaultdict, Mapping
-from mine_utils import GetPartitionOrdinals
+from mine_utils import *
 
 def test_GetGridMatrix():
     # Test case for joint partition
@@ -121,8 +121,6 @@ def test_GetPartitionOrdinals():
     expected_ordinals = [-1, 2, 5, 7, 8, 9]
     assert GetPartitionOrdinals(D, Q) == expected_ordinals
     
-    
-   
 def test_GetPartitionFromOrdinals():
     # Points sorted by increasing x-value
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
@@ -201,9 +199,8 @@ def test_GetPartitionHistogram():
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
 
     ordinals = [-1, 2, 5, 6]
-    assignments, probs = GetPartitionHistogram(D, ordinals)
+    assignments = GetPartitionHistogram(D, ordinals)
     assert list(assignments) == [3,3,1]
-    assert sum(probs) == 1.0
     
     ############ Another Test Case ##############
     
@@ -225,8 +222,28 @@ def test_GetPartitionHistogram():
         0|1 2|3 4 5 6
          |   |     |
      """
-    assignments, probs = GetPartitionHistogram(D, ordinals)
+    assignments = GetPartitionHistogram(D, ordinals)
     assert list(assignments) == [1,2,3,1]
-    assert sum(probs) == 1.0
+    
+    #Other test case
+    D = [(0,0), (10,10), (20,20), (30,30), (40,40), (50,50), (60,60), (70,70), (80,80), (90,90)]
+    
+    Q = {
+         (0,0): 0, 
+         (10,10): 0, 
+         (20,20): 0, 
+         (30,30): 1, 
+         (40,40): 1, 
+         (50,50): 1, 
+         (60,60): 2, 
+         (70,70): 2, 
+         (80,80): 3, 
+         (90,90):4
+         }
+    
+    assignments = GetPartitionHistogram(D, GetPartitionOrdinals(D, Q, 'y'), 'y')
+    assert assignments == [3,3,2,1,1]
+    
     
 test_GetPartitionOrdinals()
+test_GetPartitionHistogram()
