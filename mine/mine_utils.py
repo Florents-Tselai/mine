@@ -40,7 +40,7 @@ def GetPartitionOrdinalsFromMap(D, P, axis='x'):
     if axis == 'x':
         return [D.index(get_leftest_point(P_tilde[0])) - 1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
-        return [D.index(get_downest_point(Q_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+        return [D.index(get_downest_point(P_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
   
 def GetPartitionMapFromOrdinals(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)
@@ -81,23 +81,6 @@ def GroupPointsByPartition(P):
     for k, v in P.iteritems(): 
         d[v].append(k)
     return dict(d)
-
-def GetGridMatrix(P, Q):
-    """
-    Each matrix element equals the number of points in the corresponding grid cell.
-    """
-    P = GroupPointsByPartition(P)
-    Q = GroupPointsByPartition(Q)
-   
-    grid_matrix = np.zeros(shape=(len(Q.keys()), len(P.keys())), dtype=int)
-    num_rows, num_columns = len(Q.keys()), len(P.keys())
-    for r in xrange(num_rows):
-        for c in xrange(num_columns):
-            grid_matrix[r][c] = len(set(Q[r]) & set(P[c]))
-            
-    
-    flipped = np.flipud(grid_matrix)
-    return flipped
 
 def GetPartitionHistogram(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)

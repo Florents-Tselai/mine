@@ -1,47 +1,7 @@
 from collections import defaultdict, Mapping
 from mine_utils import *
 
-def test_GetGridMatrix():
-    # Test case for joint partition
-    """
-      4  |   |     |x
-      3  |   |  x  |
-      2  |   |x    |
-         *----+---+-----+-
-      1  |x x|     |
-         *----+---+-----+-
-      0 x|   |    x|
-        0|1 2|3 4 5 6
-         |   |     |
-     """
-    # Constructing the grid above
-    P = {(0, 0): 0,
-         (1, 1): 1,
-         (2, 1): 1,
-         (3, 2): 2,
-         (4, 3): 2,
-         (5, 0): 2,
-         (6, 4): 3
-         }
-    
-    Q = {(0, 0): 0,
-         (1, 1): 1,
-         (2, 1): 1,
-         (3, 2): 2,
-         (4, 3): 2,
-         (5, 0): 0,
-         (6, 4): 2
-         }
-    
-    grid_matrix = GetGridMatrix(P, Q)
-    assert grid_matrix[0][0] == 0
-    assert grid_matrix[0][1] == 0
-    assert grid_matrix[0][2] == 2
-    assert grid_matrix[1][1] == 2
-    assert grid_matrix[2][0] == 1
-    assert grid_matrix[2][2] == 1
-
-def test_GetPartitionOrdinals():
+def test_GetPartitionOrdinalsFromMap():
     # Points sorted by increasing x-value
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
     
@@ -72,8 +32,8 @@ def test_GetPartitionOrdinals():
     assert partition_size == 4
     
     expected_ordinals = [-1, 0, 2, 5, 6]
-    assert len(GetPartitionOrdinals(D, P1)) == partition_size + 1
-    assert GetPartitionOrdinals(D, P1) == expected_ordinals
+    assert len(GetPartitionOrdinalsFromMap(D, P1)) == partition_size + 1
+    assert GetPartitionOrdinalsFromMap(D, P1) == expected_ordinals
     
     # Another test
     """
@@ -100,8 +60,8 @@ def test_GetPartitionOrdinals():
     assert partition_size == 2
     
     expected_ordinals = [-1, 5, 6]
-    assert len(GetPartitionOrdinals(D, P2)) == partition_size + 1
-    assert GetPartitionOrdinals(D, P2) == expected_ordinals
+    assert len(GetPartitionOrdinalsFromMap(D, P2)) == partition_size + 1
+    assert GetPartitionOrdinalsFromMap(D, P2) == expected_ordinals
     
     D = [(0,0), (10,10), (20,20), (30,30), (40,40), (50,50), (60,60), (70,70), (80,80), (90,90)]
     
@@ -119,9 +79,9 @@ def test_GetPartitionOrdinals():
          }
     
     expected_ordinals = [-1, 2, 5, 7, 8, 9]
-    assert GetPartitionOrdinals(D, Q) == expected_ordinals
+    assert GetPartitionOrdinalsFromMap(D, Q) == expected_ordinals
     
-def test_GetPartitionFromOrdinals():
+def test_GetParitionMapFromOrdinals():
     # Points sorted by increasing x-value
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
     
@@ -148,7 +108,7 @@ def test_GetPartitionFromOrdinals():
          (5, 0): 2,
          (6, 4): 3
          }
-    assert GetPartitionFromOrdinals(D, ordinals) == P
+    assert GetPartitionMapFromOrdinals(D, ordinals) == P
     
     # Now test with two ordinals
     
@@ -173,16 +133,7 @@ def test_GetPartitionFromOrdinals():
          (5, 0): 1,
          (6, 4): 2
          }
-    assert GetPartitionFromOrdinals(D, ordinals) == P
-    
-def test_visualize():
-    # Albanese dataset
-    # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
-    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
-    Q = EquipartitionYAxis(D, y=3)
-    P = GetClumpsPartition(D, Q)
-    
-    visualize(P, Q)
+    assert GetPartitionMapFromOrdinals(D, ordinals) == P
     
 def test_GetPartitionHistogram():
     """
@@ -241,9 +192,18 @@ def test_GetPartitionHistogram():
          (90,90):4
          }
     
-    assignments = GetPartitionHistogram(D, GetPartitionOrdinals(D, Q, 'y'), 'y')
+    assignments = GetPartitionHistogram(D, GetPartitionOrdinalsFromMap(D, Q, 'y'), 'y')
     assert assignments == [3,3,2,1,1]
+ 
+def test_visualize():
+    # Albanese dataset
+    # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
+    D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
+    Q = EquipartitionYAxis(D, y=3)
+    P = GetClumpsPartition(D, Q)
     
+    visualize(P, Q)   
     
-test_GetPartitionOrdinals()
+test_GetPartitionOrdinalsFromMap()
+test_GetParitionMapFromOrdinals()
 test_GetPartitionHistogram()
