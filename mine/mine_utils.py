@@ -1,6 +1,15 @@
+from collections import defaultdict, Mapping
+
+
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 def get_rightest_point(points): return max(points, key=p_x)
+
+def get_leftest_point(points): return min(points, key=p_x)
+
 def get_uppest_point(points): return max(points, key=p_y)
+
+def get_downest_point(points): return min(points, key=p_y)
+
 def last_abscissa(x_bin): return p_x(get_rightest_point(x_bin))
 def last_ordinate(y_bin): return p_y(get_uppest_point(y_bin))
 
@@ -25,11 +34,14 @@ def sort_D_increasing_by(D, increasing_by='x'):
 
                   
 def GetPartitionOrdinals(D, P, axis='x'):
+    assert is_sorted_increasing_by(D, axis)
+    
     P_tilde = GroupPointsByPartition(P)
+    
     if axis == 'x':
-        return [-1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+        return [D.index(get_leftest_point(P_tilde[0])) - 1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
-        return [-1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+        return [D.index(get_downest_point(Q_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
   
 def GetPartitionFromOrdinals(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)

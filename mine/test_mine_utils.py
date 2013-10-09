@@ -1,3 +1,6 @@
+from collections import defaultdict, Mapping
+from mine_utils import GetPartitionOrdinals
+
 def test_GetGridMatrix():
     # Test case for joint partition
     """
@@ -38,7 +41,7 @@ def test_GetGridMatrix():
     assert grid_matrix[2][0] == 1
     assert grid_matrix[2][2] == 1
 
-def test_GetOrdinals():
+def test_GetPartitionOrdinals():
     # Points sorted by increasing x-value
     D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
     
@@ -99,6 +102,26 @@ def test_GetOrdinals():
     expected_ordinals = [-1, 5, 6]
     assert len(GetPartitionOrdinals(D, P2)) == partition_size + 1
     assert GetPartitionOrdinals(D, P2) == expected_ordinals
+    
+    D = [(0,0), (10,10), (20,20), (30,30), (40,40), (50,50), (60,60), (70,70), (80,80), (90,90)]
+    
+    Q = {
+         (0,0): 0, 
+         (10,10): 0, 
+         (20,20): 0, 
+         (30,30): 1, 
+         (40,40): 1, 
+         (50,50): 1, 
+         (60,60): 2, 
+         (70,70): 2, 
+         (80,80): 3, 
+         (90,90):4
+         }
+    
+    expected_ordinals = [-1, 2, 5, 7, 8, 9]
+    assert GetPartitionOrdinals(D, Q) == expected_ordinals
+    
+    
    
 def test_GetPartitionFromOrdinals():
     # Points sorted by increasing x-value
@@ -206,3 +229,4 @@ def test_GetPartitionHistogram():
     assert list(assignments) == [1,2,3,1]
     assert sum(probs) == 1.0
     
+test_GetPartitionOrdinals()
