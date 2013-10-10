@@ -108,8 +108,8 @@ def test_OptimizeXAxis():
     pass
 
 def test_ApproxCharacteristicMatrix():
-    x = range(100)
-    y = [a for a in x]
+    x = range(1000)
+    y = [a^2 + a^3 + 2*a for a in x]
     D = zip(x, y)
     n = len(D)
     B = pow(n, 0.6)
@@ -117,3 +117,5 @@ def test_ApproxCharacteristicMatrix():
     M = ApproxCharacteristicMatrix(D, B, c)
     print M
     
+    
+test_ApproxCharacteristicMatrix()

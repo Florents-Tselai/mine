@@ -26,7 +26,7 @@ import numpy as np
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
     
-    Q = EquipartitionYAxis(D, y)
+    Q = EquipartitionYAxis(sort_D_increasing_by(D, increasing_by='y'), y)
     D = sort_D_increasing_by(D, increasing_by='x')
     return OptimizeXAxis(D, Q, x, k_hat)
 
@@ -154,7 +154,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
     assert is_sorted_increasing_by(D, 'x')
     
     super_clumps_partition = GetSuperclumpsPartition(D, Q, k_hat)
-    c = GetPartitionOrdinals(D, super_clumps_partition, axis='x')
+    c = GetPartitionOrdinalsFromMap(D, super_clumps_partition, axis='x')
     
     # Total number of clumps
     k = len(set(super_clumps_partition.values()))
@@ -165,30 +165,24 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     for t in xrange(2, k + 1):
         s = max(xrange(1, t + 1),
-                key=lambda s: 
-                            H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x')) - 
-                            H(GetPartitionFromOrdinals(D, ordinals=[c[0], c[s], c[t]], axis='x'), Q))
+                key=lambda s: HP(D, [c[0], c[s], c[t]]) - HPQ([c[0], c[s], c[t]], Q))
         
         # Optimal partition of size 2 on the first t clumps
-        optimal_2_partition_ordinals = [c[0], c[s], c[t]]
-        P_t_2 = GetPartitionFromOrdinals(D, ordinals=optimal_2_partition_ordinals, axis='x')
-        I[t][2] = H(Q) + H(P_t_2) - H(P_t_2, Q)
+        P_t_2 = [c[0], c[s], c[t]]
+        I[t][2] = HQ(Q) + HP(D, P_t_2) - HPQ(P_t_2, Q)
    
     # Inductively build the rest of the table of optimal partitions
     for l in xrange(3, x + 1):
         for t in xrange(l, k + 1):
-            
             s = max(range(l - 1, t + 1),
-                    key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - H(Q)) - float(((c[t] - c[s]) / c[t])) * H(GetPartitionFromOrdinals(D, [c[s], c[t]], axis='x'), Q)
+                    key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float(((c[t] - c[s]) / c[t])) * HPQ([c[s],c[t]], Q)
                     )
-            ordinals_t_l_1 = [c[0]] + [c[i] for i in xrange(1, l)]
-            bisect.insort(ordinals_t_l_1, c[t])
-            ordinals_t_l = ordinals_t_l_1
-            assert (len(ordinals_t_l) - 1) == l
+            P_t_l =  c[1:l-1]
+            #Or c[0] + c[1:l-1]
+            bisect.insort(P_t_l, c[t])
 
             # Optimal partition of size l on the first t clumps of D
-            P_t_l = GetPartitionFromOrdinals(D, ordinals_t_l_1, axis='x')
-            I[t][l] = H(Q) + H(P_t_l) - H(P_t_l, Q)
+            I[t][l] = HQ(Q) + HP(D, P_t_l) - HPQ(P_t_l, Q)
 
     for l in xrange(k + 1, x + 1): I[k][l] = I[k][k]
     
