@@ -17,7 +17,8 @@ from collections import defaultdict, Mapping
 from copy import copy
 from itertools import chain, tee, izip
 from math import log, floor
-
+from mine_utils import *
+from mine_computations import *
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -64,7 +65,7 @@ def ApproxCharacteristicMatrix(D, B, c):
     return M
     
 def EquipartitionYAxis(D, y):
-    if not is_sorted_increasing_by(D, 'y'): D = sort_D_increasing_by(D, 'y')
+    assert is_sorted_increasing_by(D, 'y')
     
     n = len(D)
     
@@ -100,7 +101,7 @@ def EquipartitionYAxis(D, y):
     return Q
 
 def GetClumpsPartition(D, Q):
-    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
+    assert is_sorted_increasing_by(D, 'x')
     
     n = len(D)
     
@@ -137,7 +138,7 @@ def GetClumpsPartition(D, Q):
     return P
 
 def GetSuperclumpsPartition(D, Q, k_hat):
-    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
+    assert is_sorted_increasing_by(D, 'x')
 
     P_tilde = GetClumpsPartition(D, Q)
     k = len(set(P_tilde.values()))    
@@ -150,7 +151,7 @@ def GetSuperclumpsPartition(D, Q, k_hat):
         return P_tilde    
     
 def OptimizeXAxis(D, Q, x, k_hat):
-    if not is_sorted_increasing_by(D, 'x'): D = sort_D_increasing_by(D, 'x')
+    assert is_sorted_increasing_by(D, 'x')
     
     super_clumps_partition = GetSuperclumpsPartition(D, Q, k_hat)
     c = GetPartitionOrdinals(D, super_clumps_partition, axis='x')

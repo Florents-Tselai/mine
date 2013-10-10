@@ -8,56 +8,6 @@ def entropy(probs):
 def I(P_ordinals, Q_map):
     return HQ(Q_map) + HP(P_ordinals) - HPQ(P_ordinals, Q_map)
 
-def GetProbabilityDistribution(P):
-    partittions = GroupPointsByPartition(P)
-    # The probability mass of each partition is the fraction of points that lie in this partition
-    prob_mass = lambda p: len(partittions[p]) / float(len(P))
-    return map(prob_mass, partittions)
-def test_H():
-    assert H(P=[0.25, 0.25, 0.25, 0.25]) == 2
-    
-    # OpenMIC test case
-    assert H(P=[1. / 8, 1. / 4, 1. / 8, 1. / 2]) == 7. / 4
-    
-    # Test case for joint partition
-    """
-      4  |   |     |x
-      3  |   |  x  |
-      2  |   |x    |
-         *----+---+-----+-
-      1  |x x|     |
-         *----+---+-----+-
-      0 x|   |    x|
-        0|1 2|3 4 5 6
-         |   |     |
-     """
-    # Constructing the grid above
-    P = {(0, 0): 0,
-         (1, 1): 1,
-         (2, 1): 1,
-         (3, 2): 2,
-         (4, 3): 2,
-         (5, 0): 2,
-         (6, 4): 3
-         }
-    
-    Q = {(0, 0): 0,
-         (1, 1): 1,
-         (2, 1): 1,
-         (3, 2): 2,
-         (4, 3): 2,
-         (5, 0): 0,
-         (6, 4): 2
-         }
-    
-    # visualize(P, Q)
-    
-    # Joint entropy computation
-    assert (H(P, Q) == H(
-                         [0  , 0    , 2. / 7 , 1. / 7,
-                          0  , 2. / 7 , 0. / 7 , 0   ,
-                        1. / 7 , 0    , 1. / 7 , 0   ]))
-     
 def HP(Dx, P_ordinals):
     assert is_sorted_increasing_by(Dx, 'x')
     
@@ -66,7 +16,14 @@ def HP(Dx, P_ordinals):
     return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(m))
 
 def HQ(Q_map):
-    pass
+    n = len(Q_map)
+    temp = GroupPointsByPartition(Q_map)
+    return entropy([len(temp[k]) / float(n) for k in temp])
 
 def HPQ(P_ordinals, Q_map):
-    pass
+    Dx = sort_D_increasing_by(Q_map.keys(), 'x')
+    
+    x_axis_partition = GetPartitionMapFromOrdinals(Dx, P_ordinals, axis='x')
+    m = len(x_axis_partition.keys())
+    
+    return entropy(np.array(GetGridHistogram(Q_map, x_axis_partition)) / float(m))
