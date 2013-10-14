@@ -117,17 +117,15 @@ def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
     plt.show()
 
-def GetGridHistogram(Q, P):
-    columns = GroupPointsByPartition(P)
+def GetGridHistogram(Q, P_ordinals):
     rows = GroupPointsByPartition(Q)
     
-    grid_matrix = np.zeros(shape=(len(rows), len(columns)), dtype=int)
+    Dx = sort_D_increasing_by(Q.keys(), 'x')
     
-    for r in range(len(rows)):
-        for c in range(len(columns)):
-            rows_points = rows[r]
-            column_points = columns[c]
-            n = len(set(rows_points).intersection(column_points))
-            grid_matrix[r][c] = n
-        
-    return list(np.flipud(grid_matrix).flatten())
+    histogram = []
+    for p in pairwise(P_ordinals):
+        p1, p2 = p[0], p[1]
+        l = Dx[(p1+1):(p2+1)]
+        for r in xrange(len(rows)):
+            histogram.append(sum(1 for point in l if point in rows[r]))
+    return histogram

@@ -17,16 +17,14 @@ def HP(Dx, P_ordinals):
     return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(m))
 
 def HQ(Q_map):
-    #return randrange(10)
     n = len(Q_map)
     temp = GroupPointsByPartition(Q_map)
     return entropy([len(temp[k]) / float(n) for k in temp])
 
 def HPQ(P_ordinals, Q_map):
-    return randrange(10)
     Dx = sort_D_increasing_by(Q_map.keys(), 'x')
     
-    x_axis_partition = GetPartitionMapFromOrdinals(Dx, P_ordinals, axis='x')
-    m = len(x_axis_partition.keys())
+    #x_axis_partition = GetPartitionMapFromOrdinals(Dx, P_ordinals, axis='x')
+    m = len(Q_map.keys())
     
-    return entropy(np.array(GetGridHistogram(Q_map, x_axis_partition)) / float(m))
+    return entropy(np.array(GetGridHistogram(Q_map, P_ordinals)) / float(m))

@@ -231,27 +231,13 @@ def test_GetGridHistogram():
          (6,4):2
          }
     
-    P1 = {
-         (3, 2): 1, 
-         (5, 0): 1, 
-         (2, 1): 0, 
-         (4, 3): 1, 
-         (1, 1): 0
-         }
+    P1 = [-1,0,2,5,6]
     
-    assert GetGridHistogram(Q1,P1) == [0,2,2,0,0,1]
+    assert GetGridHistogram(Q1,P1) == [1, 0, 0, 0, 2, 0, 1, 0, 2, 0, 0, 1]
     
-    P2 = {
-         (3, 2): 2, 
-         (5, 0): 2, 
-         (2, 1): 1,
-         (1, 1): 1, 
-         (4, 3): 2, 
-         (0, 0): 0,
-         (6, 4): 3
-         }
+    P2 = [-1, 0, 5, 6]
+    assert GetGridHistogram(Q1,P2) == [1, 0, 0, 1, 2, 2, 0, 0, 1]
     
-    assert GetGridHistogram(Q1,P2) == [0,0,2,1,0,2,0,0,1,0,1,0]
     
 test_GetPartitionOrdinalsFromMap()
 test_GetParitionMapFromOrdinals()
