@@ -190,9 +190,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
                     key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
                     )
             P_t_l = c[1:l - 1]
-            # Or c[0] + c[1:l-1]
             bisect.insort(P_t_l, c[t])
-
             # Optimal partition of size l on the first t clumps of D
             I[t][l] = HQ(Q) + HP(D, P_t_l) - HPQ(P_t_l, Q)
 
@@ -210,8 +208,8 @@ def HP(Dx, P_ordinals):
     assert is_sorted_increasing_by(Dx, 'x')
     
     # Number of points in the partition 
-    m = P_ordinals[-1] + abs(P_ordinals[0])
-    return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(m))
+    n = m(P_ordinals)
+    return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(n))
 
 def HQ(Q_map):
     n = len(Q_map)
@@ -221,8 +219,7 @@ def HQ(Q_map):
 def HPQ(P_ordinals, Q_map):
     Dx = sort_D_increasing_by(Q_map.keys(), 'x')
     
-    m = P_ordinals[-1] + abs(P_ordinals[0])
-    return entropy(np.array(GetGridHistogram(Q_map, P_ordinals)) / float(m))
+    return entropy(np.array(GetGridHistogram(Q_map, P_ordinals)) / float(m(P_ordinals)))
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -237,6 +234,9 @@ def is_sorted_increasing_by(D, increasing_by='x'):
         return all(p_x(D[i]) <= p_x(D[i + 1]) for i in xrange(len(D) - 1))
     else:
         return all(p_y(D[i]) <= p_y(D[i + 1]) for i in xrange(len(D) - 1))
+
+def m(ordinals):
+    return sum(o2+1 if o1<0 else o2-o1 for o1, o2 in pairwise(ordinals))
 
 def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
@@ -332,9 +332,7 @@ def GetGridHistogram(Q, P_ordinals):
     Dx = sort_D_increasing_by(Q.keys(), 'x')
     
     histogram = []
-    for p in pairwise(P_ordinals):
-        p1, p2 = p[0], p[1]
-        l = Dx[(p1 + 1):(p2 + 1)]
+    for p1, p2 in pairwise(P_ordinals):
         for r in xrange(len(rows)):
-            histogram.append(sum(1 for point in l if point in rows[r]))
+            histogram.append(sum(1 for point in Dx[(p1 + 1):(p2 + 1)] if point in rows[r]))
     return histogram

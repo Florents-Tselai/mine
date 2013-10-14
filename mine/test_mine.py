@@ -450,7 +450,11 @@ def test_GetGridHistogram():
     
     P2 = [-1, 0, 5, 6]
     assert GetGridHistogram(Q1, P2) == [1, 0, 0, 1, 2, 2, 0, 0, 1]
-    
+
+def test_m():
+    assert m([-1, 2, 3, 6]) == 7
+    assert m([2,5,9]) == 7
+    assert m([-1,6,7]) == 8
     
 test_ApproxCharacteristicMatrix()
 
@@ -462,3 +466,5 @@ test_GetGridHistogram()
 test_HP()
 test_HQ()
 test_HPQ()
+
+test_m()
