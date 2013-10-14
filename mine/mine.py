@@ -21,6 +21,7 @@ from math import log, floor
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
 def get_rightest_point(points): return max(points, key=p_x)
@@ -186,10 +187,10 @@ def OptimizeXAxis(D, Q, x, k_hat):
     for l in xrange(3, x + 1):
         for t in xrange(l, k + 1):
             s = max(range(l - 1, t + 1),
-                    key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float(((c[t] - c[s]) / c[t])) * HPQ([c[s],c[t]], Q)
+                    key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
                     )
-            P_t_l =  c[1:l-1]
-            #Or c[0] + c[1:l-1]
+            P_t_l = c[1:l - 1]
+            # Or c[0] + c[1:l-1]
             bisect.insort(P_t_l, c[t])
 
             # Optimal partition of size l on the first t clumps of D
@@ -208,7 +209,7 @@ def I(P_ordinals, Q_map):
 def HP(Dx, P_ordinals):
     assert is_sorted_increasing_by(Dx, 'x')
     
-    #Number of points in the partition 
+    # Number of points in the partition 
     m = P_ordinals[-1] + abs(P_ordinals[0])
     return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(m))
 
@@ -257,10 +258,10 @@ def GetPartitionMapFromOrdinals(D, ordinals, axis='x'):
     
     to_be_binned = range(len(D))
         
-    #Translate Reshef's convention to adhere to Numpy's one
-    bins = [o+1 for o in ordinals[:-1]]  
-    #Assign point indices to bins formed by the partition ordinals
-    map = {D[point_index]:partition-1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
+    # Translate Reshef's convention to adhere to Numpy's one
+    bins = [o + 1 for o in ordinals[:-1]]  
+    # Assign point indices to bins formed by the partition ordinals
+    map = {D[point_index]:partition - 1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
     
     return map
 
@@ -294,7 +295,7 @@ def GroupPointsByPartition(P):
 
 def GetPartitionHistogram(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)
-    return [p[1]+1 if p[0]<0 else p[1]-p[0] for p in pairwise(ordinals)]
+    return [p[1] + 1 if p[0] < 0 else p[1] - p[0] for p in pairwise(ordinals)]
 
 def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
@@ -333,7 +334,7 @@ def GetGridHistogram(Q, P_ordinals):
     histogram = []
     for p in pairwise(P_ordinals):
         p1, p2 = p[0], p[1]
-        l = Dx[(p1+1):(p2+1)]
+        l = Dx[(p1 + 1):(p2 + 1)]
         for r in xrange(len(rows)):
             histogram.append(sum(1 for point in l if point in rows[r]))
     return histogram

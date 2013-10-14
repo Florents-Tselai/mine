@@ -109,7 +109,7 @@ def test_OptimizeXAxis():
 
 def test_ApproxCharacteristicMatrix():
     x = range(100)
-    y = [a^2 + a^3 + 2*a for a in x]
+    y = [a ^ 2 + a ^ 3 + 2 * a for a in x]
     D = zip(x, y)
     n = len(D)
     B = pow(n, 0.6)
@@ -134,13 +134,13 @@ def test_HP():
         0|1 2|3 4 5 6
          |   |     |
      """
-    assert HP(Dx, P1_ordinals) == entropy([1./7, 2./7 , 3./7,1./7])
+    assert HP(Dx, P1_ordinals) == entropy([1. / 7, 2. / 7 , 3. / 7, 1. / 7])
     
-    assert HP(Dx, [0,2,5]) == entropy([2./5, 3./5])
+    assert HP(Dx, [0, 2, 5]) == entropy([2. / 5, 3. / 5])
     
-    assert HP(Dx, [-1,0]) == entropy([1./1])
+    assert HP(Dx, [-1, 0]) == entropy([1. / 1])
     
-    assert HP(Dx, [-1, 5, 6]) == entropy([6./7 , 1./7])
+    assert HP(Dx, [-1, 5, 6]) == entropy([6. / 7 , 1. / 7])
     
 def test_HQ():
     """
@@ -157,14 +157,14 @@ def test_HQ():
      
     assert HQ(
             {
-             (0,0): 0,
-             (5,0): 0,
-             (1,1): 1,
-             (3,2): 2,
-             (4,3): 2,
-             (6,4): 2
+             (0, 0): 0,
+             (5, 0): 0,
+             (1, 1): 1,
+             (3, 2): 2,
+             (4, 3): 2,
+             (6, 4): 2
             }
-            ) == entropy([2./6, 1./6, 3./6])
+            ) == entropy([2. / 6, 1. / 6, 3. / 6])
             
     """
       4  |   |     |x
@@ -178,15 +178,15 @@ def test_HQ():
      """
     assert HQ(
             {
-             (0,0): 0,
-             (5,0): 0,
-             (1,1): 0,
-             (2,1): 0,
-             (3,2): 1,
-             (4,3): 1,
-             (6,4): 1
+             (0, 0): 0,
+             (5, 0): 0,
+             (1, 1): 0,
+             (2, 1): 0,
+             (3, 2): 1,
+             (4, 3): 1,
+             (6, 4): 1
             }
-            ) == entropy([4./7, 3./7])
+            ) == entropy([4. / 7, 3. / 7])
     
 def test_HPQ():
     """
@@ -202,18 +202,18 @@ def test_HPQ():
      """
     P_ordinals = [-1, 0, 2, 5]
     Q_map = {
-             (0,0): 0,
-             (5,0): 0,
+             (0, 0): 0,
+             (5, 0): 0,
              
-             (1,1): 1,
-             (2,1): 1,
+             (1, 1): 1,
+             (2, 1): 1,
              
-             (3,2): 2,
-             (4,3): 2,
-             (6,4): 2
+             (3, 2): 2,
+             (4, 3): 2,
+             (6, 4): 2
              }
     
-    assert HPQ(P_ordinals, Q_map) == entropy([1./6, 0./6, 0./6, 0./6, 2./6, 1./6, 0./6, 2./6])
+    assert HPQ(P_ordinals, Q_map) == entropy([1. / 6, 0. / 6, 0. / 6, 0. / 6, 2. / 6, 1. / 6, 0. / 6, 2. / 6])
  
 def test_GetPartitionOrdinalsFromMap():
     # Points sorted by increasing x-value
@@ -277,19 +277,19 @@ def test_GetPartitionOrdinalsFromMap():
     assert len(GetPartitionOrdinalsFromMap(D, P2)) == partition_size + 1
     assert GetPartitionOrdinalsFromMap(D, P2) == expected_ordinals
     
-    D = [(0,0), (10,10), (20,20), (30,30), (40,40), (50,50), (60,60), (70,70), (80,80), (90,90)]
+    D = [(0, 0), (10, 10), (20, 20), (30, 30), (40, 40), (50, 50), (60, 60), (70, 70), (80, 80), (90, 90)]
     
     Q = {
-         (0,0): 0, 
-         (10,10): 0, 
-         (20,20): 0, 
-         (30,30): 1, 
-         (40,40): 1, 
-         (50,50): 1, 
-         (60,60): 2, 
-         (70,70): 2, 
-         (80,80): 3, 
-         (90,90):4
+         (0, 0): 0,
+         (10, 10): 0,
+         (20, 20): 0,
+         (30, 30): 1,
+         (40, 40): 1,
+         (50, 50): 1,
+         (60, 60): 2,
+         (70, 70): 2,
+         (80, 80): 3,
+         (90, 90):4
          }
     
     expected_ordinals = [-1, 2, 5, 7, 8, 9]
@@ -365,7 +365,7 @@ def test_GetPartitionHistogram():
 
     ordinals = [-1, 2, 5, 6]
     assignments = GetPartitionHistogram(D, ordinals)
-    assert list(assignments) == [3,3,1]
+    assert list(assignments) == [3, 3, 1]
     
     ############ Another Test Case ##############
     
@@ -388,26 +388,26 @@ def test_GetPartitionHistogram():
          |   |     |
      """
     assignments = GetPartitionHistogram(D, ordinals)
-    assert list(assignments) == [1,2,3,1]
+    assert list(assignments) == [1, 2, 3, 1]
     
-    #Other test case
-    D = [(0,0), (10,10), (20,20), (30,30), (40,40), (50,50), (60,60), (70,70), (80,80), (90,90)]
+    # Other test case
+    D = [(0, 0), (10, 10), (20, 20), (30, 30), (40, 40), (50, 50), (60, 60), (70, 70), (80, 80), (90, 90)]
     
     Q = {
-         (0,0): 0, 
-         (10,10): 0, 
-         (20,20): 0, 
-         (30,30): 1, 
-         (40,40): 1, 
-         (50,50): 1, 
-         (60,60): 2, 
-         (70,70): 2, 
-         (80,80): 3, 
-         (90,90):4
+         (0, 0): 0,
+         (10, 10): 0,
+         (20, 20): 0,
+         (30, 30): 1,
+         (40, 40): 1,
+         (50, 50): 1,
+         (60, 60): 2,
+         (70, 70): 2,
+         (80, 80): 3,
+         (90, 90):4
          }
     
     assignments = GetPartitionHistogram(D, GetPartitionOrdinalsFromMap(D, Q, 'y'), 'y')
-    assert assignments == [3,3,2,1,1]
+    assert assignments == [3, 3, 2, 1, 1]
  
 def test_visualize():
     # Albanese dataset
@@ -435,22 +435,21 @@ def test_GetGridHistogram():
     Dx = sort_D_increasing_by(D, 'x')
     
     Q1 = {
-         (0,0): 0,
-         (5,0): 0,
-         (1,1): 1,
-         (2,1): 1,
-         (3,2): 2,
-         (4,3): 2,
-         (6,4):2
+         (0, 0): 0,
+         (5, 0): 0,
+         (1, 1): 1,
+         (2, 1): 1,
+         (3, 2): 2,
+         (4, 3): 2,
+         (6, 4):2
          }
     
-    P1 = [-1,0,2,5,6]
+    P1 = [-1, 0, 2, 5, 6]
     
-    assert GetGridHistogram(Q1,P1) == [1, 0, 0, 0, 2, 0, 1, 0, 2, 0, 0, 1]
+    assert GetGridHistogram(Q1, P1) == [1, 0, 0, 0, 2, 0, 1, 0, 2, 0, 0, 1]
     
     P2 = [-1, 0, 5, 6]
-    assert GetGridHistogram(Q1,P2) == [1, 0, 0, 1, 2, 2, 0, 0, 1]
-    
+    assert GetGridHistogram(Q1, P2) == [1, 0, 0, 1, 2, 2, 0, 0, 1]
     
     
 test_ApproxCharacteristicMatrix()
