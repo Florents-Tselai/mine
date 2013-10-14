@@ -331,8 +331,6 @@ def GetGridHistogram(Q, P_ordinals):
     
     Dx = sort_D_increasing_by(Q.keys(), 'x')
     
-    histogram = []
-    for p1, p2 in pairwise(P_ordinals):
-        for r in xrange(len(rows)):
-            histogram.append(sum(1 for point in Dx[(p1 + 1):(p2 + 1)] if point in rows[r]))
-    return histogram
+    def cell_size(p1, p2, r): return sum(1 for point in Dx[(p1 + 1):(p2 + 1)] if point in rows[r])
+    
+    return [cell_size(p1, p2, r) for p1, p2 in pairwise(P_ordinals) for r in xrange(len(rows))]
