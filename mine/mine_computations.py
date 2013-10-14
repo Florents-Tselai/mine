@@ -10,10 +10,9 @@ def I(P_ordinals, Q_map):
     return HQ(Q_map) + HP(P_ordinals) - HPQ(P_ordinals, Q_map)
 
 def HP(Dx, P_ordinals):
-    return randrange(10000)
     assert is_sorted_increasing_by(Dx, 'x')
     
-    #Number of points in the partition
+    #Number of points in the partition 
     m = P_ordinals[-1] + abs(P_ordinals[0])
     return entropy(np.array(GetPartitionHistogram(Dx, P_ordinals)) / float(m))
 

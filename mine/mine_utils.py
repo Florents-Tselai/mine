@@ -1,5 +1,5 @@
 from collections import defaultdict, Mapping
-from itertools import combinations
+from itertools import combinations, tee, izip
 import numpy as np
 from math import log
 
@@ -86,14 +86,7 @@ def GroupPointsByPartition(P):
 
 def GetPartitionHistogram(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)
-    
-    to_be_binned = range(len(D))
-    
-    #Translate Reshef's convention to adhere to Numpy's one
-    bins = [o+1 for o in ordinals[:-1]] + [ordinals[-1]]
-    
-    #Assign point indices to bins formed by the partition ordinals
-    return list(np.histogram(to_be_binned, bins)[0])
+    return [p[1]+1 if p[0]<0 else p[1]-p[0] for p in pairwise(ordinals)]
 
 def visualize(x_axis_parition={}, y_axis_partition={}, step=0.2):
     points = set(chain(x_axis_parition.iterkeys(), y_axis_partition.iterkeys()))
