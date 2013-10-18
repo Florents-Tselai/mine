@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 import unittest
 from collections import OrderedDict
 
@@ -27,7 +28,7 @@ class mine__test(unittest.TestCase):
         D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
         
         Dy  = sort_D_increasing_by(D, 'y')
-        Q = EquipartitionYAxis(Dy, y=3)
+        Q = EquipartitionYAxis(sort_D_increasing_by(D, 'y'), y=3)
         
         assert Q[(1, 1)] == 0
         assert Q[(1, 2)] == 0
@@ -60,7 +61,7 @@ class mine__test(unittest.TestCase):
         -------------
           0 1 2 3 4 5
          '''
-        Q = EquipartitionYAxis(D, y=3)
+        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), y=3)
         
         assert Q[(0, 0)] == 0
         assert Q[(5, 0)] == 0
@@ -76,7 +77,7 @@ class mine__test(unittest.TestCase):
         # Albanese et.al. data
         D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
     
-        Q = EquipartitionYAxis(D, 3)
+        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), 3)
         
         P = GetClumpsPartition(D, Q)
         
@@ -101,8 +102,8 @@ class mine__test(unittest.TestCase):
         
         # Spinellis OpenMIC data
         D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
-        Q = EquipartitionYAxis(D, y=3)
-        P = GetClumpsPartition(D, Q)
+        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), y=3)
+        P = GetClumpsPartition(sort_D_increasing_by(D,increasing_by='x'), Q)
         clumps_partition_groups = GroupPointsByPartition(P)
         assert (0, 0) in clumps_partition_groups[0]
         assert (1, 1) and (2, 1) in clumps_partition_groups[1]
@@ -419,7 +420,7 @@ class mine__test(unittest.TestCase):
         # Albanese dataset
         # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
         D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
-        Q = EquipartitionYAxis(D, y=3)
+        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), y=3)
         P = GetClumpsPartition(D, Q)
         
         #visualize(P, Q)   
@@ -437,8 +438,8 @@ class mine__test(unittest.TestCase):
              |   |     |
         """
         D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
-        Dy = sort_D_increasing_by(D, 'y')
-        Dx = sort_D_increasing_by(D, 'x')
+        Dy = sort_D_increasing_by(D, increasing_by='y')
+        Dx = sort_D_increasing_by(D, increasing_by='x')
         
         Q1 = {
              (0, 0): 0,
