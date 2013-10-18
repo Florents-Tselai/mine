@@ -241,9 +241,8 @@ def m(ordinals):
 def sort_D_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
     
-    if increasing_by == 'x': return sorted(D, key=p_x)
-    elif increasing_by == 'y': return sorted(D, key=p_y)
-    else: raise Exception("Wrong sorting criterion")
+    return sorted(D, key=p_x) if increasing_by == 'x' else sorted(D, key=p_y)
+       
 
 def GetPartitionOrdinalsFromMap(D, P, axis='x'):
     assert is_sorted_increasing_by(D, axis)

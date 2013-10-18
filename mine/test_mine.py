@@ -20,15 +20,21 @@ from mine import *
 class mine__test(unittest.TestCase):
 
     def setUp(self):
-        pass
+        #Albanese et. al. data
+        self.D1 = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
+        self.D1y = sort_D_increasing_by(self.D1, 'y')
+        self.D1x = sort_D_increasing_by(self.D1, 'x')
+        
+        #OpenMIC data
+        self.D2 = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
+        self.D2y = sort_D_increasing_by(self.D2, 'y')
+        self.D2x = sort_D_increasing_by(self.D2, 'x')
+        
     
     
     def test_EquipartitionYAxis(self):
-        # Albanese et. al. data
-        D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
         
-        Dy  = sort_D_increasing_by(D, 'y')
-        Q = EquipartitionYAxis(sort_D_increasing_by(D, 'y'), y=3)
+        Q = EquipartitionYAxis(self.D1y, y=3)
         
         assert Q[(1, 1)] == 0
         assert Q[(1, 2)] == 0
@@ -47,8 +53,6 @@ class mine__test(unittest.TestCase):
         assert Q[(6, 6)] == 2
         assert Q[(7, 5)] == 2
         
-        # Spinellis OpenMIC data
-        D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
         
         '''
         -------------
@@ -61,7 +65,7 @@ class mine__test(unittest.TestCase):
         -------------
           0 1 2 3 4 5
          '''
-        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), y=3)
+        Q = EquipartitionYAxis(self.D2y, y=3)
         
         assert Q[(0, 0)] == 0
         assert Q[(5, 0)] == 0
@@ -74,12 +78,10 @@ class mine__test(unittest.TestCase):
         
     def test_GetClumpsPartition(self):
         
-        # Albanese et.al. data
-        D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
     
-        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), 3)
+        Q = EquipartitionYAxis(self.D1y, 3)
         
-        P = GetClumpsPartition(D, Q)
+        P = GetClumpsPartition(self.D1x, Q)
         
         assert P[(1, 1)] == 0
         assert P[(1, 2)] == 0
@@ -100,17 +102,16 @@ class mine__test(unittest.TestCase):
         assert P[(9, 2)] == 4
         assert P[(9, 1)] == 4
         
-        # Spinellis OpenMIC data
-        D = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
-        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), y=3)
-        P = GetClumpsPartition(sort_D_increasing_by(D,increasing_by='x'), Q)
+        Q = EquipartitionYAxis(self.D2y, y=3)
+        P = GetClumpsPartition(self.D2x, Q)
         clumps_partition_groups = GroupPointsByPartition(P)
         assert (0, 0) in clumps_partition_groups[0]
         assert (1, 1) and (2, 1) in clumps_partition_groups[1]
         assert (3, 2) and (4, 3) in clumps_partition_groups[2]
         assert (5, 0) in clumps_partition_groups[3]
         assert (6, 4) in clumps_partition_groups[4]
-    
+        
+                          
     def test_OptimizeXAxis(self):
         pass
     
@@ -125,41 +126,34 @@ class mine__test(unittest.TestCase):
         print M
         
     def test_HP(self):
-        D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
-        Dx = sort_D_increasing_by(D, 'x')
-        
-        P1_ordinals = [-1, 0, 2, 5, 6]
-        # We should get the following x-axis partition
+
         """
-          4  |   |     |x
-          3  |   |  x  |
-          2  |   |x    |
-             *----+---+-----+-
-          1  |x x|     |
-             *----+---+-----+-
-          0 x|   |    x|
-            0|1 2|3 4 5 6
-             |   |     |
+          4  |   |     |x|
+          3  |   |  x  | |
+          2  |   |x    | |
+          1  |x x|     | |
+          0 x|   |    x| |
+            0|1 2|3 4 5|6|
          """
-        assert HP(Dx, P1_ordinals) == entropy([1. / 7, 2. / 7 , 3. / 7, 1. / 7])
+        assert HP(self.D2x, [-1, 0, 2, 5, 6]) == entropy([1. / 7, 2. / 7 , 3. / 7, 1. / 7])
         
-        assert HP(Dx, [0, 2, 5]) == entropy([2. / 5, 3. / 5])
+        assert HP(self.D2x, [0, 2, 5]) == entropy([2. / 5, 3. / 5])
         
-        assert HP(Dx, [-1, 0]) == entropy([1. / 1])
+        assert HP(self.D2x, [-1, 0]) == entropy([1. / 1])
         
-        assert HP(Dx, [-1, 5, 6]) == entropy([6. / 7 , 1. / 7])
+        assert HP(self.D2x, [-1, 5, 6]) == entropy([6. / 7 , 1. / 7])
         
     def test_HQ(self):
         """
-          4  |   |     |x
-          3  |   |  x  |
-          2  |   |x    |
+          4             x
+          3         x   
+          2       x     
+            *----+---+-----+-
+          1   x         
              *----+---+-----+-
-          1  |x  |     |
-             *----+---+-----+-
-          0 x|   |    x|
-            0|1 2|3 4 5 6
-             |   |     |
+          0 x        x
+            0 1 2 3 4 5 6
+                    
          """
          
         assert HQ(
@@ -174,14 +168,14 @@ class mine__test(unittest.TestCase):
                 ) == entropy([2. / 6, 1. / 6, 3. / 6])
                 
         """
-          4  |   |     |x
-          3  |   |  x  |
-          2  |   |x    |
+          4             x
+          3         x   
+          2       x     
              *----+---+-----+-
-          1  |x x|     |
-          0 x|   |    x|
-            0|1 2|3 4 5 6
-             |   |     |
+          1   x x       
+          0 x         x 
+            0 1 2 3 4 5 6
+                      
          """
         assert HQ(
                 {
@@ -220,20 +214,16 @@ class mine__test(unittest.TestCase):
                  (6, 4): 2
                  }
         
-        assert HPQ(P_ordinals, Q_map) == entropy([1. / 6, 0. / 6, 0. / 6, 0. / 6, 2. / 6, 1. / 6, 0. / 6, 2. / 6])
+        self.assertEqual(HPQ(P_ordinals, Q_map), entropy([1. / 6, 0. / 6, 0. / 6, 0. / 6, 2. / 6, 1. / 6, 0. / 6, 2. / 6]))
      
     def test_GetPartitionOrdinalsFromMap(self):
-        # Points sorted by increasing x-value
-        D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
         
         # Given the following x-axis partition
         """
           4  |   |     |x
           3  |   |  x  |
           2  |   |x    |
-             *----+---+-----+-
           1  |x x|     |
-             *----+---+-----+-
           0 x|   |    x|
             0|1 2|3 4 5 6
              |   |     |
@@ -253,8 +243,8 @@ class mine__test(unittest.TestCase):
         assert partition_size == 4
         
         expected_ordinals = [-1, 0, 2, 5, 6]
-        assert len(GetPartitionOrdinalsFromMap(D, P1)) == partition_size + 1
-        assert GetPartitionOrdinalsFromMap(D, P1) == expected_ordinals
+        assert len(GetPartitionOrdinalsFromMap(self.D2x, P1)) == partition_size + 1
+        assert GetPartitionOrdinalsFromMap(self.D2x, P1) == expected_ordinals
         
         # Another test
         """
@@ -281,8 +271,8 @@ class mine__test(unittest.TestCase):
         assert partition_size == 2
         
         expected_ordinals = [-1, 5, 6]
-        assert len(GetPartitionOrdinalsFromMap(D, P2)) == partition_size + 1
-        assert GetPartitionOrdinalsFromMap(D, P2) == expected_ordinals
+        assert len(GetPartitionOrdinalsFromMap(self.D2x, P2)) == partition_size + 1
+        assert GetPartitionOrdinalsFromMap(self.D2x, P2) == expected_ordinals
         
         D = [(0, 0), (10, 10), (20, 20), (30, 30), (40, 40), (50, 50), (60, 60), (70, 70), (80, 80), (90, 90)]
         
@@ -303,8 +293,6 @@ class mine__test(unittest.TestCase):
         assert GetPartitionOrdinalsFromMap(D, Q) == expected_ordinals
         
     def test_GetParitionMapFromOrdinals(self):
-        # Points sorted by increasing x-value
-        D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
         
         # Given the following x-axis points ordinals
         ordinals = [-1, 0, 2, 5, 6]
@@ -329,7 +317,7 @@ class mine__test(unittest.TestCase):
              (5, 0): 2,
              (6, 4): 3
              }
-        assert GetPartitionMapFromOrdinals(D, ordinals) == P
+        assert GetPartitionMapFromOrdinals(self.D2x, ordinals) == P
         
         # Now test with two ordinals
         
@@ -354,7 +342,7 @@ class mine__test(unittest.TestCase):
              (5, 0): 1,
              (6, 4): 2
              }
-        assert GetPartitionMapFromOrdinals(D, ordinals) == P
+        assert GetPartitionMapFromOrdinals(self.D2x, ordinals) == P
         
     def test_GetPartitionHistogram(self):
         """
@@ -368,17 +356,12 @@ class mine__test(unittest.TestCase):
             0 1 2|3 4 5 6
                  |     |
          """
-        D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
     
         ordinals = [-1, 2, 5, 6]
-        assignments = GetPartitionHistogram(D, ordinals)
+        assignments = GetPartitionHistogram(self.D2x, ordinals)
         assert list(assignments) == [3, 3, 1]
         
         ############ Another Test Case ##############
-        
-        
-         # Points sorted by increasing x-value
-        D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
         
         # Given the following x-axis points ordinals
         ordinals = [-1, 0, 2, 5, 6]
@@ -394,8 +377,8 @@ class mine__test(unittest.TestCase):
             0|1 2|3 4 5 6
              |   |     |
          """
-        assignments = GetPartitionHistogram(D, ordinals)
-        assert list(assignments) == [1, 2, 3, 1]
+        assignments = GetPartitionHistogram(self.D2x, ordinals)
+        self.assertEqual(assignments, [1,2,3,1])
         
         # Other test case
         D = [(0, 0), (10, 10), (20, 20), (30, 30), (40, 40), (50, 50), (60, 60), (70, 70), (80, 80), (90, 90)]
@@ -414,14 +397,11 @@ class mine__test(unittest.TestCase):
              }
         
         assignments = GetPartitionHistogram(D, GetPartitionOrdinalsFromMap(D, Q, 'y'), 'y')
-        assert assignments == [3, 3, 2, 1, 1]
+        self.assertEqual(assignments, [3, 3, 2, 1, 1])
      
     def test_visualize(self):
-        # Albanese dataset
-        # http://mpba.fbk.eu/sites/mpba.fbk.eu/files/albanese12cmine_suppmat.pdf#page=3
-        D = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
-        Q = EquipartitionYAxis(sort_D_increasing_by(D,increasing_by='y'), y=3)
-        P = GetClumpsPartition(D, Q)
+        Q = EquipartitionYAxis(self.D1y, y=3)
+        P = GetClumpsPartition(self.D1x, Q)
         
         #visualize(P, Q)   
      
@@ -437,9 +417,6 @@ class mine__test(unittest.TestCase):
             0|1 2|3 4 5 6
              |   |     |
         """
-        D = [(0, 0), (1, 1), (2, 1), (3, 2), (4, 3), (5, 0), (6, 4)]
-        Dy = sort_D_increasing_by(D, increasing_by='y')
-        Dx = sort_D_increasing_by(D, increasing_by='x')
         
         Q1 = {
              (0, 0): 0,
