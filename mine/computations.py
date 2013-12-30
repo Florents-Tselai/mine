@@ -16,7 +16,6 @@ def H(distribution):
     # Flatter a 2-dim (grid histogram array)
     return entropy(distribution.ravel())
 
-
 def getXDistribution(grid_histogram):
     return np.sum(grid_histogram, axis=0)
 
