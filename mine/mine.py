@@ -193,17 +193,3 @@ def GetPartitionOrdinalsFromMap(D, P, axis='x'):
         return [D.index(get_leftest_point(P_tilde[0])) - 1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
         return [D.index(get_downest_point(P_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
-  
-def GetPartitionMapFromOrdinals(D, ordinals, axis='x'):
-    assert is_sorted_increasing_by(D, axis)
-    
-    to_be_binned = range(len(D))
-        
-    # Translate Reshef's convention to adhere to Numpy's one
-    bins = [o + 1 for o in ordinals[:-1]]  
-    # Assign point indices to bins formed by the partition ordinals
-    map = {D[point_index]:partition - 1 for point_index, partition in enumerate(np.digitize(to_be_binned, bins))}
-    
-    return map
-
-
