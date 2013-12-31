@@ -52,7 +52,7 @@ def get_partition_histogram(ordinals):
     total_number_of_points = np.sum(distribution_of_points)
     
     histogram = distribution_of_points / float(total_number_of_points)
-    assert np.sum(histogram) == 1.
+    #assert np.sum(histogram) == 1.
     return histogram
 
 def sort_D_increasing_by(D, increasing_by='x'):
@@ -116,7 +116,7 @@ def GetPartitionMapFromOrdinals(D, ordinals, axis='x'):
 def partition_size(ordinals):
     return len(ordinals)-1    
 
-def GetGridHistogram(Q, P_ordinals):
+def GetGridHistogram(P_ordinals, Q):
     Dx = sort_D_increasing_by(Q.keys(), 'x')
     
     rows = GroupPointsByPartition(Q)
@@ -128,12 +128,9 @@ def GetGridHistogram(Q, P_ordinals):
     
     grid_distribution = [grid_cell_cize(r, c) for r in reversed(range(len(rows))) for c in range(len(columns))]
     
-    print grid_distribution, m
     assert np.sum(grid_distribution) == m
-    
     histogram = array(grid_distribution) / float(m)
-    print histogram
-    #assert np.sum(histogram) == 1.
+    assert np.sum(histogram) == 1.
     return histogram
 
 def GetPartitionOrdinalsFromMap(D, P, axis='x'):

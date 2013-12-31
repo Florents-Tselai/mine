@@ -165,11 +165,11 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     for t in xrange(2, k + 1):
         s = max(xrange(1, t + 1),
-                key=lambda s: HP(D, [c[0], c[s], c[t]]) - HPQ([c[0], c[s], c[t]], Q))
+                key=lambda s: HP([c[0], c[s], c[t]]) - HPQ([c[0], c[s], c[t]], Q))
         
         # Optimal partition of size 2 on the first t clumps
         P_t_2 = [c[0], c[s], c[t]]
-        I[t][2] = HQ(Q) + HP(D, P_t_2) - HPQ(P_t_2, Q)
+        I[t][2] = HQ(Q) + HP(P_t_2) - HPQ(P_t_2, Q)
    
     # Inductively build the rest of the table of optimal partitions
     for l in xrange(3, x + 1):
@@ -180,7 +180,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
             P_t_l = c[1:l - 1]
             bisect.insort(P_t_l, c[t])
             # Optimal partition of size l on the first t clumps of D
-            I[t][l] = HQ(Q) + HP(D, P_t_l) - HPQ(P_t_l, Q)
+            I[t][l] = HQ(Q) + HP(P_t_l) - HPQ(P_t_l, Q)
 
     for l in xrange(k + 1, x + 1): I[k][l] = I[k][k]
     
@@ -193,7 +193,7 @@ def HQ(Q):
     return H(histogram / float(n))
 
 def HPQ(P, Q):
-    return H(GetGridHistogram(Q, P))
+    return H(GetGridHistogram(P, Q))
 
 def HP(P):
     return H(get_partition_histogram(P))

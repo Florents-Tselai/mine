@@ -113,7 +113,6 @@ class mine__test(unittest.TestCase):
         pass
     
     def test_ApproxCharacteristicMatrix(self):
-        return
         x = range(100)
         y = [a ^ 2 + a ^ 3 + 2 * a for a in x]
         D = zip(x, y)
