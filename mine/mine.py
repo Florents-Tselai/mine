@@ -18,6 +18,7 @@ from copy import copy
 from itertools import chain, tee, izip
 from math import log, floor
 from utils import *
+from computations import *
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -185,3 +186,12 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     return I[k][2:x + 1]
 
+def HQ(Q):
+    pass
+
+def HPQ(P, Q):
+    pass
+
+def HP(P):
+    return H(get_partition_histogram(P))
+     

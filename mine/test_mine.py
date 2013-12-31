@@ -122,6 +122,13 @@ class mine__test(unittest.TestCase):
         M = ApproxCharacteristicMatrix(D, B, c)
         print M
     
+    def test_HQ(self):
+        pass
+    def test_HP(self):
+        pass
+    def test_HPQ(self):
+        pass
+    
 
 if __name__ == '__main__':
     unittest.main()
