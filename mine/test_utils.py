@@ -36,6 +36,9 @@ class utils_test(unittest.TestCase):
         Q = GroupPointsByPartition({(0,1):0, (1,2):0, (2,3):0, (3,4):1, (4,5):1, (5,6):1, (6,7):1, (7,8):1, (8,9):1, (9,10):1})
         P = GetPartitionMapFromOrdinals(Dx, [-1,2,5,7,9])
         #visualize(P, Q)
+    
+    def test_get_partition_ordnials_from_map(self):
+        pass
         
 
 if __name__ == '__main__':

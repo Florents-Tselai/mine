@@ -126,15 +126,22 @@ def GetGridHistogram(Q, P_ordinals):
     def grid_cell_cize(row_index, column_index):
         return len(set(rows[r]).intersection(set(columns[c])))   
     
-    distribution = []
-    for r in reversed(range(len(rows))):
-        for c in range(len(columns)):
-            cell_size = grid_cell_cize(r, c)
-            distribution.append(cell_size)
+    grid_distribution = [grid_cell_cize(r, c) for r in reversed(range(len(rows))) for c in range(len(columns))]
+    
             
-    assert np.sum(distribution) == m
+    assert np.sum(grid_distribution) == m
 
-    histogram = array(distribution) / float(m)
+    histogram = array(grid_distribution) / float(m)
     
     assert np.sum(histogram) == 1.
-    return histogram 
+    return histogram
+
+def GetPartitionOrdinalsFromMap(D, P, axis='x'):
+    assert is_sorted_increasing_by(D, axis)
+    
+    P_tilde = GroupPointsByPartition(P)
+    
+    if axis == 'x':
+        return [D.index(get_leftest_point(P_tilde[0])) - 1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+    elif axis == 'y':
+        return [D.index(get_downest_point(P_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]

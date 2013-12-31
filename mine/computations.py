@@ -22,9 +22,9 @@ def getXDistribution(grid_histogram):
 def getYDistribution(grid_histogram):
     return np.sum(grid_histogram, axis=1)
 
-def I(grid_histogram):
-    x_distribution = getXDistribution(grid_histogram)
-    y_distribution = getYDistribution(grid_histogram)
-    joint_distribution = grid_histogram.ravel()
+def I(joint_distribution_histogram):
+    x_distribution = getXDistribution(joint_distribution_histogram)
+    y_distribution = getYDistribution(joint_distribution_histogram)
+    joint_distribution = joint_distribution_histogram.ravel()
     return H(x_distribution) + H(y_distribution) - H(joint_distribution)
 

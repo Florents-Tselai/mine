@@ -184,12 +184,3 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     return I[k][2:x + 1]
 
-def GetPartitionOrdinalsFromMap(D, P, axis='x'):
-    assert is_sorted_increasing_by(D, axis)
-    
-    P_tilde = GroupPointsByPartition(P)
-    
-    if axis == 'x':
-        return [D.index(get_leftest_point(P_tilde[0])) - 1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
-    elif axis == 'y':
-        return [D.index(get_downest_point(P_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
