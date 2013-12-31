@@ -128,12 +128,12 @@ def GetGridHistogram(Q, P_ordinals):
     
     grid_distribution = [grid_cell_cize(r, c) for r in reversed(range(len(rows))) for c in range(len(columns))]
     
-            
+    print grid_distribution, m
     assert np.sum(grid_distribution) == m
-
-    histogram = array(grid_distribution) / float(m)
     
-    assert np.sum(histogram) == 1.
+    histogram = array(grid_distribution) / float(m)
+    print histogram
+    #assert np.sum(histogram) == 1.
     return histogram
 
 def GetPartitionOrdinalsFromMap(D, P, axis='x'):

@@ -187,10 +187,13 @@ def OptimizeXAxis(D, Q, x, k_hat):
     return I[k][2:x + 1]
 
 def HQ(Q):
-    pass
+    temp = GroupPointsByPartition(Q)
+    n = len(Q)
+    histogram = np.array([len(p) for p in temp.itervalues()])
+    return H(histogram / float(n))
 
 def HPQ(P, Q):
-    pass
+    return H(GetGridHistogram(Q, P))
 
 def HP(P):
     return H(get_partition_histogram(P))
