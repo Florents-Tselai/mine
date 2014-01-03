@@ -55,13 +55,16 @@ def ApproxCharacteristicMatrix(D, B, c):
     '''
     Lines 7-10
     '''
-    for x in xrange(2, s):
-        for y in xrange(2, s):
-            if x * y > B:
-                continue
-            else:
-                I[x][y] = max(I[x][y], I_orth[y][x])
-                M[x][y] = float(I[x][y]) / min(log(x), log(y))
+    def characteristic_value(x,y):
+        return max(I[x][y], I_orth[y][x]) if (x*y)<=B and x!=0 and y!=0 else None
+        
+    I = np.fromfunction(np.vectorize(characteristic_value), (s, s), dtype=np.float64)
+    
+    def normalize(x,y):
+        return I[x][y]/min(log(x), log(y)) if (x*y)<=B and x!=0 and y!=0 else None
+        
+    M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
+   
     return M
     
 def EquipartitionYAxis(D, y):
