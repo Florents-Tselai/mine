@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import bisect
-from collections import defaultdict, Mapping
+from collections import defaultdict, Counter
 from copy import copy
 from math import floor
 from itertools import chain, tee, izip
@@ -117,7 +117,7 @@ def GetClumpsPartition(D, Q):
     while(i < n):
         s = 1
         flag = False
-        for j in range(i + 1, n):
+        for j in xrange(i + 1, n):
             if p_x(D[i]) == p_x(D[j]):
                 s += 1
                 if Q_tilde[D[i]] != Q_tilde[D[j]]:
@@ -126,7 +126,7 @@ def GetClumpsPartition(D, Q):
                 break
             
         if s > 1 and flag:
-            for j in range(s):
+            for j in xrange(s):
                 Q_tilde[D[i + j]] = c
             c -= 1
         i += s
@@ -134,7 +134,7 @@ def GetClumpsPartition(D, Q):
     i = 0
     P = {}
     P[D[0]] = 0
-    for j in range(1, n):
+    for j in xrange(1, n):
         if Q_tilde[D[j]] != Q_tilde[D[j - 1]]:
             i += 1
         P[D[j]] = i
@@ -145,7 +145,7 @@ def GetSuperclumpsPartition(D, Q, k_hat):
     assert is_sorted_increasing_by(D, 'x')
 
     P_tilde = GetClumpsPartition(D, Q)
-    k = len(set(P_tilde.values()))    
+    k = len(set(P_tilde.itervalues()))    
     if k > k_hat:
         D_P_tilde = [(0, P_tilde[p]) for p in D]
         P_hat = EquipartitionYAxis(D_P_tilde, k_hat)
@@ -161,9 +161,11 @@ def OptimizeXAxis(D, Q, x, k_hat):
     c = GetPartitionOrdinalsFromMap(D, super_clumps_partition, axis='x')
     
     # Total number of clumps
-    k = len(set(super_clumps_partition.values()))
+    k = len(set(super_clumps_partition.itervalues()))
     assert k == len(c) - 1
 
+    #Remains fixed so we cache it
+    H_Q = HQ(Q)
     # Find the optimal partitions of size 2 
     I = np.zeros(shape=(k + 1, x + 1))
     
@@ -173,32 +175,20 @@ def OptimizeXAxis(D, Q, x, k_hat):
         
         # Optimal partition of size 2 on the first t clumps
         P_t_2 = [c[0], c[s], c[t]]
-        I[t][2] = HQ(Q) + HP(P_t_2) - HPQ(P_t_2, Q)
+        I[t][2] = H_Q + HP(P_t_2) - HPQ(P_t_2, Q)
    
     # Inductively build the rest of the table of optimal partitions
     for l in xrange(3, x + 1):
         for t in xrange(l, k + 1):
-            s = max(range(l - 1, t + 1),
-                    key=lambda s: float64((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float64(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
+            s = max(xrange(l - 1, t + 1),
+                    key=lambda s: float64((c[s] / c[t])) * (I[s][l - 1] - H_Q) - float64(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
                     )
             P_t_l = c[1:l - 1]
             bisect.insort(P_t_l, c[t])
             # Optimal partition of size l on the first t clumps of D
-            I[t][l] = HQ(Q) + HP(P_t_l) - HPQ(P_t_l, Q)
+            I[t][l] = H_Q + HP(P_t_l) - HPQ(P_t_l, Q)
 
     for l in xrange(k + 1, x + 1): I[k][l] = I[k][k]
     
     return I[k][2:x + 1]
 
-def HQ(Q):
-    temp = GroupPointsByPartition(Q)
-    n = len(Q)
-    histogram = np.array([len(p) for p in temp.itervalues()])
-    return H(histogram / float64(n))
-
-def HPQ(P, Q):
-    return H(GetGridHistogram(P, Q))
-
-def HP(P):
-    return H(get_partition_histogram(P))
-     

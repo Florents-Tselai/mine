@@ -39,7 +39,7 @@ def is_sorted_increasing_by(D, increasing_by='x'):
         return all(p_y(D[i]) <= p_y(D[i + 1]) for i in xrange(len(D) - 1))
 
 def get_distribution_of_points(ordinals):
-    return np.array([o2+1 if o1<0 else o2-o1 for o1, o2 in pairwise(ordinals)])
+    return np.fromiter((o2+1 if o1<0 else o2-o1 for o1, o2 in pairwise(ordinals)), dtype=int)
 
 def number_of_points_in_partition(ordinals):
     assert np.sum(get_distribution_of_points(ordinals)) == ordinals[-1] - ordinals[0]
@@ -49,7 +49,7 @@ def get_partition_histogram(ordinals):
     
     distribution_of_points = get_distribution_of_points(ordinals)
     #Denoted as "m" in the original paper
-    total_number_of_points = np.sum(distribution_of_points)
+    total_number_of_points = distribution_of_points.sum()
     
     histogram = distribution_of_points / float64(total_number_of_points)
     #assert np.sum(histogram) == 1.
@@ -124,12 +124,13 @@ def GetGridHistogram(P_ordinals, Q):
     m = number_of_points_in_partition(P_ordinals)
         
     def grid_cell_cize(row_index, column_index):
-        return len(set(rows[r]).intersection(set(columns[c])))   
+        return len(set(rows[row_index]) & set(columns[column_index]))   
     
-    grid_distribution = [grid_cell_cize(r, c) for r in reversed(range(len(rows))) for c in range(len(columns))]
+    grid_points_distribution=(grid_cell_cize(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
+    grid_distribution = np.fromiter(grid_points_distribution, dtype=int)
     
-    assert np.sum(grid_distribution) == m
-    histogram = array(grid_distribution) / float64(m)
+    assert grid_distribution.sum() == m
+    histogram = grid_distribution / float64(m)
     #assert np.sum(histogram) == 1.
     return histogram
 
