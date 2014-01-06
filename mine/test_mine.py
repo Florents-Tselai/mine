@@ -121,6 +121,7 @@ class mine__test(unittest.TestCase):
         c = 15
         M = ApproxCharacteristicMatrix(D, B, c)
         print M
+        print np.nanmax(M)
     
 
     def test_HP(self):

@@ -1,6 +1,6 @@
 from itertools import chain, tee, izip
 import numpy as np
-from numpy import array
+from numpy import array, float64
 from collections import defaultdict, Mapping
 import matplotlib.pyplot as plt
 
@@ -51,7 +51,7 @@ def get_partition_histogram(ordinals):
     #Denoted as "m" in the original paper
     total_number_of_points = np.sum(distribution_of_points)
     
-    histogram = distribution_of_points / float(total_number_of_points)
+    histogram = distribution_of_points / float64(total_number_of_points)
     #assert np.sum(histogram) == 1.
     return histogram
 
@@ -129,8 +129,8 @@ def GetGridHistogram(P_ordinals, Q):
     grid_distribution = [grid_cell_cize(r, c) for r in reversed(range(len(rows))) for c in range(len(columns))]
     
     assert np.sum(grid_distribution) == m
-    histogram = array(grid_distribution) / float(m)
-    assert np.sum(histogram) == 1.
+    histogram = array(grid_distribution) / float64(m)
+    #assert np.sum(histogram) == 1.
     return histogram
 
 def GetPartitionOrdinalsFromMap(D, P, axis='x'):

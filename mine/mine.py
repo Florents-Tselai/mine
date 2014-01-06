@@ -15,10 +15,11 @@
 import bisect
 from collections import defaultdict, Mapping
 from copy import copy
+from math import floor
 from itertools import chain, tee, izip
-from math import log, floor
 from utils import *
 from computations import *
+from numpy import log2, float64
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -56,12 +57,12 @@ def ApproxCharacteristicMatrix(D, B, c):
     Lines 7-10
     '''
     def characteristic_value(x,y):
-        return max(I[x][y], I_orth[y][x]) if (x*y)<=B and x!=0 and y!=0 else None
+        return max(I[x][y], I_orth[y][x]) if (x*y)<=B and x!=0 and y!=0 else np.nan
         
     I = np.fromfunction(np.vectorize(characteristic_value), (s, s), dtype=np.float64)
     
     def normalize(x,y):
-        return I[x][y]/min(log(x), log(y)) if (x*y)<=B and x!=0 and y!=0 else None
+        return I[x][y]/min(log2(x), log2(y)) if (x*y)<=B and x!=0 and y!=0 else np.nan
         
     M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
    
@@ -72,7 +73,7 @@ def EquipartitionYAxis(D, y):
     
     n = len(D)
     
-    desiredRowSize = float(n) / float(y)
+    desiredRowSize = float64(n) / float64(y)
     
     i = 0
     sharp = 0
@@ -85,14 +86,14 @@ def EquipartitionYAxis(D, y):
         
         s = sum(1 for p in D if p[1] == D[i][1])
         
-        lhs = abs(float(sharp) + float(s) - desiredRowSize)
-        rhs = abs(float(sharp) - desiredRowSize)
+        lhs = abs(float64(sharp) + float64(s) - desiredRowSize)
+        rhs = abs(float64(sharp) - desiredRowSize)
         
         if (sharp != 0 and lhs >= rhs):
             sharp = 0
             currRow += 1
-            temp1 = float(n) - float(i)
-            temp2 = float(y) - float(currRow)
+            temp1 = float64(n) - float64(i)
+            temp2 = float64(y) - float64(currRow)
             desiredRowSize = temp1 / temp2
         
         for j in range(s): 
@@ -178,7 +179,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
     for l in xrange(3, x + 1):
         for t in xrange(l, k + 1):
             s = max(range(l - 1, t + 1),
-                    key=lambda s: float((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
+                    key=lambda s: float64((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float64(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
                     )
             P_t_l = c[1:l - 1]
             bisect.insort(P_t_l, c[t])
@@ -193,7 +194,7 @@ def HQ(Q):
     temp = GroupPointsByPartition(Q)
     n = len(Q)
     histogram = np.array([len(p) for p in temp.itervalues()])
-    return H(histogram / float(n))
+    return H(histogram / float64(n))
 
 def HPQ(P, Q):
     return H(GetGridHistogram(P, Q))
