@@ -113,15 +113,14 @@ class mine__test(unittest.TestCase):
         pass
     
     def test_ApproxCharacteristicMatrix(self):
-        x = range(100)
-        y = [a ^ 2 + a ^ 3 + 2 * a for a in x]
+        x = range(1000)
+        y = [4*(a-1./2)**2 for a in x]
         D = zip(x, y)
         n = len(D)
         B = pow(n, 0.6)
         c = 15
-        M = ApproxCharacteristicMatrix(D, B, c)
-        print M
-        print np.nanmax(M)
+        M = ApproxCharacteristicMatrix(D, B, c=1)
+        print mine(M, B, c)
     
 
    

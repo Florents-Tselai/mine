@@ -192,3 +192,15 @@ def OptimizeXAxis(D, Q, x, k_hat):
     
     return I[k][2:x + 1]
 
+
+def mine(cm, B, e=1):
+    mic = max(value for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value))
+    mas = max(np.abs(value-cm[y][x]) for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value))
+    mev = max(value for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value) and (x is 2 or y is 2))
+    mcn = min(np.log2(x*y) for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value) and value>=(1-e)*mic)
+    
+    return {'MIC':mic,
+            'MAS':mas,
+            'MEV':mev,
+            'MCN':mcn
+            }
