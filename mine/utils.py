@@ -1,8 +1,25 @@
-from itertools import chain, tee, izip
-import numpy as np
-from numpy import array, float64
+# Copyright 2014 Florents Tselai
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 from collections import defaultdict, Mapping
+from itertools import chain, tee, izip
+from numpy import array, float64
+
 import matplotlib.pyplot as plt
+import numpy as np
+
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
@@ -12,17 +29,17 @@ def get_rightest_point(points):
 def get_leftest_point(points): 
     return min(points, key=p_x)
 
-def get_uppest_point(points): 
+def get_highest_point(points): 
     return max(points, key=p_y)
 
-def get_downest_point(points): 
+def get_lowest_point(points): 
     return min(points, key=p_y)
 
 def last_abscissa(x_bin): 
     return p_x(get_rightest_point(x_bin))
 
 def last_ordinate(y_bin): 
-    return p_y(get_uppest_point(y_bin))
+    return p_y(get_highest_point(y_bin))
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -39,20 +56,15 @@ def is_sorted_increasing_by(D, increasing_by='x'):
         return all(p_y(D[i]) <= p_y(D[i + 1]) for i in xrange(len(D) - 1))
 
 def get_distribution_of_points(ordinals):
-    return np.fromiter((o2+1 if o1<0 else o2-o1 for o1, o2 in pairwise(ordinals)), dtype=int)
+    return np.fromiter((o2 + 1 if o1 < 0 else o2 - o1 for o1, o2 in pairwise(ordinals)), dtype=int)
 
 def number_of_points_in_partition(ordinals):
-    assert np.sum(get_distribution_of_points(ordinals)) == ordinals[-1] - ordinals[0]
     return ordinals[-1] - ordinals[0]
     
 def get_partition_histogram(ordinals):
-    
     distribution_of_points = get_distribution_of_points(ordinals)
-    #Denoted as "m" in the original paper
-    total_number_of_points = distribution_of_points.sum()
-    
-    histogram = distribution_of_points / float64(total_number_of_points)
-    #assert np.sum(histogram) == 1.
+
+    histogram = distribution_of_points / float64(number_of_points_in_partition(ordinals))
     return histogram
 
 def sort_D_increasing_by(D, increasing_by='x'):
@@ -104,17 +116,17 @@ def GetPartitionMapFromOrdinals(D, ordinals, axis='x'):
     assert is_sorted_increasing_by(D, axis)
     
     partition_map = {}
-    current_partition=0
+    current_partition = 0
     for p_begin, p_end in pairwise(ordinals):
         partition_points = []
-        for point_index in range(p_begin+1, p_end+1):
+        for point_index in range(p_begin + 1, p_end + 1):
             partition_points.append(D[point_index])
         partition_map[current_partition] = partition_points
         current_partition += 1
     return partition_map
             
 def partition_size(ordinals):
-    return len(ordinals)-1    
+    return len(ordinals) - 1    
 
 def GetGridHistogram(P_ordinals, Q):
     Dx = sort_D_increasing_by(Q.keys(), 'x')
@@ -126,12 +138,10 @@ def GetGridHistogram(P_ordinals, Q):
     def grid_cell_cize(row_index, column_index):
         return len(set(rows[row_index]) & set(columns[column_index]))   
     
-    grid_points_distribution=(grid_cell_cize(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
+    grid_points_distribution = (grid_cell_cize(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
     grid_distribution = np.fromiter(grid_points_distribution, dtype=int)
     
-    assert grid_distribution.sum() == m
     histogram = grid_distribution / float64(m)
-    #assert np.sum(histogram) == 1.
     return histogram
 
 def GetPartitionOrdinalsFromMap(D, P, axis='x'):
@@ -142,4 +152,4 @@ def GetPartitionOrdinalsFromMap(D, P, axis='x'):
     if axis == 'x':
         return [D.index(get_leftest_point(P_tilde[0])) - 1] + [D.index(get_rightest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
     elif axis == 'y':
-        return [D.index(get_downest_point(P_tilde[0])) - 1] + [D.index(get_uppest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]
+        return [D.index(get_lowest_point(P_tilde[0])) - 1] + [D.index(get_highest_point(P_tilde[k])) for k in sorted(P_tilde.keys())]

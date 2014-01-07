@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Florents Tselai
+# Copyright 2014 Florents Tselai
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 import bisect
 from collections import defaultdict, Counter
 from copy import copy
-from math import floor
 from itertools import chain, tee, izip
-from utils import *
-from computations import *
+from math import floor
 from numpy import log2, float64
 
+from computations import *
 import matplotlib.pyplot as plt
 import numpy as np
+from utils import *
+
 
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
@@ -38,9 +40,9 @@ def ApproxCharacteristicMatrix(D, B, c):
     
     s = int(floor(B / 2)) + 1
     
-    I = np.zeros(shape=(s, s))
-    I_orth = np.zeros(shape=(s, s))
-    M = np.zeros(shape=(s, s))
+    I = np.zeros(shape=(s, s), dtype=float64)
+    I_orth = np.zeros(shape=(s, s), dtype=float64)
+    M = np.zeros(shape=(s, s), dtype=float64)
 
     '''
     Lines 2-6
@@ -56,13 +58,13 @@ def ApproxCharacteristicMatrix(D, B, c):
     '''
     Lines 7-10
     '''
-    def characteristic_value(x,y):
-        return max(I[x][y], I_orth[y][x]) if (x*y)<=B and x!=0 and y!=0 else np.nan
+    def characteristic_value(x, y):
+        return max(I[x][y], I_orth[y][x]) if (x * y) <= B and x != 0 and y != 0 else np.nan
         
     I = np.fromfunction(np.vectorize(characteristic_value), (s, s), dtype=np.float64)
     
-    def normalize(x,y):
-        return I[x][y]/min(log2(x), log2(y)) if (x*y)<=B and x!=0 and y!=0 else np.nan
+    def normalize(x, y):
+        return I[x][y] / min(log2(x), log2(y)) if (x * y) <= B and x != 0 and y != 0 else np.nan
         
     M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
    
@@ -164,8 +166,6 @@ def OptimizeXAxis(D, Q, x, k_hat):
     k = len(set(super_clumps_partition.itervalues()))
     assert k == len(c) - 1
 
-    #Remains fixed so we cache it
-    H_Q = HQ(Q)
     # Find the optimal partitions of size 2 
     I = np.zeros(shape=(k + 1, x + 1))
     
@@ -175,18 +175,18 @@ def OptimizeXAxis(D, Q, x, k_hat):
         
         # Optimal partition of size 2 on the first t clumps
         P_t_2 = [c[0], c[s], c[t]]
-        I[t][2] = H_Q + HP(P_t_2) - HPQ(P_t_2, Q)
+        I[t][2] = HQ(Q) + HP(P_t_2) - HPQ(P_t_2, Q)
    
     # Inductively build the rest of the table of optimal partitions
     for l in xrange(3, x + 1):
         for t in xrange(l, k + 1):
             s = max(xrange(l - 1, t + 1),
-                    key=lambda s: float64((c[s] / c[t])) * (I[s][l - 1] - H_Q) - float64(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
+                    key=lambda s: float64((c[s] / c[t])) * (I[s][l - 1] - HQ(Q)) - float64(((c[t] - c[s]) / c[t])) * HPQ([c[s], c[t]], Q)
                     )
             P_t_l = c[1:l - 1]
             bisect.insort(P_t_l, c[t])
             # Optimal partition of size l on the first t clumps of D
-            I[t][l] = H_Q + HP(P_t_l) - HPQ(P_t_l, Q)
+            I[t][l] = HQ(Q) + HP(P_t_l) - HPQ(P_t_l, Q)
 
     for l in xrange(k + 1, x + 1): I[k][l] = I[k][k]
     
@@ -194,10 +194,10 @@ def OptimizeXAxis(D, Q, x, k_hat):
 
 
 def mine(cm, B, e=1):
-    mic = max(value for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value))
-    mas = max(np.abs(value-cm[y][x]) for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value))
-    mev = max(value for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value) and (x is 2 or y is 2))
-    mcn = min(np.log2(x*y) for (x,y), value in np.ndenumerate(cm) if x*y<B and (x,y)!=(0,0) and not np.isnan(value) and value>=(1-e)*mic)
+    mic = max(value for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value))
+    mas = max(np.abs(value - cm[y][x]) for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value))
+    mev = max(value for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value) and (x is 2 or y is 2))
+    mcn = min(np.log2(x * y) for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value) and value >= (1 - e) * mic)
     
     return {'MIC':mic,
             'MAS':mas,

@@ -1,4 +1,4 @@
-# Copyright 2013-2014 Florents Tselai
+# Copyright 2014 Florents Tselai
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,20 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
 from collections import OrderedDict
+import unittest
 
 from mine import *
+
 
 class mine__test(unittest.TestCase):
 
     def setUp(self):
-        #Albanese et. al. data
+        # Albanese et. al. data
         self.D1 = [(1, 1), (1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 5), (4, 6), (5, 6), (6, 6), (7, 5), (8, 3), (9, 2), (9, 1)]
         self.D1y = sort_D_increasing_by(self.D1, 'y')
         self.D1x = sort_D_increasing_by(self.D1, 'x')
         
-        #OpenMIC data
+        # OpenMIC data
         self.D2 = [(0, 0), (1, 1), (3, 2), (2, 1), (5, 0), (4, 3), (6, 4)]
         self.D2y = sort_D_increasing_by(self.D2, 'y')
         self.D2x = sort_D_increasing_by(self.D2, 'x')
@@ -109,21 +110,15 @@ class mine__test(unittest.TestCase):
         assert (5, 0) in clumps_partition_groups[3]
         assert (6, 4) in clumps_partition_groups[4]
                           
-    def test_OptimizeXAxis(self):
-        pass
-    
-    def test_ApproxCharacteristicMatrix(self):
+    def test_mine(self):
         x = np.array(range(1000))
-        y = 4*(x-1./2)**2
+        y = 4 * (x - 1. / 2) ** 2
         D = zip(x, y)
         n = len(D)
         B = pow(n, 0.6)
         c = 15
         M = ApproxCharacteristicMatrix(D, B, c=1)
         print mine(M, B, c)
-    
-
-   
 
 if __name__ == '__main__':
     unittest.main()
