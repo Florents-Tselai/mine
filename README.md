@@ -1,5 +1,10 @@
-#Example (see mine/test_mine.py
+#Example
+
+See mine/test_mine.py
+
 ```python
+import numpy as np
+
 x = np.array(range(1000))
 y = 4 * (x - 1. / 2) ** 2
 D = zip(x, y)
