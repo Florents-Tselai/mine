@@ -113,8 +113,8 @@ class mine__test(unittest.TestCase):
         pass
     
     def test_ApproxCharacteristicMatrix(self):
-        x = range(1000)
-        y = [4*(a-1./2)**2 for a in x]
+        x = np.array(range(1000))
+        y = 4*(x-1./2)**2
         D = zip(x, y)
         n = len(D)
         B = pow(n, 0.6)
