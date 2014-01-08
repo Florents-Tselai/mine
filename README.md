@@ -14,3 +14,5 @@ c = 15
 M = ApproxCharacteristicMatrix(D, B, c=1)
 print mine(M, B, c)
 ```
+Result:
+{'MCN': 2.0, 'MIC': 1.0, 'MEV': 1.0, 'MAS': 0.0}
