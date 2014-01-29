@@ -1,5 +1,5 @@
 doc:
-	cd pub;\
+	cd doc;\
 	latex mic.tex;\
 	bibtex mic;\
 	pdflatex mic.tex;\
