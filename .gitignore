@@ -9,4 +9,6 @@
 *.txt
 *.profile
 *.log
+*.aux
+*.out
 /doc
