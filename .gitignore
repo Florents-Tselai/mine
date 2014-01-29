@@ -5,5 +5,8 @@
 .spyderproject
 *.xcf
 *.png
-/pub
 *~
+*.txt
+*.profile
+*.log
+/doc
