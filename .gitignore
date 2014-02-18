@@ -8,6 +8,10 @@
 *~
 *.txt
 *.profile
+
+#LaTeX
 *.log
 *.aux
 *.out
+*.bbl
+*.blg
