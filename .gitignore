@@ -15,3 +15,7 @@
 *.out
 *.bbl
 *.blg
+
+.idea/
+*pstats
+mine_env
