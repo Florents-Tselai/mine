@@ -1,6 +1,10 @@
+VIRTUAL_ENV_DIR=mine_env
+GPROF2DOT_PATH=mine_env/lib/python2.7/site-packages/gprof2dot
+PROFILING_RESULTS_DIR=doc/profiling
+
 create_virtualenv:
-	virtualenv mine_env && \
-	. mine_env/bin/activate && \
+	virtualenv $(VIRTUAL_ENV_DIR) && \
+	. $(VIRTUAL_ENV_DIR)/bin/activate && \
 	pip install matplotlib numpy gprof2dot
 
 pdf:
@@ -20,6 +24,7 @@ clean:
 	rm -f mic.blg
 
 profile:
+	mkdir -p $(PROFILING_RESULTS_DIR)
 	python -m cProfile --sort cumulative -o mine.pstats mine/test_mine.py
-	python mine_env/lib/python2.7/site-packages/gprof2dot/gprof2dot.py -f pstats mine.pstats | dot -Tpng -o profile.png
+	python $(GPROF2DOT_PATH)/gprof2dot.py -f pstats mine.pstats | dot -Tpdf -o $(PROFILING_RESULTS_DIR)/profile.pdf
 
