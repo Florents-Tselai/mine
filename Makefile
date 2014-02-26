@@ -1,6 +1,6 @@
 create_virtualenv:
 	virtualenv mine_env && \
-	. mine_env/bin/activate
+	. mine_env/bin/activate && \
 	pip install matplotlib numpy gprof2dot
 
 pdf:
