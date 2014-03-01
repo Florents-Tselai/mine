@@ -18,7 +18,7 @@ from collections import defaultdict, Counter
 from copy import copy
 from itertools import chain, tee, izip
 from math import floor
-from numpy import log2, float64
+from numpy import log
 
 from computations import *
 import matplotlib.pyplot as plt

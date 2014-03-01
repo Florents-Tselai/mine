@@ -19,3 +19,4 @@
 .idea/
 *pstats
 mine_env
+doc/profiling*.tex
