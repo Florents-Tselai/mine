@@ -18,7 +18,7 @@ from collections import defaultdict, Counter
 from copy import copy
 from itertools import chain, tee, izip
 from math import floor
-from numpy import log
+from numpy import log2
 
 from computations import *
 import matplotlib.pyplot as plt
@@ -204,3 +204,10 @@ def mine(cm, B, e=1):
             'MEV':mev,
             'MCN':mcn
             }
+def mic(x,y):
+    D = zip(x, y)
+    n = len(D)
+    B = pow(n, 0.6)
+    c = 15
+    M = ApproxCharacteristicMatrix(D, B, c=1)
+    return mine(M, B, c)['MIC']

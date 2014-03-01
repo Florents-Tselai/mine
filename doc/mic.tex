@@ -187,22 +187,42 @@ $f:\langle P,Q \rangle \mapsto [0,1]$
 %\begin{landscape}
 \begin{table}[H]
 \centering
-\input{profiling_1.tex}
-\caption{My table}
+\input{experiments/experiment_1.tex}
+\caption{Running time for common function for various number of points}
 \label{table:kysymys}
 \end{table}
 %\end{landscape}
 
+
+
+\begin{figure}
+  \makebox[\textwidth][c]{\includegraphics[width=\textwidth]{experiments/experiment_1_plot.png}}%
+  \caption{Running time for common function for various number of points}
+  \label{fig:key}
+\end{figure}
+
 \section{Issues \& Further Research}
 \label{sec:issues}
 
-\section{Conclusion}
+\section{Conclusions}
 \label{sec:conclusion}
 
 The conclusion goes here.
 
 \section*{Acknowledgment}
 The authors would like to thank...
+
+\section*{Appendix}
+
+
+
+\begin{table}[H]
+\centering
+\input{experiments/functions_definitions.tex}
+\caption{Definitions of functions used during the experiments}
+\label{table:functions_definitions}
+\end{table}
+
 
 \bibliographystyle{IEEEtran}
 % argument is your BibTeX string definitions and bibliography database(s)
