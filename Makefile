@@ -5,7 +5,7 @@ PROFILING_RESULTS_DIR=doc/profiling
 create_virtualenv:
 	virtualenv $(VIRTUAL_ENV_DIR) && \
 	. $(VIRTUAL_ENV_DIR)/bin/activate && \
-	pip install matplotlib numpy gprof2dot
+	pip install matplotlib numpy gprof2dot pandas
 
 pdf:
 	cd doc && \
