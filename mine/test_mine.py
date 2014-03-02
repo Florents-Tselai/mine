@@ -77,35 +77,34 @@ class mine__test(unittest.TestCase):
         assert Q[(3, 2)] == 2
         assert Q[(4, 3)] == 2
         
-    def test_GetClumpsPartition(self):
-        return
+    def test_get_clumps_partition(self):
     
-        Q = EquipartitionYAxis(self.D1y, 3)
+        q = self.mine1.equipartition_y_axis(3)
+
+        p = self.mine1.get_clumps_partition(q)
         
-        P = GetClumpsPartition(self.D1x, Q)
+        assert p[(1, 1)] == 0
+        assert p[(1, 2)] == 0
+        assert p[(1, 3)] == 0
+        assert p[(1, 4)] == 0
         
-        assert P[(1, 1)] == 0
-        assert P[(1, 2)] == 0
-        assert P[(1, 3)] == 0
-        assert P[(1, 4)] == 0
+        assert p[(2, 3)] == 1
+        assert p[(2, 4)] == 1
         
-        assert P[(2, 3)] == 1
-        assert P[(2, 4)] == 1
+        assert p[(3, 5)] == 2
+        assert p[(4, 6)] == 2
+        assert p[(5, 6)] == 2
+        assert p[(6, 6)] == 2
+        assert p[(7, 5)] == 2
         
-        assert P[(3, 5)] == 2
-        assert P[(4, 6)] == 2
-        assert P[(5, 6)] == 2
-        assert P[(6, 6)] == 2
-        assert P[(7, 5)] == 2
+        assert p[(8, 3)] == 3
         
-        assert P[(8, 3)] == 3
+        assert p[(9, 2)] == 4
+        assert p[(9, 1)] == 4
         
-        assert P[(9, 2)] == 4
-        assert P[(9, 1)] == 4
-        
-        Q = EquipartitionYAxis(self.D2y, y=3)
-        P = GetClumpsPartition(self.D2x, Q)
-        clumps_partition_groups = GroupPointsByPartition(P)
+        q = self.mine2.equipartition_y_axis(3)
+        p = self.mine2.get_clumps_partition(q)
+        clumps_partition_groups = GroupPointsByPartition(p)
         assert (0, 0) in clumps_partition_groups[0]
         assert (1, 1) and (2, 1) in clumps_partition_groups[1]
         assert (3, 2) and (4, 3) in clumps_partition_groups[2]

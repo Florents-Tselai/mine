@@ -72,6 +72,37 @@ class MINE:
         data = self.Dy if axis_sorted_by=='y' else self.Dx
         return {(data[k][0], data[k][1]): v for k,v in d.iteritems()}
 
+    def get_clumps_partition(self, q):
+        q_tilde = self.get_points_assignments(q).copy()
+        i = 0
+        c = -1
+
+        while i < self.n:
+            s = 1
+            flag = False
+            for j in xrange(i + 1, self.n):
+                if self.Dx[i][0] == self.Dx[j][0]:
+                    s += 1
+                    if q_tilde[(self.Dx[i][0], self.Dx[i][1])] != q_tilde[(self.Dx[j][0], self.Dx[j][1])]:
+                        flag = True
+                else:
+                    break
+
+            if s > 1 and flag:
+                for j in xrange(s):
+                    q_tilde[(self.Dx[i + j][0], self.Dx[i + j][1])] = c
+                c -= 1
+            i += s
+
+        i = 0
+        p = {(self.Dx[0][1],self.Dx[0][1]): 0}
+        for j in xrange(1, self.n):
+            if q_tilde[(self.Dx[j][0],self.Dx[j][1])] != q_tilde[(self.Dx[j - 1][0],self.Dx[j - 1][1])]:
+                i += 1
+            p[(self.Dx[j][0],self.Dx[j][1])] = i
+
+        return p
+
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
     
@@ -116,42 +147,7 @@ def ApproxCharacteristicMatrix(D, B, c):
    
     return M
 
-def GetClumpsPartition(D, Q):
-    assert is_sorted_increasing_by(D, 'x')
-    
-    n = len(D)
-    
-    Q_tilde = copy(Q)
-    
-    i = 0
-    c = -1 
-    
-    while(i < n):
-        s = 1
-        flag = False
-        for j in xrange(i + 1, n):
-            if p_x(D[i]) == p_x(D[j]):
-                s += 1
-                if Q_tilde[D[i]] != Q_tilde[D[j]]:
-                    flag = True
-            else:
-                break
-            
-        if s > 1 and flag:
-            for j in xrange(s):
-                Q_tilde[D[i + j]] = c
-            c -= 1
-        i += s
-    
-    i = 0
-    P = {}
-    P[D[0]] = 0
-    for j in xrange(1, n):
-        if Q_tilde[D[j]] != Q_tilde[D[j - 1]]:
-            i += 1
-        P[D[j]] = i
-    
-    return P
+
 
 def GetSuperclumpsPartition(D, Q, k_hat):
     assert is_sorted_increasing_by(D, 'x')
