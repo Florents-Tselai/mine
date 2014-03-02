@@ -33,7 +33,8 @@ class mine__test(unittest.TestCase):
         self.mine2 = MINE(x2,y2)
 
     def test_equipartition_y_axis(self):
-        Q = self.mine1.equipartition_y_axis(y=3)
+
+        Q = self.mine1.get_points_assignments(self.mine1.equipartition_y_axis(y=3))
 
         assert Q[(1, 1)] == 0
         assert Q[(1, 2)] == 0
@@ -52,7 +53,7 @@ class mine__test(unittest.TestCase):
         assert Q[(6, 6)] == 2
         assert Q[(7, 5)] == 2
 
-        
+
         
         '''
         -------------
@@ -65,7 +66,7 @@ class mine__test(unittest.TestCase):
         -------------
           0 1 2 3 4 5
          '''
-        Q = self.mine2.equipartition_y_axis(y=3)
+        Q = {(self.mine2.Dy[k][0], self.mine2.Dy[k][1]): v for k,v in self.mine2.equipartition_y_axis(y=3).iteritems()}
         
         assert Q[(0, 0)] == 0
         assert Q[(5, 0)] == 0

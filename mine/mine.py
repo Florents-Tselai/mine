@@ -25,6 +25,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
 
+
 class MINE:
     def __init__(self,x,y):
         self.D = vstack((x,y)).T
@@ -36,38 +37,41 @@ class MINE:
         self.Dy = self.D[self.Dy_indices]
         self.D_orth = fliplr(self.D)
 
-    def equipartition_y_axis(self,y):
+    def equipartition_y_axis(self, y):
 
-        desiredRowSize = float64(self.n) / float64(y)
+        desired_row_size = float64(self.n) / float64(y)
 
         i = 0
         sharp = 0
-        currRow = 0
+        current_row = 0
 
-        Q = {}
-        while(i < self.n):
+        q = {}
+        while i < self.n:
             s = shape(where(self.Dy[:,1] == self.Dy[i][1]))[1]
+            lhs = abs(float64(sharp) + float64(s) - desired_row_size)
+            rhs = abs(float64(sharp) - desired_row_size)
 
-
-            lhs = abs(float64(sharp) + float64(s) - desiredRowSize)
-            rhs = abs(float64(sharp) - desiredRowSize)
-
-            if (sharp != 0 and lhs >= rhs):
+            if sharp != 0 and lhs >= rhs:
                 sharp = 0
-                currRow += 1
+                current_row += 1
                 temp1 = float64(self.n) - float64(i)
-                temp2 = float64(y) - float64(currRow)
-                desiredRowSize = temp1 / temp2
+                temp2 = float64(y) - float64(current_row)
+                desired_row_size = temp1 / temp2
 
             for j in xrange(s):
-                #TODO use numpy array assignments instead of dictionary
-                p = self.Dy[i+j]
-                Q[(p[0], p[1])] = currRow
+                q[i+j] = current_row
 
             i += s
             sharp += s
 
-        return Q
+        return q
+
+    def get_points_assignments(self, d, axis_sorted_by='y'):
+        assert axis_sorted_by == 'x' or axis_sorted_by == 'y'
+
+        data = self.Dy if axis_sorted_by=='y' else self.Dx
+        return {(data[k][0], data[k][1]): v for k,v in d.iteritems()}
+
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
     
