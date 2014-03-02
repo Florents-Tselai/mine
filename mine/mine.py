@@ -25,6 +25,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
 
+class MINE:
+    def __init__(self,x,y):
+        self.D = np.vstack((x,y)).T
+        self.Dx = self.D[np.lexsort((self.D[:,1],self.D[:,0]))]
+        self.Dy = self.D[np.lexsort((self.D[:,0],self.D[:,1]))]
 
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
