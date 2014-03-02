@@ -34,7 +34,7 @@ class mine__test(unittest.TestCase):
 
     def test_equipartition_y_axis(self):
 
-        Q = self.mine1.get_points_assignments(self.mine1.equipartition_y_axis(y=3))
+        Q = self.mine1.equipartition_y_axis(y=3)
 
         assert Q[(1, 1)] == 0
         assert Q[(1, 2)] == 0

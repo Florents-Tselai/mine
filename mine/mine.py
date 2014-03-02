@@ -37,6 +37,17 @@ class MINE:
         self.Dy = self.D[self.Dy_indices]
         self.D_orth = fliplr(self.D)
 
+    def get_point(self, index, axis_sorted_by):
+        assert axis_sorted_by == 'x' or axis_sorted_by == 'y'
+
+        return (self.Dx[index][0], self.Dx[index][1]) if axis_sorted_by=='x' else (self.Dy[index][0], self.Dy[index][1])
+
+    def p_x(p):
+        return p[0]
+
+    def p_y(p):
+        return p[1]
+
     def equipartition_y_axis(self, y):
 
         desired_row_size = float64(self.n) / float64(y)
@@ -59,7 +70,8 @@ class MINE:
                 desired_row_size = temp1 / temp2
 
             for j in xrange(s):
-                q[i+j] = current_row
+                point = self.get_point(i+j, 'y')
+                q[point] = current_row
 
             i += s
             sharp += s
@@ -67,13 +79,10 @@ class MINE:
         return q
 
     def get_points_assignments(self, d, axis_sorted_by='y'):
-        assert axis_sorted_by == 'x' or axis_sorted_by == 'y'
-
-        data = self.Dy if axis_sorted_by=='y' else self.Dx
-        return {(data[k][0], data[k][1]): v for k,v in d.iteritems()}
+        return {self.get_point(k, axis_sorted_by): v for k,v in d.iteritems()}
 
     def get_clumps_partition(self, q):
-        q_tilde = self.get_points_assignments(q).copy()
+        q_tilde = q.copy()
         i = 0
         c = -1
 
@@ -81,25 +90,25 @@ class MINE:
             s = 1
             flag = False
             for j in xrange(i + 1, self.n):
-                if self.Dx[i][0] == self.Dx[j][0]:
+                if p_x(self.get_point(i, 'x')) == p_x(self.get_point(j, 'x')):
                     s += 1
-                    if q_tilde[(self.Dx[i][0], self.Dx[i][1])] != q_tilde[(self.Dx[j][0], self.Dx[j][1])]:
+                    if q_tilde[self.get_point(i, 'x')] != q_tilde[self.get_point(j, 'x')]:
                         flag = True
                 else:
                     break
 
             if s > 1 and flag:
                 for j in xrange(s):
-                    q_tilde[(self.Dx[i + j][0], self.Dx[i + j][1])] = c
+                    q_tilde[self.get_point(i+j, 'x')] = c
                 c -= 1
             i += s
 
         i = 0
-        p = {(self.Dx[0][1],self.Dx[0][1]): 0}
+        p = {self.get_point(0, 'x'): 0}
         for j in xrange(1, self.n):
-            if q_tilde[(self.Dx[j][0],self.Dx[j][1])] != q_tilde[(self.Dx[j - 1][0],self.Dx[j - 1][1])]:
+            if q_tilde[self.get_point(j, 'x')] != q_tilde[self.get_point(j-1, 'x')]:
                 i += 1
-            p[(self.Dx[j][0],self.Dx[j][1])] = i
+            p[self.get_point(j, 'x')] = i
 
         return p
 
@@ -146,7 +155,6 @@ def ApproxCharacteristicMatrix(D, B, c):
     M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
    
     return M
-
 
 
 def GetSuperclumpsPartition(D, Q, k_hat):
