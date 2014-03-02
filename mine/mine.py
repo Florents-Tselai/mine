@@ -18,7 +18,7 @@ from collections import defaultdict, Counter
 from copy import copy
 from itertools import chain, tee, izip
 from math import floor
-from numpy import log2
+from numpy import vstack, lexsort, shape, where, log2, fliplr
 
 from computations import *
 import matplotlib.pyplot as plt
@@ -27,10 +27,47 @@ from utils import *
 
 class MINE:
     def __init__(self,x,y):
-        self.D = np.vstack((x,y)).T
-        self.Dx = self.D[np.lexsort((self.D[:,1],self.D[:,0]))]
-        self.Dy = self.D[np.lexsort((self.D[:,0],self.D[:,1]))]
+        self.D = vstack((x,y)).T
+        self.n = len(self.D)
+        self.Dx_indices = lexsort((self.D[:,1],self.D[:,0]))
+        self.Dx = self.D[self.Dx_indices]
 
+        self.Dy_indices = lexsort((self.D[:,0],self.D[:,1]))
+        self.Dy = self.D[self.Dy_indices]
+        self.D_orth = fliplr(self.D)
+
+    def equipartition_y_axis(self,y):
+
+        desiredRowSize = float64(self.n) / float64(y)
+
+        i = 0
+        sharp = 0
+        currRow = 0
+
+        Q = {}
+        while(i < self.n):
+            s = shape(where(self.Dy[:,1] == self.Dy[i][1]))[1]
+
+
+            lhs = abs(float64(sharp) + float64(s) - desiredRowSize)
+            rhs = abs(float64(sharp) - desiredRowSize)
+
+            if (sharp != 0 and lhs >= rhs):
+                sharp = 0
+                currRow += 1
+                temp1 = float64(self.n) - float64(i)
+                temp2 = float64(y) - float64(currRow)
+                desiredRowSize = temp1 / temp2
+
+            for j in xrange(s):
+                #TODO use numpy array assignments instead of dictionary
+                p = self.Dy[i+j]
+                Q[(p[0], p[1])] = currRow
+
+            i += s
+            sharp += s
+
+        return Q
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
     
@@ -74,42 +111,6 @@ def ApproxCharacteristicMatrix(D, B, c):
     M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
    
     return M
-    
-def EquipartitionYAxis(D, y):
-    assert is_sorted_increasing_by(D, 'y')
-    
-    n = len(D)
-    
-    desiredRowSize = float64(n) / float64(y)
-    
-    i = 0
-    sharp = 0
-    currRow = 0
-    
-    Q = {}
-    while(i < n):
-        # s = len([p for p in D if p[1] == D[i][1]])
-        # s = sum(imap(lambda p: p[1] == D[i][1], D))
-        
-        s = sum(1 for p in D if p[1] == D[i][1])
-        
-        lhs = abs(float64(sharp) + float64(s) - desiredRowSize)
-        rhs = abs(float64(sharp) - desiredRowSize)
-        
-        if (sharp != 0 and lhs >= rhs):
-            sharp = 0
-            currRow += 1
-            temp1 = float64(n) - float64(i)
-            temp2 = float64(y) - float64(currRow)
-            desiredRowSize = temp1 / temp2
-        
-        for j in range(s): 
-            Q[D[i + j]] = currRow
-        
-        i += s
-        sharp += s
-    
-    return Q
 
 def GetClumpsPartition(D, Q):
     assert is_sorted_increasing_by(D, 'x')
@@ -199,6 +200,7 @@ def OptimizeXAxis(D, Q, x, k_hat):
 
 
 def mine(cm, B, e=1):
+    print np.indices(cm.shape)
     mic = max(value for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value))
     mas = max(np.abs(value - cm[y][x]) for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value))
     mev = max(value for (x, y), value in np.ndenumerate(cm) if x * y < B and (x, y) != (0, 0) and not np.isnan(value) and (x is 2 or y is 2))
