@@ -48,29 +48,31 @@ class MINE:
     def p_y(p):
         return p[1]
 
-    def equipartition_y_axis(self, y):
+    @staticmethod
+    def equipartition_y_axis(d_y, y):
+        n = len(d_y)
 
-        desired_row_size = float64(self.n) / float64(y)
+        desired_row_size = float64(n) / float64(y)
 
         i = 0
         sharp = 0
         current_row = 0
 
         q = {}
-        while i < self.n:
-            s = shape(where(self.Dy[:,1] == self.Dy[i][1]))[1]
+        while i < n:
+            s = shape(where(d_y[:,1] == d_y[i][1]))[1]
             lhs = abs(float64(sharp) + float64(s) - desired_row_size)
             rhs = abs(float64(sharp) - desired_row_size)
 
             if sharp != 0 and lhs >= rhs:
                 sharp = 0
                 current_row += 1
-                temp1 = float64(self.n) - float64(i)
+                temp1 = float64(n) - float64(i)
                 temp2 = float64(y) - float64(current_row)
                 desired_row_size = temp1 / temp2
 
             for j in xrange(s):
-                point = self.get_point(i+j, 'y')
+                point = (d_y[i+j][0], d_y[i+j][1])
                 q[point] = current_row
 
             i += s
@@ -111,6 +113,25 @@ class MINE:
             p[self.get_point(j, 'x')] = i
 
         return p
+
+    def get_super_clumps_partition(self, q, k_hat):
+        p_tilde = self.get_clumps_partition(q)
+        k = len(set(p_tilde.itervalues()))
+        if k > k_hat:
+            x = np.zeros((self.n,), dtype=np.int)
+            y = np.fromiter(p_tilde.itervalues(), dtype=np.int)
+            d_p_tilde = np.vstack((x,y)).T
+            #Sort by increasing y-value
+            d_p_tilde_y_indices = lexsort((d_p_tilde[:,0],d_p_tilde[:,1]))
+            d_p_tilde = d_p_tilde[d_p_tilde_y_indices]
+            p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
+            p = {tuple(point):p_hat[(0, p_tilde[tuple(point)])] for point in self.D}
+            print 'first'
+            return p
+        else:
+            print 'in'
+            return p_tilde
+
 
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 
@@ -155,20 +176,6 @@ def ApproxCharacteristicMatrix(D, B, c):
     M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
    
     return M
-
-
-def GetSuperclumpsPartition(D, Q, k_hat):
-    assert is_sorted_increasing_by(D, 'x')
-
-    P_tilde = GetClumpsPartition(D, Q)
-    k = len(set(P_tilde.itervalues()))    
-    if k > k_hat:
-        D_P_tilde = [(0, P_tilde[p]) for p in D]
-        P_hat = EquipartitionYAxis(D_P_tilde, k_hat)
-        P = {p:P_hat[(0, P_tilde[p])] for p in D}
-        return P
-    else:
-        return P_tilde    
     
 def OptimizeXAxis(D, Q, x, k_hat):
     assert is_sorted_increasing_by(D, 'x')

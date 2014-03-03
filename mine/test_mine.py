@@ -34,24 +34,24 @@ class mine__test(unittest.TestCase):
 
     def test_equipartition_y_axis(self):
 
-        Q = self.mine1.equipartition_y_axis(y=3)
+        q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
 
-        assert Q[(1, 1)] == 0
-        assert Q[(1, 2)] == 0
-        assert Q[(9, 2)] == 0
-        assert Q[(9, 1)] == 0
+        assert q1[(1, 1)] == 0
+        assert q1[(1, 2)] == 0
+        assert q1[(9, 2)] == 0
+        assert q1[(9, 1)] == 0
         
-        assert Q[(1, 3)] == 1
-        assert Q[(1, 4)] == 1
-        assert Q[(2, 3)] == 1
-        assert Q[(2, 4)] == 1
-        assert Q[(8, 3)] == 1
+        assert q1[(1, 3)] == 1
+        assert q1[(1, 4)] == 1
+        assert q1[(2, 3)] == 1
+        assert q1[(2, 4)] == 1
+        assert q1[(8, 3)] == 1
         
-        assert Q[(3, 5)] == 2
-        assert Q[(4, 6)] == 2
-        assert Q[(5, 6)] == 2
-        assert Q[(6, 6)] == 2
-        assert Q[(7, 5)] == 2
+        assert q1[(3, 5)] == 2
+        assert q1[(4, 6)] == 2
+        assert q1[(5, 6)] == 2
+        assert q1[(6, 6)] == 2
+        assert q1[(7, 5)] == 2
 
 
         
@@ -66,16 +66,15 @@ class mine__test(unittest.TestCase):
         -------------
           0 1 2 3 4 5
          '''
-        Q = {(self.mine2.Dy[k][0], self.mine2.Dy[k][1]): v for k,v in self.mine2.equipartition_y_axis(y=3).iteritems()}
+        q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
+        assert q2[(0, 0)] == 0
+        assert q2[(5, 0)] == 0
         
-        assert Q[(0, 0)] == 0
-        assert Q[(5, 0)] == 0
+        assert q2[(1, 1)] == 1
+        assert q2[(2, 1)] == 1
         
-        assert Q[(1, 1)] == 1
-        assert Q[(2, 1)] == 1
-        
-        assert Q[(3, 2)] == 2
-        assert Q[(4, 3)] == 2
+        assert q2[(3, 2)] == 2
+        assert q2[(4, 3)] == 2
         
     def test_get_clumps_partition(self):
     
@@ -110,7 +109,18 @@ class mine__test(unittest.TestCase):
         assert (3, 2) and (4, 3) in clumps_partition_groups[2]
         assert (5, 0) in clumps_partition_groups[3]
         assert (6, 4) in clumps_partition_groups[4]
-                          
+
+    def test_get_super_clumps_partition(self):
+        x = np.arange(100)
+        y = 2*x
+        m = MINE(x,y)
+        q = m.equipartition_y_axis(m.Dy, 10)
+
+        p = m.get_super_clumps_partition(q, 15)
+        assert p == m.get_clumps_partition(q)
+
+        p = m.get_super_clumps_partition(q, 5)
+
     def test_mine(self):
         return
         x = np.array(range(1000))
