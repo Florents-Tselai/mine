@@ -135,6 +135,40 @@ class MINE:
             print 'in'
             return p_tilde
 
+def group_points_by_partition(p):
+    d = defaultdict(list)
+    for k, v in p.iteritems():
+        d[v].append(k)
+    return dict(d)
+
+def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
+    x_axis_partition, y_axis_partition = group_points_by_partition(p), group_points_by_partition(q)
+
+    from itertools import chain
+    points = set(chain(p.iterkeys(), q.iterkeys()))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
+    # Scatter points
+    ax.scatter(map(p_x, points), map(p_y, points))
+
+    x_bin_edge = lambda x_bin :last_abscissa(x_bin) + 0.2
+    y_bin_edge = lambda y_bin:  last_ordinate(y_bin) + 0.2
+
+    x_ticks = map(x_bin_edge, x_axis_partition.values())
+    y_ticks = map(y_bin_edge, y_axis_partition.values())
+
+    ax.get_xaxis().set_ticks(x_ticks)
+    ax.get_yaxis().set_ticks(y_ticks)
+
+    # Format grid appearance
+    ax.grid(True, alpha=0.5, color='red', linestyle='--', linewidth=1.5)
+
+    x_partition_size = len(x_axis_partition.values())
+    y_partition_size = len(y_axis_partition.values())
+    plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
+    plt.savefig(output_dir+file_name)
 
 def ApproxMaxMI(D, x, y, k_hat):
     assert x > 1 and y > 1 and k_hat > 1 

@@ -2,7 +2,7 @@ VIRTUAL_ENV_DIR=mine_env
 GPROF2DOT_PATH=mine_env/lib/python2.7/site-packages/gprof2dot
 PROFILING_RESULTS_DIR=doc/profiling
 EXPERIMENTS_DIR=doc/experiments
-
+EXAMPLES_DIR=doc/examples
 create_virtualenv:
 	virtualenv $(VIRTUAL_ENV_DIR) && \
 	. $(VIRTUAL_ENV_DIR)/bin/activate && \
@@ -35,3 +35,7 @@ test:
 run_experiments:
 	mkdir -p $(EXPERIMENTS_DIR)
 	python mine/experiments.py
+
+plot_examples:
+	mkdir -p $(EXAMPLES_DIR)
+	python mine/examples.py
