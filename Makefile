@@ -28,6 +28,10 @@ profile:
 	mkdir -p $(PROFILING_RESULTS_DIR)
 	python -m cProfile --sort cumulative -o mine.pstats mine/test_mine.py
 	python $(GPROF2DOT_PATH)/gprof2dot.py -f pstats mine.pstats | dot -Tpdf -o $(PROFILING_RESULTS_DIR)/profile.pdf
+
+test:
+	python mine/test_mine.py
+
 run_experiments:
 	mkdir -p $(EXPERIMENTS_DIR)
 	python mine/experiments.py

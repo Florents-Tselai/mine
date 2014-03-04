@@ -119,16 +119,6 @@ class mine__test(unittest.TestCase):
 
         assert ordinals2 == [-1, 0, 2, 4, 5, 6]
 
-    def test_get_super_clumps_partition(self):
-        x = np.arange(100)
-        y = 2*x
-        m = MINE(x,y)
-        q = m.equipartition_y_axis(m.Dy, 10)
-
-        p = m.get_super_clumps_partition(q, 15)
-        assert p == m.get_clumps_partition(q)
-
-        p = m.get_super_clumps_partition(q, 5)
 
     def test_mine(self):
         return

@@ -118,7 +118,7 @@ class MINE:
         return p, ordinals
 
     def get_super_clumps_partition(self, q, k_hat):
-        p_tilde = self.get_clumps_partition(q)
+        p_tilde, _ = self.get_clumps_partition(q)
         k = len(set(p_tilde.itervalues()))
         if k > k_hat:
             x = np.zeros((self.n,), dtype=np.int)
