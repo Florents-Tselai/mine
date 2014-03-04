@@ -78,37 +78,43 @@ class mine__test(unittest.TestCase):
         
     def test_get_clumps_partition(self):
     
-        q = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
+        q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
 
-        p = self.mine1.get_clumps_partition(q)
+        p1 = self.mine1.get_clumps_partition(q1)
         
-        assert p[(1, 1)] == 0
-        assert p[(1, 2)] == 0
-        assert p[(1, 3)] == 0
-        assert p[(1, 4)] == 0
+        assert p1[(1, 1)] == 0
+        assert p1[(1, 2)] == 0
+        assert p1[(1, 3)] == 0
+        assert p1[(1, 4)] == 0
         
-        assert p[(2, 3)] == 1
-        assert p[(2, 4)] == 1
+        assert p1[(2, 3)] == 1
+        assert p1[(2, 4)] == 1
         
-        assert p[(3, 5)] == 2
-        assert p[(4, 6)] == 2
-        assert p[(5, 6)] == 2
-        assert p[(6, 6)] == 2
-        assert p[(7, 5)] == 2
+        assert p1[(3, 5)] == 2
+        assert p1[(4, 6)] == 2
+        assert p1[(5, 6)] == 2
+        assert p1[(6, 6)] == 2
+        assert p1[(7, 5)] == 2
+
+        assert p1[(8, 3)] == 3
         
-        assert p[(8, 3)] == 3
-        
-        assert p[(9, 2)] == 4
-        assert p[(9, 1)] == 4
-        
-        q = self.mine2.equipartition_y_axis(self.mine2.Dy, 3)
-        p = self.mine2.get_clumps_partition(q)
-        clumps_partition_groups = GroupPointsByPartition(p)
-        assert (0, 0) in clumps_partition_groups[0]
-        assert (1, 1) and (2, 1) in clumps_partition_groups[1]
-        assert (3, 2) and (4, 3) in clumps_partition_groups[2]
-        assert (5, 0) in clumps_partition_groups[3]
-        assert (6, 4) in clumps_partition_groups[4]
+        assert p1[(9, 2)] == 4
+        assert p1[(9, 1)] == 4
+        print '======='
+        q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, 3)
+        p2 = self.mine2.get_clumps_partition(q2)
+        clumps_partition_groups = GroupPointsByPartition(p2)
+        assert p2[(0,0)] == 0
+
+        assert p2[(1,1)] == 1
+        assert p2[(2,1)] == 1
+
+        assert p2[(3,2)] == 2
+        assert p2[(4,3)] == 2
+
+        assert p2[(5,0)] == 3
+
+        assert p2[(6,4)] == 4
 
     def test_get_super_clumps_partition(self):
         x = np.arange(100)
