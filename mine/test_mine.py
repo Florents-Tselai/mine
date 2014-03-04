@@ -78,7 +78,7 @@ class mine__test(unittest.TestCase):
         
     def test_get_clumps_partition(self):
     
-        q = self.mine1.equipartition_y_axis(3)
+        q = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
 
         p = self.mine1.get_clumps_partition(q)
         
@@ -101,7 +101,7 @@ class mine__test(unittest.TestCase):
         assert p[(9, 2)] == 4
         assert p[(9, 1)] == 4
         
-        q = self.mine2.equipartition_y_axis(3)
+        q = self.mine2.equipartition_y_axis(self.mine2.Dy, 3)
         p = self.mine2.get_clumps_partition(q)
         clumps_partition_groups = GroupPointsByPartition(p)
         assert (0, 0) in clumps_partition_groups[0]
