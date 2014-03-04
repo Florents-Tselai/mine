@@ -80,7 +80,7 @@ class mine__test(unittest.TestCase):
     
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
 
-        p1 = self.mine1.get_clumps_partition(q1)
+        p1, ordinals1 = self.mine1.get_clumps_partition(q1)
         
         assert p1[(1, 1)] == 0
         assert p1[(1, 2)] == 0
@@ -100,10 +100,11 @@ class mine__test(unittest.TestCase):
         
         assert p1[(9, 2)] == 4
         assert p1[(9, 1)] == 4
-        print '======='
+
+        assert ordinals1 == [-1, 3, 5, 10, 11, 13]
+        
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, 3)
-        p2 = self.mine2.get_clumps_partition(q2)
-        clumps_partition_groups = GroupPointsByPartition(p2)
+        p2, ordinals2 = self.mine2.get_clumps_partition(q2)
         assert p2[(0,0)] == 0
 
         assert p2[(1,1)] == 1
@@ -115,6 +116,8 @@ class mine__test(unittest.TestCase):
         assert p2[(5,0)] == 3
 
         assert p2[(6,4)] == 4
+
+        assert ordinals2 == [-1, 0, 2, 4, 5, 6]
 
     def test_get_super_clumps_partition(self):
         x = np.arange(100)

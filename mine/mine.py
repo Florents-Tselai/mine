@@ -107,12 +107,15 @@ class MINE:
 
         i = 0
         p = {self.get_point(0, 'x'): 0}
+        ordinals = [i-1]
         for j in xrange(1, self.n):
             if q_tilde[self.get_point(j, 'x')] != q_tilde[self.get_point(j-1, 'x')]:
+                ordinals.append(j-1)
                 i += 1
+            if j == self.n-1:
+                ordinals.append(j)
             p[self.get_point(j, 'x')] = i
-
-        return p
+        return p, ordinals
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde = self.get_clumps_partition(q)
