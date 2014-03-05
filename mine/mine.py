@@ -138,11 +138,9 @@ class MINE:
 
 def get_all_size_2_partition(ordinals):
     k = len(ordinals)
-    partitions = set()
     for t in xrange(2, k):
         for s in xrange(1, t+1):
-            partitions.add((ordinals[0], ordinals[s], ordinals[t]))
-    return partitions
+            yield np.array((ordinals[0], ordinals[s], ordinals[t]), dtype=np.int32)
 
 def group_points_by_partition(p):
     d = defaultdict(list)

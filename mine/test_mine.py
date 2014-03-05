@@ -121,7 +121,7 @@ class mine__test(unittest.TestCase):
 
     def test_optimal_size_2_partitions(self):
         ordinals = [2, 7, 9, 11, 14, 15]
-        assert len(get_all_size_2_partition(ordinals)) == 14
+        assert len(list(get_all_size_2_partition(ordinals))) == 14
 
     def test_mine(self):
         return
