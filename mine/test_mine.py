@@ -125,21 +125,28 @@ class mine__test(unittest.TestCase):
         assert len(list(get_all_size_2_partition(ordinals))) == 14
 
     def test_HP(self):
-        pass
+        assert HP(np.array([2, 7, 9, 11, 14, 15])) == entropy([5./13, 2./13, 2./13, 3./13, 1./13])
+        
 
     def test_number_of_points_in_partition(self):
         assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13
-        assert number_of_points_in_partition([-1, 2, 7, 9, 11, 14, 15]) == 14
-        assert number_of_points_in_partition([2, 3]) == 1
+        assert number_of_points_in_partition([-1, 2, 7, 9, 11, 14, 15]) == 16
         assert number_of_points_in_partition([-1, 7, 15]) == 16
-        assert number_of_points_in_partition([7, 15]) == 8
+        assert number_of_points_in_partition([-1, 0, 2, 5, 6]) == 7
+        assert number_of_points_in_partition([-1,0,1]) == 2
+        assert number_of_points_in_partition(([-1,1,2])) == 3
+        assert number_of_points_in_partition([-1, 5, 6]) == 7
+        assert number_of_points_in_partition([-1,0]) == 1
+        assert number_of_points_in_partition([-1,0,1]) == 2
 
     def test_get_partition_histogram(self):
         assert_array_equal(get_partition_histogram(np.array([2, 7, 9, 11, 14, 15])), np.array([5 ,2, 2, 3, 1]))
         assert_array_equal(get_partition_histogram(np.array([-1, 2, 7, 9, 11, 14, 15])), np.array([3, 5, 2, 2, 3, 1]))
-        assert_array_equal(get_partition_histogram(np.array([2,3])), np.array([1]))
-        assert_array_equal(get_partition_histogram(([-1, 7, 15])), np.array([8, 8]))
-        assert_array_equal(get_partition_histogram(([7, 15])), np.array([8]))
+        assert_array_equal(get_partition_histogram(np.array([-1,7,15])), np.array([8, 8]))
+        assert_array_equal(get_partition_histogram(np.array([-1, 0, 2, 5, 6])), np.array([1, 2, 3, 1]))
+        assert_array_equal(get_partition_histogram(np.array([-1,0,1])), np.array([1, 1]))
+        assert_array_equal(get_partition_histogram(np.array([-1,1,2])), np.array([2, 1]))
+        assert_array_equal(get_partition_histogram(np.array([-1, 5, 6])), np.array([6, 1]))
 
     def test_mine(self):
         return

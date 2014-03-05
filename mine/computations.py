@@ -31,7 +31,8 @@ def H(distribution):
 
 def HQ(Q):
     n = len(Q)
-    histogram = np.fromiter(Counter(Q.itervalues()).itervalues(), dtype=int)
+    histogram = np.fromiter(Counter(Q.itervalues()).itervalues(), dtype=np.float64)
+    print histogram
     return H(histogram / np.float64(n))
 
 def HPQ(P, Q):

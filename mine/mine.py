@@ -144,24 +144,31 @@ def get_all_size_2_partition(ordinals):
 
 
 def HP(ordinals):
-    #n = number_of_points_in_partition(ordinals)
-    pass
-
+    h = get_partition_histogram(ordinals)
+    n = number_of_points_in_partition(h)
+    return h /n
 
 def number_of_points_in_partition(ordinals):
-    if ordinals[0] > 0:
-        return sum(end_point - start_point for start_point, end_point in pairwise(ordinals))
-    else:
-        assert ordinals[0] == -1
-
-        if len(ordinals) == 3:
-            return 1 + ordinals[1] + (ordinals[2] - ordinals[1])
-
-        return ordinals[1] - 1 + sum(end_point - start_point for start_point, end_point in pairwise(ordinals[1:]))
+    return get_partition_histogram(np.array(ordinals)).sum()
 
 
 def get_partition_histogram(ordinals):
-    return np.fromiter((end_point - start_point for start_point, end_point in pairwise(ordinals)), dtype=int)
+    return np.fromiter((end - start for start, end in pairwise([int(ordinals[0])] + ordinals[1:].tolist())), dtype=np.int32)
+
+
+def entropy(P):
+        '''
+        Return the Shannon entropy of a probability vector P
+        See http://www.scholarpedia.org/article/Entropy#Shannon_entropy
+        '''
+        h = -np.fromiter((i * np.log2(i) for i in P if i > 0), dtype=np.float64).sum()
+        return h
+
+def HP(ordinals):
+    histogram = get_partition_histogram(ordinals)
+    n = np.float64(number_of_points_in_partition(ordinals))
+    return entropy(histogram / n)
+
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
