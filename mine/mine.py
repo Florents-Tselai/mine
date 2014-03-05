@@ -16,7 +16,7 @@
 import bisect
 from collections import defaultdict, Counter
 from copy import copy
-from itertools import chain, tee, izip
+from itertools import *
 from math import floor
 from numpy import vstack, lexsort, shape, where, log2, fliplr
 
@@ -134,6 +134,15 @@ class MINE:
         else:
             print 'in'
             return p_tilde
+
+
+def get_all_size_2_partition(ordinals):
+    k = len(ordinals)
+    partitions = set()
+    for t in xrange(2, k):
+        for s in xrange(1, t+1):
+            partitions.add((ordinals[0], ordinals[s], ordinals[t]))
+    return partitions
 
 def group_points_by_partition(p):
     d = defaultdict(list)
