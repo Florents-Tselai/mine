@@ -160,6 +160,9 @@ def number_of_points_in_partition(ordinals):
         return ordinals[1] - 1 + sum(end_point - start_point for start_point, end_point in pairwise(ordinals[1:]))
 
 
+def get_partition_histogram(ordinals):
+    return np.fromiter((end_point - start_point for start_point, end_point in pairwise(ordinals)), dtype=int)
+
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)

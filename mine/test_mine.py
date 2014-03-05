@@ -14,6 +14,7 @@
 
 from collections import OrderedDict
 import unittest
+from numpy.testing import assert_array_equal
 
 from mine import *
 
@@ -125,12 +126,20 @@ class mine__test(unittest.TestCase):
 
     def test_HP(self):
         pass
+
     def test_number_of_points_in_partition(self):
         assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13
         assert number_of_points_in_partition([-1, 2, 7, 9, 11, 14, 15]) == 14
         assert number_of_points_in_partition([2, 3]) == 1
         assert number_of_points_in_partition([-1, 7, 15]) == 16
         assert number_of_points_in_partition([7, 15]) == 8
+
+    def test_get_partition_histogram(self):
+        assert_array_equal(get_partition_histogram(np.array([2, 7, 9, 11, 14, 15])), np.array([5 ,2, 2, 3, 1]))
+        assert_array_equal(get_partition_histogram(np.array([-1, 2, 7, 9, 11, 14, 15])), np.array([3, 5, 2, 2, 3, 1]))
+        assert_array_equal(get_partition_histogram(np.array([2,3])), np.array([1]))
+        assert_array_equal(get_partition_histogram(([-1, 7, 15])), np.array([8, 8]))
+        assert_array_equal(get_partition_histogram(([7, 15])), np.array([8]))
 
     def test_mine(self):
         return
