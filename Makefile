@@ -3,7 +3,8 @@ GPROF2DOT_PATH=mine_env/lib/python2.7/site-packages/gprof2dot
 PROFILING_RESULTS_DIR=doc/profiling
 EXPERIMENTS_DIR=doc/experiments
 EXAMPLES_DIR=doc/examples
-create_virtualenv:
+
+install:
 	virtualenv $(VIRTUAL_ENV_DIR) && \
 	. $(VIRTUAL_ENV_DIR)/bin/activate && \
 	pip install matplotlib numpy gprof2dot pandas
@@ -39,3 +40,11 @@ run_experiments:
 plot_examples:
 	mkdir -p $(EXAMPLES_DIR)
 	python mine/examples.py
+
+all:
+	make install && \
+	make test && \
+	make plot_examples && \
+	make run_experiments && \
+	make profile && \
+	make pdf
