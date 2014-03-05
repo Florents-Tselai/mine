@@ -123,6 +123,15 @@ class mine__test(unittest.TestCase):
         ordinals = [2, 7, 9, 11, 14, 15]
         assert len(list(get_all_size_2_partition(ordinals))) == 14
 
+    def test_HP(self):
+        pass
+    def test_number_of_points_in_partition(self):
+        assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13
+        assert number_of_points_in_partition([-1, 2, 7, 9, 11, 14, 15]) == 14
+        assert number_of_points_in_partition([2, 3]) == 1
+        assert number_of_points_in_partition([-1, 7, 15]) == 16
+        assert number_of_points_in_partition([7, 15]) == 8
+
     def test_mine(self):
         return
         x = np.array(range(1000))

@@ -142,6 +142,30 @@ def get_all_size_2_partition(ordinals):
         for s in xrange(1, t+1):
             yield np.array((ordinals[0], ordinals[s], ordinals[t]), dtype=np.int32)
 
+
+def HP(ordinals):
+    #n = number_of_points_in_partition(ordinals)
+    pass
+
+
+def number_of_points_in_partition(ordinals):
+    if ordinals[0] > 0:
+        return sum(end_point - start_point for start_point, end_point in pairwise(ordinals))
+    else:
+        assert ordinals[0] == -1
+
+        if len(ordinals) == 3:
+            return 1 + ordinals[1] + (ordinals[2] - ordinals[1])
+
+        return ordinals[1] - 1 + sum(end_point - start_point for start_point, end_point in pairwise(ordinals[1:]))
+
+
+def pairwise(iterable):
+    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    a, b = tee(iterable)
+    next(b, None)
+    return izip(a, b)
+
 def group_points_by_partition(p):
     d = defaultdict(list)
     for k, v in p.iteritems():

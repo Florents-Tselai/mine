@@ -41,11 +41,7 @@ def last_abscissa(x_bin):
 def last_ordinate(y_bin): 
     return p_y(get_highest_point(y_bin))
 
-def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
-    a, b = tee(iterable)
-    next(b, None)
-    return izip(a, b)
+
 
 def is_sorted_increasing_by(D, increasing_by='x'):
     assert increasing_by == 'x' or increasing_by == 'y'
@@ -58,9 +54,7 @@ def is_sorted_increasing_by(D, increasing_by='x'):
 def get_distribution_of_points(ordinals):
     return np.fromiter((o2 + 1 if o1 < 0 else o2 - o1 for o1, o2 in pairwise(ordinals)), dtype=int)
 
-def number_of_points_in_partition(ordinals):
-    return ordinals[-1] - ordinals[0]
-    
+
 def get_partition_histogram(ordinals):
     distribution_of_points = get_distribution_of_points(ordinals)
 
