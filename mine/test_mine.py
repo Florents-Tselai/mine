@@ -16,6 +16,7 @@ from collections import OrderedDict
 import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
+import matplotlib.pyplot as plt
 
 from mine import *
 
@@ -140,6 +141,20 @@ class mine__test(unittest.TestCase):
 
     def test_get_map_from_ordinals(self):
         assert self.mine1.get_map_from_ordinals(np.array([-1, 3, 8, 13]), axis='y') == self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
+
+        q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
+
+        p1, ordinals1 = self.mine1.get_clumps_partition(q1)
+        assert p1 == self.mine1.get_map_from_ordinals(ordinals1, 'x')
+
+    def test_get_grid_histogram(self):
+        q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
+        p1, ordinals1 = self.mine1.get_clumps_partition(q1)
+        #plot_partitions(p1, q1)
+        #plt.show()
+        #Inspect visually as well
+        assert_array_equal(self.mine1.get_grid_histogram(ordinals1, q1), np.array([0,0,5,0,0,2,2,0,1,0,2,0,0,0,2]))
+
 
     def test_number_of_points_in_partition(self):
         assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13

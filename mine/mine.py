@@ -146,6 +146,14 @@ class MINE:
                 map[(d[p][0], d[p][1])] = current_partition
         return map
 
+    def get_grid_histogram(self, x_ordinals, y_map):
+        rows, columns = group_points_by_partition(y_map), group_points_by_partition(self.get_map_from_ordinals(x_ordinals, 'x'))
+
+        def grid_cell_size(row_index, column_index):
+            return len(set(rows[row_index]) & set(columns[column_index]))
+
+        grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
+        return np.fromiter(grid_points_distribution, dtype=int)
 
 def get_all_size_2_partition(ordinals):
     k = len(ordinals)
