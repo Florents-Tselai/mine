@@ -155,6 +155,11 @@ class mine__test(unittest.TestCase):
         #Inspect visually as well
         assert_array_equal(self.mine1.get_grid_histogram(ordinals1, q1), np.array([0,0,5,0,0,2,2,0,1,0,2,0,0,0,2]))
 
+    def test_I(self):
+        pass
+
+    def test_MI(self):
+        pass
 
     def test_number_of_points_in_partition(self):
         assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13

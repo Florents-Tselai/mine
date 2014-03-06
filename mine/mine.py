@@ -155,6 +155,14 @@ class MINE:
         grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
         return np.fromiter(grid_points_distribution, dtype=int)
 
+    def HPQ(self, x_ordinals, y_map):
+        h = self.get_grid_histogram(x_ordinals, y_map)
+        assert len(y_map) == self.n
+        return entropy(h / np.float64(self.n))
+
+    def I(self, x_ordinals, q_map):
+        return self.HP(x_ordinals) + self.HQ(q_map) - self.HPQ(x_ordinals, q_map)
+
 def get_all_size_2_partition(ordinals):
     k = len(ordinals)
     for t in xrange(2, k):
@@ -162,11 +170,6 @@ def get_all_size_2_partition(ordinals):
             yield np.array((ordinals[0], ordinals[s], ordinals[t]), dtype=np.int32)
 
 
-def HP(ordinals):
-    h = get_partition_histogram(ordinals)
-
-    n = number_of_points_in_partition(h)
-    return h /n
 
 def number_of_points_in_partition(ordinals):
     return get_partition_histogram(np.array(ordinals)).sum()
