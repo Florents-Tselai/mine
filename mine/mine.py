@@ -135,6 +135,17 @@ class MINE:
             print 'in'
             return p_tilde
 
+    def get_map_from_ordinals(self, ordinals, axis='y'):
+        assert axis =='x' or axis == 'y'
+        map = {}
+        d = self.Dx if axis == 'x' else self.Dy
+
+        for current_partition, start_end in enumerate(pairwise(ordinals)):
+            start_point, end_point = start_end
+            for p in xrange(start_point+1, end_point+1):
+                map[(d[p][0], d[p][1])] = current_partition
+        return map
+
 
 def get_all_size_2_partition(ordinals):
     k = len(ordinals)
@@ -155,6 +166,7 @@ def number_of_points_in_partition(ordinals):
 
 def get_partition_histogram(ordinals):
     return np.fromiter((end - start for start, end in pairwise(ordinals)),dtype=np.int32)
+
 
 
 def entropy(P):

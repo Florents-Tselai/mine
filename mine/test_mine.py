@@ -138,6 +138,10 @@ class mine__test(unittest.TestCase):
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
         assert HQ(q2) == entropy([2./7, 2./7, 3./7])
 
+    def test_get_map_from_ordinals(self):
+        assert self.mine1.get_map_from_ordinals(np.array([-1, 3, 8, 13]), axis='y') == self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
+        assert self.mine2.get_map_from_ordinals(np.array([]), axis='x')
+
     def test_number_of_points_in_partition(self):
         assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13
         assert number_of_points_in_partition([-1, 2, 7, 9, 11, 14, 15]) == 16
