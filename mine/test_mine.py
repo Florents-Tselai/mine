@@ -188,9 +188,16 @@ class mine__test(unittest.TestCase):
         q = m.equipartition_y_axis(m.Dy, 5)
         m.optimize_x_axis(m.Dx, q, 4)
 
+    def test_approx_char_matrix(self):
+        x = np.arange(300)
+        y = x**2
+        m = MINE(x, y)
+        b = pow(len(x), 0.6)
+        M = m.approx_char_matrix(m.D, b)
+        print M
     def test_mine(self):
         return
-        x = np.array(range(1000))
+        x = np.array(range(10000))
         y = 4 * (x - 1. / 2) ** 2
         D = zip(x, y)
         n = len(D)
