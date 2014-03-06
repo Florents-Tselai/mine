@@ -3,7 +3,6 @@ from numpy.core.fromnumeric import size
 import pandas as pd
 from collections import OrderedDict
 import numpy as np
-from mine import mic
 from time import time
 import matplotlib.pyplot as plt
 "+chr(94)+"
@@ -46,7 +45,12 @@ def run(f, n):
     x = np.linspace(0,1,num=n)
     y = get_y(x, f)
     t0 = time()
-    m = mic(x,y)
+    from mine import MINE
+    m = MINE(x, y)
+    b = pow(len(x), 0.6)
+    M = m.approx_char_matrix(m.D, b)
+    mic = np.max(M[~np.isnan(M)])
+
     t = time()
     return np.round(t-t0, 3)
 
