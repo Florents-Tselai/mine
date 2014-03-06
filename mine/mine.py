@@ -145,6 +145,7 @@ def get_all_size_2_partition(ordinals):
 
 def HP(ordinals):
     h = get_partition_histogram(ordinals)
+
     n = number_of_points_in_partition(h)
     return h /n
 
@@ -153,7 +154,7 @@ def number_of_points_in_partition(ordinals):
 
 
 def get_partition_histogram(ordinals):
-    return np.fromiter((end - start for start, end in pairwise([int(ordinals[0])] + ordinals[1:].tolist())), dtype=np.int32)
+    return np.fromiter((end - start for start, end in pairwise(ordinals)),dtype=np.int32)
 
 
 def entropy(P):
@@ -169,6 +170,9 @@ def HP(ordinals):
     n = np.float64(number_of_points_in_partition(ordinals))
     return entropy(histogram / n)
 
+
+def HQ(q):
+    return entropy(np.fromiter(Counter(q.itervalues()).itervalues(), dtype=np.int32) / np.float64(len(q)))
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."

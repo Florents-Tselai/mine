@@ -14,6 +14,7 @@
 
 from collections import OrderedDict
 import unittest
+import numpy as np
 from numpy.testing import assert_array_equal
 
 from mine import *
@@ -76,7 +77,8 @@ class mine__test(unittest.TestCase):
         
         assert q2[(3, 2)] == 2
         assert q2[(4, 3)] == 2
-        
+        assert q2[(6, 4)] == 2
+
     def test_get_clumps_partition(self):
     
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
@@ -126,7 +128,14 @@ class mine__test(unittest.TestCase):
 
     def test_HP(self):
         assert HP(np.array([2, 7, 9, 11, 14, 15])) == entropy([5./13, 2./13, 2./13, 3./13, 1./13])
-        
+        assert HP(np.array([-1, 0, 1])) == entropy([1./2, 1./2])
+
+    def test_HQ(self):
+        q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, y=3)
+        assert HQ(q1) == entropy([4./14, 5./14, 5./14])
+
+        q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
+        assert HQ(q2) == entropy([2./7, 2./7, 3./7])
 
     def test_number_of_points_in_partition(self):
         assert number_of_points_in_partition([2, 7, 9, 11, 14, 15]) == 13
