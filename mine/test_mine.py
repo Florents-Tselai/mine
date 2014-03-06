@@ -181,6 +181,13 @@ class mine__test(unittest.TestCase):
         assert_array_equal(get_partition_histogram(np.array([-1,1,2])), np.array([2, 1]))
         assert_array_equal(get_partition_histogram(np.array([-1, 5, 6])), np.array([6, 1]))
 
+    def test_optimize_x_axis(self):
+        x = np.arange(30)
+        y = x**2
+        m = MINE(x,y)
+        q = m.equipartition_y_axis(m.Dy, 5)
+        m.optimize_x_axis(m.Dx, q, 4)
+
     def test_mine(self):
         return
         x = np.array(range(1000))

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from __future__ import division
 import bisect
 from collections import defaultdict, Counter
 from copy import copy
@@ -20,10 +20,10 @@ from itertools import *
 from math import floor
 from numpy import vstack, lexsort, shape, where, log2, fliplr
 
-from computations import *
 import matplotlib.pyplot as plt
 import numpy as np
 from utils import *
+
 
 
 class MINE:
@@ -47,6 +47,35 @@ class MINE:
 
     def p_y(p):
         return p[1]
+
+    def optimize_x_axis(self, d_x, q, x):
+        clumps_map, c = self.get_clumps_partition(q)
+        k = len(c) - 1
+        #print k
+        I = np.zeros(shape=(7,7), dtype=np.float64)
+
+        for t in xrange(2, k+1):
+            s = max(range(1, t+1), key= lambda a: HP([c[0], c[a], c[t]]) - self.HPQ([c[0], c[a], c[t]], q))
+            p_t_2 = [c[0], c[s], c[t]]
+            i_t_2 = HQ(q) + HP(p_t_2) - self.HPQ(p_t_2, q)
+            I[t][2] = i_t_2
+        #print I
+
+        for l in xrange(3, x+1):
+            for t in xrange(l, k+1):
+                def f(s_, t_, l_):
+                    return (c[s_] / c[t_]) * (I[s_][l_-1] - HQ(q)) - (((c[t_] - c[s_]) / c[t_]) * self.HPQ([c[s_], c[t_]], q))
+                s = max(xrange(l-1, t+1), key=lambda a: f(a, t, l))
+                #TODO check again
+                p_t_l = c[1:l]
+                bisect.insort(p_t_l, c[t])
+
+                I[t][l] = HQ(q) + HP(p_t_l) - self.HPQ(p_t_l, q)
+                #print I
+        #TODO check again
+        for l in range(k+1, x+1):
+           I[k][l] = I[k][k]
+        return I[k][2:x+1]
 
     @staticmethod
     def equipartition_y_axis(d_y, y):
@@ -163,13 +192,12 @@ class MINE:
     def I(self, x_ordinals, q_map):
         return self.HP(x_ordinals) + self.HQ(q_map) - self.HPQ(x_ordinals, q_map)
 
+
 def get_all_size_2_partition(ordinals):
     k = len(ordinals)
     for t in xrange(2, k):
         for s in xrange(1, t+1):
             yield np.array((ordinals[0], ordinals[s], ordinals[t]), dtype=np.int32)
-
-
 
 def number_of_points_in_partition(ordinals):
     return get_partition_histogram(np.array(ordinals)).sum()
@@ -177,7 +205,6 @@ def number_of_points_in_partition(ordinals):
 
 def get_partition_histogram(ordinals):
     return np.fromiter((end - start for start, end in pairwise(ordinals)),dtype=np.int32)
-
 
 
 def entropy(P):
