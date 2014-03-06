@@ -95,7 +95,7 @@ class MINE:
         for l in xrange(3, x+1):
             for t in xrange(l, k+1):
                 def f(s_, t_, l_):
-                    return (c[s_] / c[t_]) * (I[s_][l_-1] - HQ(q)) - (((c[t_] - c[s_]) / c[t_]) * self.HPQ([c[s_], c[t_]], q))
+                    return (np.float64(c[s_] / np.float64(c[t_]))) * (I[s_][l_-1] - HQ(q)) - (((np.float64(c[t_] - c[s_]) / np.float64(c[t_]))) * self.HPQ([c[s_], c[t_]], q))
                 s = max(xrange(l-1, t+1), key=lambda a: f(a, t, l))
                 #TODO check again
                 p_t_l = c[1:l]
@@ -219,7 +219,7 @@ class MINE:
     def HPQ(self, x_ordinals, y_map):
         h = self.get_grid_histogram(x_ordinals, y_map)
         assert len(y_map) == self.n
-        return entropy(h / np.float64(self.n))
+        return entropy(h / np.float64(number_of_points_in_partition(x_ordinals)))
 
     def I(self, x_ordinals, q_map):
         return self.HP(x_ordinals) + self.HQ(q_map) - self.HPQ(x_ordinals, q_map)
@@ -257,17 +257,20 @@ def HP(ordinals):
 def HQ(q):
     return entropy(np.fromiter(Counter(q.itervalues()).itervalues(), dtype=np.int32) / np.float64(len(q)))
 
+
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
     a, b = tee(iterable)
     next(b, None)
     return izip(a, b)
 
+
 def group_points_by_partition(p):
     d = defaultdict(list)
     for k, v in p.iteritems():
         d[v].append(k)
     return dict(d)
+
 
 def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
     x_axis_partition, y_axis_partition = group_points_by_partition(p), group_points_by_partition(q)

@@ -189,12 +189,12 @@ class mine__test(unittest.TestCase):
         m.optimize_x_axis(m.Dx, q, 4)
 
     def test_approx_char_matrix(self):
-        x = np.arange(300)
-        y = x**2
+        x = np.arange(800)
+        y = x**2 - 2*x**3 + 1
         m = MINE(x, y)
         b = pow(len(x), 0.6)
         M = m.approx_char_matrix(m.D, b)
-        print M
+        print np.max(M[~np.isnan(M)])
     def test_mine(self):
         return
         x = np.array(range(10000))
