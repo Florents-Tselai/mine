@@ -18,13 +18,12 @@ from collections import defaultdict, Counter
 from copy import copy
 from itertools import *
 from math import floor
-from numpy import vstack, lexsort, shape, where, log2, fliplr
+from numpy import vstack, lexsort, shape, where, log2, fliplr, float64
 
 import matplotlib.pyplot as plt
 import numpy as np
-from utils import *
 
-
+p_x, p_y = lambda p: p[0], lambda p: p[1]
 
 class MINE:
     def __init__(self,x,y):
