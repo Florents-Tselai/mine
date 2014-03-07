@@ -29,27 +29,10 @@ p_x, p_y = lambda p: p[0], lambda p: p[1]
 
 class MINE:
     def __init__(self, x, y):
-        self.D = vstack((x, y)).T
+        self.D = np.core.records.fromarrays([x,y], names='x,y')
+        self.Dx = self.D[self.D.argsort(order='x')]
+        self.Dy = self.D[self.D.argsort(order='y')]
         self.n = len(self.D)
-        self.Dx_indices = lexsort((self.D[:, 1], self.D[:, 0]))
-        self.Dx = self.D[self.Dx_indices]
-
-        self.Dy_indices = lexsort((self.D[:, 0], self.D[:, 1]))
-        self.Dy = self.D[self.Dy_indices]
-        self.D_orth = fliplr(self.D)
-
-    def get_point(self, index, axis_sorted_by):
-        assert axis_sorted_by == 'x' or axis_sorted_by == 'y'
-
-        return (self.Dx[index][0], self.Dx[index][1]) if axis_sorted_by == 'x' else (
-        self.Dy[index][0], self.Dy[index][1])
-
-    def p_x(p):
-        return p[0]
-
-    def p_y(p):
-        return p[1]
-
 
     def approx_max_mi(self, d, x, y):
         q = self.equipartition_y_axis(self.Dy, y)
@@ -125,7 +108,7 @@ class MINE:
 
         q = {}
         while i < n:
-            s = shape(where(d_y[:, 1] == d_y[i][1]))[1]
+            s = shape(where(d_y['y'] == d_y[i]['y']))[1]
             lhs = abs(float64(sharp) + float64(s) - desired_row_size)
             rhs = abs(float64(sharp) - desired_row_size)
 
@@ -157,29 +140,29 @@ class MINE:
             s = 1
             flag = False
             for j in xrange(i + 1, self.n):
-                if p_x(self.get_point(i, 'x')) == p_x(self.get_point(j, 'x')):
+                if self.Dx[i]['x'] == self.Dx[j]['x']:
                     s += 1
-                    if q_tilde[self.get_point(i, 'x')] != q_tilde[self.get_point(j, 'x')]:
+                    if q_tilde[tuple(self.Dx[i])] != q_tilde[tuple(self.Dx[j])]:
                         flag = True
                 else:
                     break
 
             if s > 1 and flag:
                 for j in xrange(s):
-                    q_tilde[self.get_point(i + j, 'x')] = c
+                    q_tilde[tuple(self.Dx[i+j])] = c
                 c -= 1
             i += s
 
         i = 0
-        p = {self.get_point(0, 'x'): 0}
+        p = {tuple(self.Dx[0]): 0}
         ordinals = [i - 1]
         for j in xrange(1, self.n):
-            if q_tilde[self.get_point(j, 'x')] != q_tilde[self.get_point(j - 1, 'x')]:
+            if q_tilde[tuple(self.Dx[j])] != q_tilde[tuple(self.Dx[j-1])]:
                 ordinals.append(j - 1)
                 i += 1
             if j == self.n - 1:
                 ordinals.append(j)
-            p[self.get_point(j, 'x')] = i
+            p[tuple(self.Dx[j])] = i
         return self.create_partition(ordinals)
 
     def get_super_clumps_partition(self, q, k_hat):
