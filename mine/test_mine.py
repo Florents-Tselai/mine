@@ -106,6 +106,7 @@ class mine__test(unittest.TestCase):
 
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, 3)
         p2 = self.mine2.get_clumps_partition(q2)
+
         assert p2[(0, 0)] == 0
 
         assert p2[(1, 1)] == 1
@@ -137,7 +138,7 @@ class mine__test(unittest.TestCase):
         p1 = self.mine1.get_clumps_partition(q1)
 
         plot_partitions(p1, q1)
-        plt.show()
+        #plt.show()
         #Inspect visually as well
         assert_array_equal(p1.grid_histogram(q1)
                            ,np.array([0, 0, 5, 0, 0, 2, 2, 0, 1, 0, 2, 0, 0, 0, 2]))

@@ -223,10 +223,10 @@ class Partition:
         return len(self.bins)
 
     def number_of_points(self):
-        return sum(len(b) for b in self.bins)
+        return self.histogram().sum()
 
     def histogram(self):
-        return np.fromiter((len(b) for b in self.bins),dtype=np.int32)
+        return np.fromiter((len(b) for b in self),dtype=np.int32)
 
     def grid_histogram(self, q):
         rows, columns = group_points_by_partition(q), self.bins
@@ -244,10 +244,11 @@ class Partition:
                 ret[point] = partition_index
         return ret[p]
 
+    def __iter__(self):
+        return iter(self.bins)
+
     def h(self):
-        hist = self.histogram()
-        n = self.number_of_points()
-        return entropy(hist / n)
+        return entropy(self.histogram() / self.number_of_points())
 
     def points(self):
         return frozenset().union(*self.bins)
