@@ -121,7 +121,6 @@ class mine__test(unittest.TestCase):
 
 
     def test_hp(self):
-        print self.mine1.create_partition([2, 7, 9, 11, 13]).number_of_points()
         assert self.mine1.create_partition([2, 7, 9, 11, 13]).h() == entropy([5./11, 2./11, 2./11, 2./11])
         assert self.mine1.create_partition([-1, 0, 1]).h() == entropy([1./2, 1./2])
 
@@ -163,6 +162,17 @@ class mine__test(unittest.TestCase):
         assert_array_equal(self.mine1.create_partition(np.array([-1, 0, 1])).histogram(), np.array([1, 1]))
         assert_array_equal(self.mine1.create_partition(np.array([-1, 1, 2])).histogram(), np.array([2, 1]))
         assert_array_equal(self.mine1.create_partition(np.array([-1, 5, 6])).histogram(), (np.array([6, 1])))
+
+    def test_get_super_clumps_partition(self):
+        x = np.arange(100)
+        y = x**2-3*x**3 + np.sqrt(x)
+        m = MINE(x,y)
+        q = m.equipartition_y_axis(m.Dy, 10)
+        clumps = m.get_clumps_partition(q)
+        superclumps = m.get_super_clumps_partition(q, 8)
+
+        assert len(superclumps) == 8
+        assert clumps.points() == superclumps.points()
 
 if __name__ == '__main__':
     unittest.main()

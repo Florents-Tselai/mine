@@ -128,9 +128,6 @@ class MINE:
 
         return q
 
-    def get_points_assignments(self, d, axis_sorted_by='y'):
-        return {self.get_point(k, axis_sorted_by): v for k, v in d.iteritems()}
-
     def get_clumps_partition(self, q):
         q_tilde = q.copy()
         i = 0
@@ -166,18 +163,20 @@ class MINE:
         return self.create_partition(ordinals)
 
     def get_super_clumps_partition(self, q, k_hat):
-        p_tilde, _ = self.get_clumps_partition(q)
-        k = len(set(p_tilde.itervalues()))
+        p_tilde= self.get_clumps_partition(q)
+        k = len(p_tilde)
         if k > k_hat:
-            x = np.zeros((self.n,), dtype=np.int)
-            y = np.fromiter(p_tilde.itervalues(), dtype=np.int)
-            d_p_tilde = np.vstack((x, y)).T
-            #Sort by increasing y-value
-            d_p_tilde_y_indices = lexsort((d_p_tilde[:, 0], d_p_tilde[:, 1]))
-            d_p_tilde = d_p_tilde[d_p_tilde_y_indices]
+            x = np.arange(self.n)
+            y = np.fromiter((p_tilde[tuple(p)] for p in self.Dx), dtype=np.int32)
+            d_p_tilde = np.core.records.fromarrays([x,y], names='x,y')
             p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
-            p = {tuple(point): p_hat[(0, p_tilde[tuple(point)])] for point in self.D}
-            return p
+            b = [set() for i in range(len(set(p_hat.values())))]
+
+            for point_index, bin_index in p_hat.iteritems():
+                b[bin_index].add(tuple(self.Dx[point_index[0]]))
+            part = Partition(None, None, b)
+            return part
+
         else:
             return p_tilde
 
@@ -194,9 +193,12 @@ def hpq(self, x_partition, y_map):
 
 
 class Partition:
-    def __init__(self, d, ordinals):
-        self.d = d
-        self.bins = [set(self._get_point(i) for i in xrange(start+1, end+1)) for start, end in pairwise(ordinals)]
+    def __init__(self, d, ordinals, bins=None):
+        if bins is None:
+            self.d = d
+            self.bins = [set(self._get_point(i) for i in xrange(start+1, end+1)) for start, end in pairwise(ordinals)]
+        else:
+            self.bins = bins
 
     def _get_point(self, i):
         point = (self.d[i][0], self.d[i][1])
