@@ -88,9 +88,9 @@ class MINE:
         I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
 
         for t in xrange(2, k + 1):
-            s = max(range(1, t + 1), key=lambda a: HP([c[0], c[a], c[t]]) - self.HPQ([c[0], c[a], c[t]], q))
+            s = max(range(1, t + 1), key=lambda a: HP([c[0], c[a], c[t]]) - self.hpq([c[0], c[a], c[t]], q))
             p_t_2 = [c[0], c[s], c[t]]
-            i_t_2 = HQ(q) + HP(p_t_2) - self.HPQ(p_t_2, q)
+            i_t_2 = HQ(q) + HP(p_t_2) - self.hpq(p_t_2, q)
             I[t][2] = i_t_2
         #print I
 
@@ -98,14 +98,14 @@ class MINE:
             for t in xrange(l, k + 1):
                 def f(s_, t_, l_):
                     return (np.float64(c[s_] / np.float64(c[t_]))) * (I[s_][l_ - 1] - HQ(q)) - (
-                    ((np.float64(c[t_] - c[s_]) / np.float64(c[t_]))) * self.HPQ([c[s_], c[t_]], q))
+                    ((np.float64(c[t_] - c[s_]) / np.float64(c[t_]))) * self.hpq([c[s_], c[t_]], q))
 
                 s = max(xrange(l - 1, t + 1), key=lambda a: f(a, t, l))
                 #TODO check again
                 p_t_l = c[1:l]
                 bisect.insort(p_t_l, c[t])
 
-                I[t][l] = HQ(q) + HP(p_t_l) - self.HPQ(p_t_l, q)
+                I[t][l] = HQ(q) + HP(p_t_l) - self.hpq(p_t_l, q)
                 #print I
         #TODO check again
         for l in range(k + 1, x + 1):
@@ -180,7 +180,7 @@ class MINE:
             if j == self.n - 1:
                 ordinals.append(j)
             p[self.get_point(j, 'x')] = i
-        return p, ordinals
+        return self.create_partition(ordinals)
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde, _ = self.get_clumps_partition(q)
@@ -194,57 +194,69 @@ class MINE:
             d_p_tilde = d_p_tilde[d_p_tilde_y_indices]
             p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
             p = {tuple(point): p_hat[(0, p_tilde[tuple(point)])] for point in self.D}
-            print 'first'
             return p
         else:
-            print 'in'
             return p_tilde
 
-    def get_map_from_ordinals(self, ordinals, axis='y'):
-        assert axis == 'x' or axis == 'y'
-        map = {}
-        d = self.Dx if axis == 'x' else self.Dy
+    def create_partition(self, ordinals, axis='x'):
+        assert axis == 'x' or axis=='y'
 
-        for current_partition, start_end in enumerate(pairwise(ordinals)):
-            start_point, end_point = start_end
-            for p in xrange(start_point + 1, end_point + 1):
-                map[(d[p][0], d[p][1])] = current_partition
-        return map
+        d = self.Dx if axis=='x' else self.Dy
+        return Partition(d, ordinals)
 
-    def get_grid_histogram(self, x_ordinals, y_map):
-        rows, columns = group_points_by_partition(y_map), group_points_by_partition(
-            self.get_map_from_ordinals(x_ordinals, 'x'))
+
+def hpq(self, x_partition, y_map):
+        grid_hist = x_partition.grid_histogram(y_map)
+        return entropy(grid_hist / x_partition.number_of_points())
+
+
+class Partition:
+    def __init__(self, d, ordinals):
+        self.d = d
+        self.bins = [set(self._get_point(i) for i in xrange(start+1, end+1)) for start, end in pairwise(ordinals)]
+
+    def _get_point(self, i):
+        point = (self.d[i][0], self.d[i][1])
+        return point
+
+    def __len__(self):
+        return len(self.bins)
+
+    def number_of_points(self):
+        return sum(len(b) for b in self.bins)
+
+    def histogram(self):
+        return np.fromiter((len(b) for b in self.bins),dtype=np.int32)
+
+    def grid_histogram(self, q):
+        rows, columns = group_points_by_partition(q), self.bins
 
         def grid_cell_size(row_index, column_index):
             return len(set(rows[row_index]) & set(columns[column_index]))
 
-        grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in
-                                    xrange(len(columns)))
+        grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
         return np.fromiter(grid_points_distribution, dtype=int)
 
-    def HPQ(self, x_ordinals, y_map):
-        h = self.get_grid_histogram(x_ordinals, y_map)
-        assert len(y_map) == self.n
-        return entropy(h / np.float64(number_of_points_in_partition(x_ordinals)))
+    def __getitem__(self, p):
+        ret = {}
+        for partition_index, b in enumerate(self.bins):
+            for point in b:
+                ret[point] = partition_index
+        return ret[p]
 
-    def I(self, x_ordinals, q_map):
-        return self.HP(x_ordinals) + self.HQ(q_map) - self.HPQ(x_ordinals, q_map)
+    def h(self):
+        hist = self.histogram()
+        n = self.number_of_points()
+        return entropy(hist / n)
 
+    def points(self):
+        return frozenset().union(*self.bins)
 
-def get_all_size_2_partition(ordinals):
-    k = len(ordinals)
-    for t in xrange(2, k):
-        for s in xrange(1, t + 1):
-            yield np.array((ordinals[0], ordinals[s], ordinals[t]), dtype=np.int32)
+    def __str__(self):
+        pass
 
-
-def number_of_points_in_partition(ordinals):
-    return get_partition_histogram(np.array(ordinals)).sum()
-
-
-def get_partition_histogram(ordinals):
-    return np.fromiter((end - start for start, end in pairwise(ordinals)), dtype=np.int32)
-
+def hq(q):
+    return entropy(np.fromiter(Counter(q.itervalues()).itervalues(), dtype=np.int32) / np.float64(len(q)))
 
 def entropy(P):
     '''
@@ -253,17 +265,6 @@ def entropy(P):
     '''
     h = -np.fromiter((i * np.log2(i) for i in P if i > 0), dtype=np.float64).sum()
     return h
-
-
-def HP(ordinals):
-    histogram = get_partition_histogram(ordinals)
-    n = np.float64(number_of_points_in_partition(ordinals))
-    return entropy(histogram / n)
-
-
-def HQ(q):
-    return entropy(np.fromiter(Counter(q.itervalues()).itervalues(), dtype=np.int32) / np.float64(len(q)))
-
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -304,11 +305,11 @@ def last_ordinate(y_bin):
 
 
 def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
-    x_axis_partition, y_axis_partition = group_points_by_partition(p), group_points_by_partition(q)
+    x_axis_partition, y_axis_partition = group_points_by_partition({point:p[point] for point in p.points()}), group_points_by_partition(q)
 
     from itertools import chain
 
-    points = set(chain(p.iterkeys(), q.iterkeys()))
+    points = set(chain(p.points(), q.iterkeys()))
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
