@@ -271,6 +271,24 @@ def group_points_by_partition(p):
     return dict(d)
 
 
+def get_rightest_point(points):
+    return max(points, key=p_x)
+
+def get_leftest_point(points):
+    return min(points, key=p_x)
+
+def get_highest_point(points):
+    return max(points, key=p_y)
+
+def get_lowest_point(points):
+    return min(points, key=p_y)
+
+def last_abscissa(x_bin):
+    return p_x(get_rightest_point(x_bin))
+
+def last_ordinate(y_bin):
+    return p_y(get_highest_point(y_bin))
+
 def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
     x_axis_partition, y_axis_partition = group_points_by_partition(p), group_points_by_partition(q)
 
