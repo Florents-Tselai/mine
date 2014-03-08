@@ -34,6 +34,12 @@ class MINE:
         self.Dy = self.D[self.D.argsort(order='y')]
         self.n = len(self.D)
 
+    def create_partition(self, ordinals, axis='x'):
+        assert axis == 'x' or axis=='y'
+
+        d = self.Dx if axis=='x' else self.Dy
+        return Partition(d=d, ordinals=ordinals)
+
     def approx_max_mi(self, d, x, y):
         q = self.equipartition_y_axis(self.Dy, y)
         #return self.optimize_x_axis(self.Dx, q, x, k_hat)
@@ -105,7 +111,7 @@ class MINE:
         i = 0
         sharp = 0
         current_row = 0
-
+        ordinals = []
         q = {}
         while i < n:
             s = shape(where(d_y['y'] == d_y[i]['y']))[1]
@@ -126,7 +132,7 @@ class MINE:
             i += s
             sharp += s
 
-        return Partition(map_assignments=q)
+        return Partition(ordinals=ordinals, map_assignments=q)
 
     def get_clumps_partition(self, q):
         q_tilde = copy(q)
@@ -188,6 +194,7 @@ def hpq(self, x_partition, y_map):
 
 class Partition:
     def __init__(self, d=None, ordinals=None,map_assignments=None):
+        self.ordinals = ordinals
         if map_assignments is None:
             self.d = d
             self.bins = [set(self._get_point(i) for i in xrange(start+1, end+1)) for start, end in pairwise(ordinals)]
@@ -217,7 +224,7 @@ class Partition:
         return np.fromiter((len(b) for b in self),dtype=np.int32)
 
     def grid_histogram(self, q):
-        rows, columns = group_points_by_partition(q), self.bins
+        rows, columns = group_points_by_partition(q.map_assignments), self.bins
 
         def grid_cell_size(row_index, column_index):
             return len(set(rows[row_index]) & set(columns[column_index]))
@@ -245,7 +252,7 @@ class Partition:
         pass
 
 def hq(q):
-    return entropy(np.fromiter(Counter(q.itervalues()).itervalues(), dtype=np.int32) / np.float64(len(q)))
+    return q.h()
 
 def entropy(P):
     '''

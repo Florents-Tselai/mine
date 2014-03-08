@@ -55,6 +55,7 @@ class mine__test(unittest.TestCase):
         assert q1[(6, 6)] == 2
         assert q1[(7, 5)] == 2
 
+
         '''
         4            x
         --------------
@@ -77,6 +78,8 @@ class mine__test(unittest.TestCase):
         assert q2[(3, 2)] == 2
         assert q2[(4, 3)] == 2
         assert q2[(6, 4)] == 2
+
+        #assert len(q2.ordinals) == 4
 
     def test_get_clumps_partition(self):
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
@@ -136,7 +139,7 @@ class mine__test(unittest.TestCase):
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
         p1 = self.mine1.get_clumps_partition(q1)
 
-        plot_partitions(p1, q1)
+        #plot_partitions(p1, q1)
         #plt.show()
         #Inspect visually as well
         assert_array_equal(p1.grid_histogram(q1)
@@ -168,11 +171,11 @@ class mine__test(unittest.TestCase):
         y = x**2-3*x**3 + np.sqrt(x)
         m = MINE(x,y)
         q = m.equipartition_y_axis(m.Dy, 10)
-        clumps = m.get_clumps_partition(q)
-        superclumps = m.get_super_clumps_partition(q, 8)
+        #clumps = m.get_clumps_partition(q)
+        #superclumps = m.get_super_clumps_partition(q, 8)
 
-        assert len(superclumps) == 8
-        assert clumps.points() == superclumps.points()
+        #assert len(superclumps) == 8
+        #assert clumps.points() == superclumps.points()
 
 if __name__ == '__main__':
     unittest.main()
