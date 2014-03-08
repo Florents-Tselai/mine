@@ -126,10 +126,10 @@ class MINE:
             i += s
             sharp += s
 
-        return q
+        return Partition(map_assignments=q)
 
     def get_clumps_partition(self, q):
-        q_tilde = q.copy()
+        q_tilde = copy(q)
         i = 0
         c = -1
 
@@ -160,7 +160,8 @@ class MINE:
             if j == self.n - 1:
                 ordinals.append(j)
             p[tuple(self.Dx[j])] = i
-        return self.create_partition(ordinals)
+
+        return Partition(d=self.Dx, ordinals=ordinals)
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde= self.get_clumps_partition(q)
@@ -180,25 +181,27 @@ class MINE:
         else:
             return p_tilde
 
-    def create_partition(self, ordinals, axis='x'):
-        assert axis == 'x' or axis=='y'
-
-        d = self.Dx if axis=='x' else self.Dy
-        return Partition(d, ordinals)
-
-
 def hpq(self, x_partition, y_map):
         grid_hist = x_partition.grid_histogram(y_map)
         return entropy(grid_hist / x_partition.number_of_points())
 
 
 class Partition:
-    def __init__(self, d, ordinals, bins=None):
-        if bins is None:
+    def __init__(self, d=None, ordinals=None,map_assignments=None):
+        if map_assignments is None:
             self.d = d
             self.bins = [set(self._get_point(i) for i in xrange(start+1, end+1)) for start, end in pairwise(ordinals)]
+            self.map_assignments = {}
+            for i, b in enumerate(self.bins):
+                for p in b:
+                    self.map_assignments[p] = i
         else:
-            self.bins = bins
+            self.map_assignments = map_assignments
+            b = [set() for i in range(len(set(map_assignments.values())))]
+
+            for point, bin_index in map_assignments.iteritems():
+                    b[bin_index].add(point)
+            self.bins = b
 
     def _get_point(self, i):
         point = (self.d[i][0], self.d[i][1])
@@ -222,12 +225,12 @@ class Partition:
         grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
         return np.fromiter(grid_points_distribution, dtype=int)
 
+
+    def __copy__(self):
+        return copy(self.map_assignments)
+
     def __getitem__(self, p):
-        ret = {}
-        for partition_index, b in enumerate(self.bins):
-            for point in b:
-                ret[point] = partition_index
-        return ret[p]
+        return self.map_assignments[p]
 
     def __iter__(self):
         return iter(self.bins)
