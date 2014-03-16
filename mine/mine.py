@@ -30,6 +30,7 @@ p_x, p_y = lambda p: p[0], lambda p: p[1]
 class MINE:
     def __init__(self, x, y):
         self.D = np.core.records.fromarrays([x,y], names='x,y')
+        self.D_orth = np.core.records.fromarrays([y,x], names='x,y')
         self.Dx = self.D[self.D.argsort(order='x')]
         self.Dy = self.D[self.D.argsort(order='y')]
         self.n = len(self.D)
@@ -54,9 +55,12 @@ class MINE:
         I_orth = np.zeros(shape=(s, s), dtype=float64)
         M = np.zeros(shape=(s, s), dtype=float64)
 
-        for y in range(2, int(floor(b / 2))):
+        for y in range(2, int(floor(b / 2))+1):
             x = int(floor(b / y))
-            for i, v in enumerate(self.approx_max_mi(self.D, x, y)): I[i + 2][y] = v
+            assert len(self.approx_max_mi(self.D, x, y)) == x-1
+            #print len(I[2:x+1][y]), len(self.approx_max_mi(self.D, x, y))
+            #I[2:x+1][y] = self.approx_max_mi(self.D, x, y)
+            #for i, v in enumerate(self.approx_max_mi(self.D, x, y)): I[i + 2][y] = v
 
             for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y)): I_orth[i + 2][y] = v
 
@@ -72,31 +76,24 @@ class MINE:
         return M
 
     def optimize_x_axis(self, d_x, q, x):
-        clumps_map, c = self.get_clumps_partition(q)
+        c = self.get_clumps_partition(q).ordinals
         k = len(c) - 1
         I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
+        P = np.empty(shape=(k+1, x+1), dtype=object)
 
         for t in xrange(2, k + 1):
-            s = max(range(1, t + 1), key=lambda a: HP([c[0], c[a], c[t]]) - self.hpq([c[0], c[a], c[t]], q))
-            p_t_2 = [c[0], c[s], c[t]]
-            i_t_2 = HQ(q) + HP(p_t_2) - self.hpq(p_t_2, q)
-            I[t][2] = i_t_2
-        #print I
-
+            s = max(range(1, t + 1), key=lambda a: self.hp([c[0], c[a], c[t]]) - self.hpq(self.create_partition([c[0], c[a], c[t]]), q))
+            P[t][2] = self.create_partition([c[0], c[s], c[t]])
+            I[t][2] = q.h() + P[t][2].h() - self.hpq(P[t][2], q)
         for l in xrange(3, x + 1):
             for t in xrange(l, k + 1):
                 def f(s_, t_, l_):
-                    return (np.float64(c[s_] / np.float64(c[t_]))) * (I[s_][l_ - 1] - HQ(q)) - (
-                    ((np.float64(c[t_] - c[s_]) / np.float64(c[t_]))) * self.hpq([c[s_], c[t_]], q))
+                    return (c[s_] / c[t_]) * (I[s_][l_ - 1] - q.h()) - (
+                        ((c[t_] - c[s_] / c[t_])) * self.hpq(self.create_partition([c[s_], c[t_]]), q))
 
                 s = max(xrange(l - 1, t + 1), key=lambda a: f(a, t, l))
-                #TODO check again
-                p_t_l = c[1:l]
-                bisect.insort(p_t_l, c[t])
-
-                I[t][l] = HQ(q) + HP(p_t_l) - self.hpq(p_t_l, q)
-                #print I
-        #TODO check again
+                P[t][l] = P[t][l-1].extend(c[t])
+                I[t][l] = q.h() + P[t][l].h() - self.hpq(P[t][l], q)
         for l in range(k + 1, x + 1):
             I[k][l] = I[k][k]
 
@@ -111,7 +108,6 @@ class MINE:
         i = 0
         sharp = 0
         current_row = 0
-        ordinals = []
         q = {}
         while i < n:
             s = shape(where(d_y['y'] == d_y[i]['y']))[1]
@@ -132,7 +128,7 @@ class MINE:
             i += s
             sharp += s
 
-        return Partition(ordinals=ordinals, map_assignments=q)
+        return Partition(map_assignments=q)
 
     def get_clumps_partition(self, q):
         q_tilde = copy(q)
@@ -187,7 +183,13 @@ class MINE:
         else:
             return p_tilde
 
-def hpq(self, x_partition, y_map):
+    def hp(self, ordinals):
+        return self.create_partition(ordinals=ordinals).h()
+
+    def hq(self, q):
+        return q.h()
+
+    def hpq(self, x_partition, y_map):
         grid_hist = x_partition.grid_histogram(y_map)
         return entropy(grid_hist / x_partition.number_of_points())
 
@@ -248,11 +250,19 @@ class Partition:
     def points(self):
         return frozenset().union(*self.bins)
 
-    def __str__(self):
-        pass
+    def extend(self, c):
+        assert self.ordinals is not None
+        if any(c==existing for existing in self.ordinals):
+            new_ordinals = self.ordinals
+        else:
+            from bisect import insort
+            new_ordinals = list(self.ordinals)
+            insort(new_ordinals, c)
+        p = Partition(d=self.d, ordinals=new_ordinals)
+        return p
 
-def hq(q):
-    return q.h()
+    def __str__(self):
+        return str(self.map_assignments)
 
 def entropy(P):
     '''

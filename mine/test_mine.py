@@ -129,10 +129,25 @@ class mine__test(unittest.TestCase):
 
     def test_hq(self):
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, y=3)
-        assert hq(q1) == entropy([4. / 14, 5. / 14, 5. / 14])
+        assert q1.h() == entropy([4. / 14, 5. / 14, 5. / 14])
 
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
-        assert hq(q2) == entropy([2. / 7, 2. / 7, 3. / 7])
+        assert q2.h() == entropy([2. / 7, 2. / 7, 3. / 7])
+
+    def test_extend(self):
+        x = np.arange(100)
+        y = x**2 -2*x + 2
+        m = MINE(x,y)
+
+        p = m.create_partition([-1,5,7,8,10,15])
+        extended = p.extend(6)
+        assert extended.ordinals == [-1,5,6,7,8,10,15]
+
+        extended = p.extend(7)
+        assert extended.ordinals == [-1,5,7,8,10,15]
+
+        extended = p.extend(17)
+        assert extended.ordinals == [-1,5,7,8,10,15,17]
 
 
     def test_get_grid_histogram(self):
@@ -156,6 +171,14 @@ class mine__test(unittest.TestCase):
         assert self.mine1.create_partition([-1, 3, 5, 10, 11, 13]).number_of_points() == 4 + 2 + 5 + 1 + 2
         assert self.mine1.create_partition([2, 7, 9, 11, 13]).number_of_points() == 5 + 2 + 2 + 2
 
+    def test_optimize_x_axis(self):
+        x = np.arange(1000)
+        y = x**2 -2*x + 2
+        m = MINE(x,y)
+        q = m.equipartition_y_axis(m.Dy, 5)
+        x_size = 10
+        opt = m.optimize_x_axis(m.Dx,q, x_size)
+        assert len(opt) == x_size - 1
 
     def test_histogram(self):
         assert_array_equal(self.mine1.create_partition(np.array([2, 7, 9, 11, 13])).histogram(), np.array([5, 2, 2, 2]))
@@ -166,16 +189,6 @@ class mine__test(unittest.TestCase):
         assert_array_equal(self.mine1.create_partition(np.array([-1, 1, 2])).histogram(), np.array([2, 1]))
         assert_array_equal(self.mine1.create_partition(np.array([-1, 5, 6])).histogram(), (np.array([6, 1])))
 
-    def test_get_super_clumps_partition(self):
-        x = np.arange(100)
-        y = x**2-3*x**3 + np.sqrt(x)
-        m = MINE(x,y)
-        q = m.equipartition_y_axis(m.Dy, 10)
-        #clumps = m.get_clumps_partition(q)
-        #superclumps = m.get_super_clumps_partition(q, 8)
-
-        #assert len(superclumps) == 8
-        #assert clumps.points() == superclumps.points()
 
 if __name__ == '__main__':
     unittest.main()
