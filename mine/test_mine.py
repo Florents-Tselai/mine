@@ -134,6 +134,7 @@ class mine__test(unittest.TestCase):
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
         assert q2.h() == entropy([2. / 7, 2. / 7, 3. / 7])
 
+
     def test_extend(self):
         x = np.arange(100)
         y = x**2 -2*x + 2
@@ -148,6 +149,7 @@ class mine__test(unittest.TestCase):
 
         extended = p + 17
         assert extended.ordinals == [-1,5,7,8,10,15,17]
+
 
 
     def test_get_grid_histogram(self):

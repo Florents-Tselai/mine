@@ -30,16 +30,21 @@ p_x, p_y = lambda p: p[0], lambda p: p[1]
 class MINE:
     def __init__(self, x, y):
         self.D = np.core.records.fromarrays([x,y], names='x,y')
-        self.D_orth = np.core.records.fromarrays([y,x], names='x,y')
-        self.Dx = self.D[self.D.argsort(order='x')]
-        self.Dy = self.D[self.D.argsort(order='y')]
+        self.D_orth = list(np.core.records.fromarrays([y,x], names='x,y'))
+        self.Dx = [tuple(p) for p in self.D[self.D.argsort(order='x')]]
+        self.Dy = [tuple(p) for p in self.D[self.D.argsort(order='y')]]
         self.n = len(self.D)
 
     def create_partition(self, ordinals, axis='x'):
         assert axis == 'x' or axis=='y'
 
-        d = self.Dx if axis=='x' else self.Dy
-        return Partition(d=d, ordinals=ordinals)
+        p = {}
+        i = -1
+        for p_start, p_end in pairwise(ordinals):
+            i += 1
+            for p_index in range(p_start+1, p_end+1):
+                p[self.Dx[p_index]] = i
+        return Partition(map_assignments=p)
 
     def approx_max_mi(self, d, x, y):
         q = self.equipartition_y_axis(self.Dy, y)
@@ -100,8 +105,8 @@ class MINE:
         return I[k][2:x + 1]
 
     @staticmethod
-    def equipartition_y_axis(d_y, y):
-        n = len(d_y)
+    def equipartition_y_axis(d, y):
+        n = len(d)
 
         desired_row_size = float64(n) / float64(y)
 
@@ -110,7 +115,7 @@ class MINE:
         current_row = 0
         q = {}
         while i < n:
-            s = shape(where(d_y['y'] == d_y[i]['y']))[1]
+            s = len([p for p in d if d[i][1]==p[1]])
             lhs = abs(float64(sharp) + float64(s) - desired_row_size)
             rhs = abs(float64(sharp) - desired_row_size)
 
@@ -122,8 +127,7 @@ class MINE:
                 desired_row_size = temp1 / temp2
 
             for j in xrange(s):
-                point = (d_y[i + j][0], d_y[i + j][1])
-                q[point] = current_row
+                q[d[i+j]] = current_row
 
             i += s
             sharp += s
@@ -139,46 +143,37 @@ class MINE:
             s = 1
             flag = False
             for j in xrange(i + 1, self.n):
-                if self.Dx[i]['x'] == self.Dx[j]['x']:
+                if self.Dx[i][0] == self.Dx[j][0]:
                     s += 1
-                    if q_tilde[tuple(self.Dx[i])] != q_tilde[tuple(self.Dx[j])]:
+                    if q_tilde[self.Dx[i]] != q_tilde[self.Dx[j]]:
                         flag = True
                 else:
                     break
 
             if s > 1 and flag:
                 for j in xrange(s):
-                    q_tilde[tuple(self.Dx[i+j])] = c
+                    q_tilde[self.Dx[i+j]] = c
                 c -= 1
             i += s
 
         i = 0
-        p = {tuple(self.Dx[0]): 0}
+        p = {self.Dx[0]: 0}
         ordinals = [i - 1]
         for j in xrange(1, self.n):
-            if q_tilde[tuple(self.Dx[j])] != q_tilde[tuple(self.Dx[j-1])]:
+            if q_tilde[self.Dx[j]] != q_tilde[self.Dx[j-1]]:
                 ordinals.append(j - 1)
                 i += 1
             if j == self.n - 1:
                 ordinals.append(j)
-            p[tuple(self.Dx[j])] = i
+            p[self.Dx[j]] = i
 
-        return Partition(d=self.Dx, ordinals=ordinals)
+        return Partition(map_assignments=p)
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde= self.get_clumps_partition(q)
         k = len(p_tilde)
         if k > k_hat:
-            x = np.arange(self.n)
-            y = np.fromiter((p_tilde[tuple(p)] for p in self.Dx), dtype=np.int32)
-            d_p_tilde = np.core.records.fromarrays([x,y], names='x,y')
-            p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
-            b = [set() for i in range(len(set(p_hat.values())))]
-
-            for point_index, bin_index in p_hat.iteritems():
-                b[bin_index].add(tuple(self.Dx[point_index[0]]))
-            part = Partition(None, None, b)
-            return part
+            pass
 
         else:
             return p_tilde
@@ -195,22 +190,13 @@ class MINE:
 
 
 class Partition:
-    def __init__(self, d=None, ordinals=None,map_assignments=None):
-        self.ordinals = ordinals
-        if map_assignments is None:
-            self.d = d
-            self.bins = [set(self._get_point(i) for i in xrange(start+1, end+1)) for start, end in pairwise(ordinals)]
-            self.map_assignments = {}
-            for i, b in enumerate(self.bins):
-                for p in b:
-                    self.map_assignments[p] = i
-        else:
-            self.map_assignments = map_assignments
-            b = [set() for i in range(len(set(map_assignments.values())))]
+    def __init__(self, map_assignments=None):
+        self.map_assignments = map_assignments
+        b = [set() for i in range(len(set(map_assignments.values())))]
 
-            for point, bin_index in map_assignments.iteritems():
-                    b[bin_index].add(point)
-            self.bins = b
+        for point, bin_index in map_assignments.iteritems():
+                b[bin_index].add(point)
+        self.bins = b
 
     def _get_point(self, i):
         point = (self.d[i][0], self.d[i][1])
