@@ -92,7 +92,7 @@ class MINE:
                         ((c[t_] - c[s_] / c[t_])) * self.hpq(self.create_partition([c[s_], c[t_]]), q))
 
                 s = max(xrange(l - 1, t + 1), key=lambda a: f(a, t, l))
-                P[t][l] = P[t][l-1].extend(c[t])
+                P[t][l] = P[t][l-1]+c[t]
                 I[t][l] = q.h() + P[t][l].h() - self.hpq(P[t][l], q)
         for l in range(k + 1, x + 1):
             I[k][l] = I[k][k]
@@ -250,7 +250,7 @@ class Partition:
     def points(self):
         return frozenset().union(*self.bins)
 
-    def extend(self, c):
+    def __add__(self, c):
         assert self.ordinals is not None
         if any(c==existing for existing in self.ordinals):
             new_ordinals = self.ordinals

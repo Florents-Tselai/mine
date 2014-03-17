@@ -140,13 +140,13 @@ class mine__test(unittest.TestCase):
         m = MINE(x,y)
 
         p = m.create_partition([-1,5,7,8,10,15])
-        extended = p.extend(6)
+        extended = p + 6
         assert extended.ordinals == [-1,5,6,7,8,10,15]
 
-        extended = p.extend(7)
+        extended = p + 7
         assert extended.ordinals == [-1,5,7,8,10,15]
 
-        extended = p.extend(17)
+        extended = p + 17
         assert extended.ordinals == [-1,5,7,8,10,15,17]
 
 
@@ -179,6 +179,9 @@ class mine__test(unittest.TestCase):
         x_size = 10
         opt = m.optimize_x_axis(m.Dx,q, x_size)
         assert len(opt) == x_size - 1
+
+    def test_get_super_clumps_partition(self):
+        pass
 
     def test_histogram(self):
         assert_array_equal(self.mine1.create_partition(np.array([2, 7, 9, 11, 13])).histogram(), np.array([5, 2, 2, 2]))
