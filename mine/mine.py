@@ -14,11 +14,12 @@
 
 from __future__ import division
 import bisect
+from mpl_toolkits.mplot3d import Axes3D
 from collections import defaultdict, Counter
 from copy import copy
 from itertools import *
 from math import floor
-
+from matplotlib import cm
 from numpy import vstack, lexsort, shape, where, log2, fliplr, float64
 import matplotlib.pyplot as plt
 import numpy as np
@@ -326,3 +327,25 @@ def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/floren
     plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
     plt.savefig(output_dir + file_name)
 
+def plot_char_matrix_surface(m, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
+    x = np.arange(m.shape[0])
+    y = np.arange(m.shape[1])
+    xx, yy = np.meshgrid(x,y)
+
+    @np.vectorize
+    def char_value(x,y):
+        return m[x][y]
+
+
+    z = char_value(xx,yy)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1, projection='3d')
+
+    surf = ax.plot_surface(x,y,z, rstride=1, cstride=1, cmap=cm.coolwarm,
+            linewidth=0, antialiased=False)
+    ax.set_zlim3d(-1.01, 1.01)
+
+    fig.colorbar(surf, shrink=0.5, aspect=10)
+
+    plt.savefig(output_dir + file_name)
