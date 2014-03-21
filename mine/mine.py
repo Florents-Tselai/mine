@@ -36,17 +36,6 @@ class MINE:
         self.Dy = [tuple(p) for p in self.D[self.D.argsort(order='y')]]
         self.n = len(self.D)
 
-    def create_partition(self, ordinals, axis='x'):
-        assert axis == 'x' or axis=='y'
-
-        p = {}
-        i = -1
-        for p_start, p_end in pairwise(ordinals):
-            i += 1
-            for p_index in range(p_start+1, p_end+1):
-                p[self.Dx[p_index]] = i
-        return Partition(map_assignments=p)
-
     def approx_max_mi(self, d, x, y):
         q = self.equipartition_y_axis(self.Dy, y)
         #return self.optimize_x_axis(self.Dx, q, x, k_hat)
@@ -81,25 +70,39 @@ class MINE:
         M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
         return M
 
+    def create_partition(self, ordinals, axis='x'):
+        assert axis == 'x' or axis=='y'
+
+        p = {}
+        i = -1
+        for p_start, p_end in pairwise(ordinals):
+            i += 1
+            for p_index in range(p_start+1, p_end+1):
+                p[self.Dx[p_index]] = i
+        return p
+
     def optimize_x_axis(self, d_x, q, x):
-        c = self.get_clumps_partition(q).ordinals
+        c = self.get_c(self.get_clumps_partition(q))
         k = len(c) - 1
         I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
-        P = np.empty(shape=(k+1, x+1), dtype=object)
+        P = np.empty(shape=(k+1, x+1), dtype=np.ndarray)
 
+        def F(s, t, l):
+            return (c[s] / c[t]) * (I[s][l - 1] - self.hq(q)) - (c[t] - c[s] / c[t]) * self.hpq([c[s], c[t]], q)
+
+        #Find the optimal partitions of size 2
         for t in xrange(2, k + 1):
-            s = max(range(1, t + 1), key=lambda a: self.hp([c[0], c[a], c[t]]) - self.hpq(self.create_partition([c[0], c[a], c[t]]), q))
-            P[t][2] = self.create_partition([c[0], c[s], c[t]])
-            I[t][2] = q.h() + P[t][2].h() - self.hpq(P[t][2], q)
+            s = max(range(1, t + 1), key=lambda a: self.hp([c[0], c[a], c[t]]) - self.hpq([c[0], c[a], c[t]], q))
+            P[t][2] = np.array([c[0], c[s], c[t]])
+            I[t][2] = self.hq(q) + self.hp(P[t][2]) - self.hpq(P[t][2], q)
+
+        #Inductively build the rest of the table of optimal partitions
         for l in xrange(3, x + 1):
             for t in xrange(l, k + 1):
-                def f(s_, t_, l_):
-                    return (c[s_] / c[t_]) * (I[s_][l_ - 1] - q.h()) - (
-                        ((c[t_] - c[s_] / c[t_])) * self.hpq(self.create_partition([c[s_], c[t_]]), q))
+                s = max(xrange(l - 1, t + 1), key=lambda s_: F(s_,t,l))
+                P[t][l] = self.extend(P[s][l-1], c[t])
+                I[t][l] = self.hq(q) + self.hp(P[t][l]) - self.hpq(P[t][l], q)
 
-                s = max(xrange(l - 1, t + 1), key=lambda a: f(a, t, l))
-                P[t][l] = P[t][l-1]+c[t]
-                I[t][l] = q.h() + P[t][l].h() - self.hpq(P[t][l], q)
         for l in range(k + 1, x + 1):
             I[k][l] = I[k][k]
 
@@ -109,8 +112,7 @@ class MINE:
     def equipartition_y_axis(d, y):
         n = len(d)
 
-        desired_row_size = float64(n) / float64(y)
-
+        desired_row_size = n/y
         i = 0
         sharp = 0
         current_row = 0
@@ -123,8 +125,8 @@ class MINE:
             if sharp != 0 and lhs >= rhs:
                 sharp = 0
                 current_row += 1
-                temp1 = float64(n) - float64(i)
-                temp2 = float64(y) - float64(current_row)
+                temp1 = n - i
+                temp2 = y - current_row
                 desired_row_size = temp1 / temp2
 
             for j in xrange(s):
@@ -133,7 +135,7 @@ class MINE:
             i += s
             sharp += s
 
-        return Partition(map_assignments=q)
+        return q
 
     def get_clumps_partition(self, q):
         q_tilde = copy(q)
@@ -159,16 +161,12 @@ class MINE:
 
         i = 0
         p = {self.Dx[0]: 0}
-        ordinals = [i - 1]
         for j in xrange(1, self.n):
             if q_tilde[self.Dx[j]] != q_tilde[self.Dx[j-1]]:
-                ordinals.append(j - 1)
                 i += 1
-            if j == self.n - 1:
-                ordinals.append(j)
             p[self.Dx[j]] = i
 
-        return Partition(map_assignments=p)
+        return p
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde= self.get_clumps_partition(q)
@@ -178,6 +176,15 @@ class MINE:
 
         else:
             return p_tilde
+
+    def extend(self, ordinals, c):
+        if any(c==existing for existing in ordinals):
+            new_ordinals = ordinals
+        else:
+            from bisect import insort
+            new_ordinals = list(ordinals)
+            insort(new_ordinals, c)
+        return np.array(new_ordinals)
 
     #TODO optimize
     def get_c(self, p_map):
@@ -192,78 +199,33 @@ class MINE:
         c = c0 + c1_k
         return c
 
+    def p_distr(self, ordinals):
+        return np.fromiter((end - start for start, end in pairwise(ordinals)), dtype=int)
+
+
     def hp(self, ordinals):
-        return self.create_partition(ordinals=ordinals).h()
+        distribution = self.p_distr(ordinals)
+        return entropy(distribution / distribution.sum())
 
     def hq(self, q):
-        return q.h()
+        n = len(q)
+        distribution = np.fromiter(Counter(q.itervalues()).itervalues(), dtype=int)
+        return entropy(distribution / n)
 
-    def hpq(self, x_partition, y_map):
-        grid_hist = x_partition.grid_histogram(y_map)
-        return entropy(grid_hist / x_partition.number_of_points())
+    #TODO x_partition it would be better to be ordinals instead of map
+    def hpq(self, x_ordinals, y_map):
+        x_partition = self.create_partition(x_ordinals)
+        grid_hist = self.get_grid_histogram(x_partition, y_map)
+        return entropy(grid_hist / len(x_partition))
 
-
-class Partition:
-    def __init__(self, map_assignments=None):
-        self.map_assignments = map_assignments
-        b = [set() for i in range(len(set(map_assignments.values())))]
-
-        for point, bin_index in map_assignments.iteritems():
-                b[bin_index].add(point)
-        self.bins = b
-
-    def _get_point(self, i):
-        point = (self.d[i][0], self.d[i][1])
-        return point
-
-    def __len__(self):
-        return len(self.bins)
-
-    def number_of_points(self):
-        return self.histogram().sum()
-
-    def histogram(self):
-        return np.fromiter((len(b) for b in self),dtype=np.int32)
-
-    def grid_histogram(self, q):
-        rows, columns = group_points_by_partition(q.map_assignments), self.bins
+    def get_grid_histogram(self, p_map, q_map):
+        rows, columns = group_points_by_partition(q_map), group_points_by_partition(p_map)
 
         def grid_cell_size(row_index, column_index):
             return len(set(rows[row_index]) & set(columns[column_index]))
 
         grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
         return np.fromiter(grid_points_distribution, dtype=int)
-
-
-    def __copy__(self):
-        return copy(self.map_assignments)
-
-    def __getitem__(self, p):
-        return self.map_assignments[p]
-
-    def __iter__(self):
-        return iter(self.bins)
-
-    def h(self):
-        return entropy(self.histogram() / self.number_of_points())
-
-    def points(self):
-        return frozenset().union(*self.bins)
-
-    def __add__(self, c):
-        assert self.ordinals is not None
-        if any(c==existing for existing in self.ordinals):
-            new_ordinals = self.ordinals
-        else:
-            from bisect import insort
-            new_ordinals = list(self.ordinals)
-            insort(new_ordinals, c)
-        p = Partition(d=self.d, ordinals=new_ordinals)
-        return p
-
-    def __str__(self):
-        return str(self.map_assignments)
-
 
 
 def entropy(P):

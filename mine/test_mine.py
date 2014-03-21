@@ -124,32 +124,29 @@ class mine__test(unittest.TestCase):
 
 
     def test_hp(self):
-        assert self.mine1.create_partition([2, 7, 9, 11, 13]).h() == entropy([5./11, 2./11, 2./11, 2./11])
-        assert self.mine1.create_partition([-1, 0, 1]).h() == entropy([1./2, 1./2])
+        assert self.mine1.hp([2, 7, 9, 11, 13]) == entropy([5./11, 2./11, 2./11, 2./11])
+        assert self.mine1.hp([-1, 0, 1]) == entropy([1./2, 1./2])
 
     def test_hq(self):
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, y=3)
-        assert q1.h() == entropy([4. / 14, 5. / 14, 5. / 14])
+        assert self.mine1.hq(q1) == entropy([4. / 14, 5. / 14, 5. / 14])
 
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
-        assert q2.h() == entropy([2. / 7, 2. / 7, 3. / 7])
+        assert self.mine2.hq(q2) == entropy([2. / 7, 2. / 7, 3. / 7])
 
 
     def test_extend(self):
-        return
         x = np.arange(100)
         y = x**2 -2*x + 2
         m = MINE(x,y)
 
-        p = m.create_partition([-1,5,7,8,10,15])
-        extended = p + 6
-        assert extended.ordinals == [-1,5,6,7,8,10,15]
+        assert_array_equal(m.extend(np.array([-1,5,7,8,10,15]), 6), np.array([-1,5,6,7,8,10,15]))
 
-        extended = p + 7
-        assert extended.ordinals == [-1,5,7,8,10,15]
+        assert_array_equal(m.extend(np.array([-1,5,7,8,10,15]), 7), np.array([-1,5,7,8,10,15]))
 
-        extended = p + 17
-        assert extended.ordinals == [-1,5,7,8,10,15,17]
+        assert_array_equal(m.extend(np.array([-1,5,7,8,10,15]), 17), np.array([-1,5,7,8,10,15,17]))
+
+
 
     def test_c(self):
         x = np.arange(10)
@@ -188,22 +185,11 @@ class mine__test(unittest.TestCase):
         #plot_partitions(p1, q1)
         #plt.show()
         #Inspect visually as well
-        assert_array_equal(p1.grid_histogram(q1)
+        assert_array_equal(self.mine1.get_grid_histogram(p1, q1)
                            ,np.array([0, 0, 5, 0, 0, 2, 2, 0, 1, 0, 2, 0, 0, 0, 2]))
 
-    def test_number_of_points(self):
-        assert self.mine1.create_partition([-1, 7, 13]).number_of_points()  == 8 + 6
-        assert self.mine1.create_partition([-1, 0, 2, 5, 6]).number_of_points()  == 1 + 2 + 3 + 1
-        assert self.mine1.create_partition([-1, 0, 1]).number_of_points()  == 1 + 1
-        assert self.mine1.create_partition(([-1, 1, 2])).number_of_points() == 2 + 1
-        assert self.mine1.create_partition([-1, 5, 6]).number_of_points()  == 6 + 1
-        assert self.mine1.create_partition([-1, 0]).number_of_points()  == 1
-        assert self.mine1.create_partition([-1, 0, 1]).number_of_points()  == 1 + 1
-        assert self.mine1.create_partition([-1, 3, 5, 10, 11, 13]).number_of_points() == 4 + 2 + 5 + 1 + 2
-        assert self.mine1.create_partition([2, 7, 9, 11, 13]).number_of_points() == 5 + 2 + 2 + 2
-
     def test_optimize_x_axis(self):
-        return
+
         x = np.arange(1000)
         y = x**2 -2*x + 2
         m = MINE(x,y)
@@ -212,17 +198,6 @@ class mine__test(unittest.TestCase):
         opt = m.optimize_x_axis(m.Dx,q, x_size)
         assert len(opt) == x_size - 1
 
-    def test_get_super_clumps_partition(self):
-        pass
-
-    def test_histogram(self):
-        assert_array_equal(self.mine1.create_partition(np.array([2, 7, 9, 11, 13])).histogram(), np.array([5, 2, 2, 2]))
-        assert_array_equal(self.mine1.create_partition(np.array([-1, 2, 7, 9, 11, 13])).histogram(), np.array([3, 5, 2, 2, 2]))
-        assert_array_equal(self.mine1.create_partition(np.array([-1, 7, 13])).histogram(), np.array([8, 6]))
-        assert_array_equal(self.mine1.create_partition(np.array([-1, 0, 2, 5, 6])).histogram(), np.array([1, 2, 3, 1]))
-        assert_array_equal(self.mine1.create_partition(np.array([-1, 0, 1])).histogram(), np.array([1, 1]))
-        assert_array_equal(self.mine1.create_partition(np.array([-1, 1, 2])).histogram(), np.array([2, 1]))
-        assert_array_equal(self.mine1.create_partition(np.array([-1, 5, 6])).histogram(), (np.array([6, 1])))
 
 
 if __name__ == '__main__':
