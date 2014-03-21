@@ -179,6 +179,19 @@ class MINE:
         else:
             return p_tilde
 
+    #TODO optimize
+    def get_c(self, p_map):
+
+        p_grouped = group_points_by_partition(p_map)
+        c0 = [self.Dx.index(get_leftest_point(p_grouped[0])) - 1]
+
+        def last_point_index(partition_index):
+            return self.Dx.index(get_rightest_point(p_grouped[partition_index]))
+
+        c1_k = map(last_point_index, p_grouped.iterkeys())
+        c = c0 + c1_k
+        return c
+
     def hp(self, ordinals):
         return self.create_partition(ordinals=ordinals).h()
 
@@ -250,6 +263,8 @@ class Partition:
 
     def __str__(self):
         return str(self.map_assignments)
+
+
 
 def entropy(P):
     '''

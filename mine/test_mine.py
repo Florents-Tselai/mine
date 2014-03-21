@@ -136,6 +136,7 @@ class mine__test(unittest.TestCase):
 
 
     def test_extend(self):
+        return
         x = np.arange(100)
         y = x**2 -2*x + 2
         m = MINE(x,y)
@@ -150,6 +151,34 @@ class mine__test(unittest.TestCase):
         extended = p + 17
         assert extended.ordinals == [-1,5,7,8,10,15,17]
 
+    def test_c(self):
+        x = np.arange(10)
+        y = x
+        m = MINE(x,y)
+        p = {(0, 0):0,
+             (1, 1):0,
+             (2, 2):0,
+             (3, 3):1,
+             (4, 4):1,
+             (5, 5):2,
+             (6, 6):3,
+             (7, 7):3,
+             (8, 8):3,
+             (9, 9):4
+            }
+        assert m.get_c(p) == [-1, 2, 4, 5, 8, 9]
+
+        p = {
+             (3, 3):0,
+             (4, 4):0,
+             (5, 5):1,
+             (6, 6):2,
+             (7, 7):2,
+             (8, 8):2,
+             (9, 9):3
+            }
+
+        assert m.get_c(p) == [2, 4, 5, 8, 9]
 
 
     def test_get_grid_histogram(self):
@@ -174,6 +203,7 @@ class mine__test(unittest.TestCase):
         assert self.mine1.create_partition([2, 7, 9, 11, 13]).number_of_points() == 5 + 2 + 2 + 2
 
     def test_optimize_x_axis(self):
+        return
         x = np.arange(1000)
         y = x**2 -2*x + 2
         m = MINE(x,y)
