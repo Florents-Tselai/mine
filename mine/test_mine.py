@@ -122,6 +122,20 @@ class mine__test(unittest.TestCase):
 
         assert p2[(6, 4)] == 4
 
+    def test_get_super_clumps_partition(self):
+        x = np.arange(0,100)
+        y = x+x**2
+        m = MINE(x,y)
+        q = m.equipartition_y_axis(m.Dy, 20)
+        clumps = m.get_clumps_partition(q)
+        c_clumps = m.get_c(clumps)
+        k_clumps = len(c_clumps) - 1
+        k_hat = 7
+        super_clumps = m.get_super_clumps_partition(q, k_hat)
+        c_super_clumps = m.get_c(super_clumps)
+        k_super_clumps = len(c_super_clumps)-1
+        assert k_super_clumps <= k_hat
+        assert clumps.keys() == super_clumps.keys()
 
     def test_hp(self):
         assert self.mine1.hp([2, 7, 9, 11, 13]) == entropy([5./11, 2./11, 2./11, 2./11])
@@ -134,7 +148,6 @@ class mine__test(unittest.TestCase):
         q2 = self.mine2.equipartition_y_axis(self.mine2.Dy, y=3)
         assert self.mine2.hq(q2) == entropy([2. / 7, 2. / 7, 3. / 7])
 
-
     def test_extend(self):
         x = np.arange(100)
         y = x**2 -2*x + 2
@@ -145,8 +158,6 @@ class mine__test(unittest.TestCase):
         assert_array_equal(m.extend(np.array([-1,5,7,8,10,15]), 7), np.array([-1,5,7,8,10,15]))
 
         assert_array_equal(m.extend(np.array([-1,5,7,8,10,15]), 17), np.array([-1,5,7,8,10,15,17]))
-
-
 
     def test_c(self):
         x = np.arange(10)
@@ -177,7 +188,6 @@ class mine__test(unittest.TestCase):
 
         assert m.get_c(p) == [2, 4, 5, 8, 9]
 
-
     def test_get_grid_histogram(self):
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
         p1 = self.mine1.get_clumps_partition(q1)
@@ -197,6 +207,7 @@ class mine__test(unittest.TestCase):
         x_size = 10
         opt = m.optimize_x_axis(m.Dx,q, x_size)
         assert len(opt) == x_size - 1
+
 
 
 

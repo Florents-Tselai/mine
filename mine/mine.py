@@ -53,9 +53,11 @@ class MINE:
         for y in range(2, int(floor(b / 2))+1):
             x = int(floor(b / y))
             assert len(self.approx_max_mi(self.D, x, y)) == x-1
+            print x,y
+            #print "==="
             #print len(I[2:x+1][y]), len(self.approx_max_mi(self.D, x, y))
-            #I[2:x+1][y] = self.approx_max_mi(self.D, x, y)
-            #for i, v in enumerate(self.approx_max_mi(self.D, x, y)): I[i + 2][y] = v
+            I[2:x+1][y] = self.approx_max_mi(self.D, x, y)
+            for i, v in enumerate(self.approx_max_mi(self.D, x, y)): I[i + 2][y] = v
 
             for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y)): I_orth[i + 2][y] = v
 
@@ -170,10 +172,13 @@ class MINE:
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde= self.get_clumps_partition(q)
+
         k = len(p_tilde)
         if k > k_hat:
-            pass
-
+            d_p_tilde = sorted([(0, p_tilde[p]) for p in self.Dx], key=lambda point: point[1])
+            p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
+            p = {point:p_hat[(0, p_tilde[point])] for point in self.Dx}
+            return p
         else:
             return p_tilde
 
