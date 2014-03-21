@@ -24,14 +24,13 @@ from numpy import vstack, lexsort, shape, where, log2, fliplr, float64
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
 
 class MINE:
     def __init__(self, x, y):
-        self.D = np.core.records.fromarrays([x,y], names='x,y')
-        self.D_orth = list(np.core.records.fromarrays([y,x], names='x,y'))
+        self.D = np.core.records.fromarrays([x, y], names='x,y')
+        self.D_orth = list(np.core.records.fromarrays([y, x], names='x,y'))
         self.Dx = [tuple(p) for p in self.D[self.D.argsort(order='x')]]
         self.Dy = [tuple(p) for p in self.D[self.D.argsort(order='y')]]
         self.n = len(self.D)
@@ -50,16 +49,18 @@ class MINE:
         I_orth = np.zeros(shape=(s, s), dtype=float64)
         M = np.zeros(shape=(s, s), dtype=float64)
 
-        for y in range(2, int(floor(b / 2))+1):
+        for y in range(2, int(floor(b / 2)) + 1):
             x = int(floor(b / y))
-            assert len(self.approx_max_mi(self.D, x, y)) == x-1
-            print x,y
+            assert len(self.approx_max_mi(self.D, x, y)) == x - 1
+            print x, y
             #print "==="
             #print len(I[2:x+1][y]), len(self.approx_max_mi(self.D, x, y))
-            I[2:x+1][y] = self.approx_max_mi(self.D, x, y)
-            for i, v in enumerate(self.approx_max_mi(self.D, x, y)): I[i + 2][y] = v
+            I[2:x + 1][y] = self.approx_max_mi(self.D, x, y)
+            for i, v in enumerate(self.approx_max_mi(self.D, x, y)):
+                I[i + 2][y] = v
 
-            for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y)): I_orth[i + 2][y] = v
+            for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y)):
+                I_orth[i + 2][y] = v
 
         def characteristic_value(x, y):
             return max(I[x][y], I_orth[y][x]) if (x * y) <= b and x != 0 and y != 0 else np.nan
@@ -73,13 +74,13 @@ class MINE:
         return M
 
     def create_partition(self, ordinals, axis='x'):
-        assert axis == 'x' or axis=='y'
+        assert axis == 'x' or axis == 'y'
 
         p = {}
         i = -1
         for p_start, p_end in pairwise(ordinals):
             i += 1
-            for p_index in range(p_start+1, p_end+1):
+            for p_index in range(p_start + 1, p_end + 1):
                 p[self.Dx[p_index]] = i
         return p
 
@@ -87,7 +88,7 @@ class MINE:
         c = self.get_c(self.get_clumps_partition(q))
         k = len(c) - 1
         I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
-        P = np.empty(shape=(k+1, x+1), dtype=np.ndarray)
+        P = np.empty(shape=(k + 1, x + 1), dtype=np.ndarray)
 
         def F(s, t, l):
             return (c[s] / c[t]) * (I[s][l - 1] - self.hq(q)) - (c[t] - c[s] / c[t]) * self.hpq([c[s], c[t]], q)
@@ -101,8 +102,8 @@ class MINE:
         #Inductively build the rest of the table of optimal partitions
         for l in xrange(3, x + 1):
             for t in xrange(l, k + 1):
-                s = max(xrange(l - 1, t + 1), key=lambda s_: F(s_,t,l))
-                P[t][l] = self.extend(P[s][l-1], c[t])
+                s = max(xrange(l - 1, t + 1), key=lambda s_: F(s_, t, l))
+                P[t][l] = self.extend(P[s][l - 1], c[t])
                 I[t][l] = self.hq(q) + self.hp(P[t][l]) - self.hpq(P[t][l], q)
 
         for l in range(k + 1, x + 1):
@@ -114,13 +115,13 @@ class MINE:
     def equipartition_y_axis(d, y):
         n = len(d)
 
-        desired_row_size = n/y
+        desired_row_size = n / y
         i = 0
         sharp = 0
         current_row = 0
         q = {}
         while i < n:
-            s = len([p for p in d if d[i][1]==p[1]])
+            s = len([p for p in d if d[i][1] == p[1]])
             lhs = abs(float64(sharp) + float64(s) - desired_row_size)
             rhs = abs(float64(sharp) - desired_row_size)
 
@@ -132,7 +133,7 @@ class MINE:
                 desired_row_size = temp1 / temp2
 
             for j in xrange(s):
-                q[d[i+j]] = current_row
+                q[d[i + j]] = current_row
 
             i += s
             sharp += s
@@ -157,33 +158,33 @@ class MINE:
 
             if s > 1 and flag:
                 for j in xrange(s):
-                    q_tilde[self.Dx[i+j]] = c
+                    q_tilde[self.Dx[i + j]] = c
                 c -= 1
             i += s
 
         i = 0
         p = {self.Dx[0]: 0}
         for j in xrange(1, self.n):
-            if q_tilde[self.Dx[j]] != q_tilde[self.Dx[j-1]]:
+            if q_tilde[self.Dx[j]] != q_tilde[self.Dx[j - 1]]:
                 i += 1
             p[self.Dx[j]] = i
 
         return p
 
     def get_super_clumps_partition(self, q, k_hat):
-        p_tilde= self.get_clumps_partition(q)
+        p_tilde = self.get_clumps_partition(q)
 
         k = len(p_tilde)
         if k > k_hat:
             d_p_tilde = sorted([(0, p_tilde[p]) for p in self.Dx], key=lambda point: point[1])
             p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
-            p = {point:p_hat[(0, p_tilde[point])] for point in self.Dx}
+            p = {point: p_hat[(0, p_tilde[point])] for point in self.Dx}
             return p
         else:
             return p_tilde
 
     def extend(self, ordinals, c):
-        if any(c==existing for existing in ordinals):
+        if any(c == existing for existing in ordinals):
             new_ordinals = ordinals
         else:
             from bisect import insort
@@ -206,7 +207,6 @@ class MINE:
 
     def p_distr(self, ordinals):
         return np.fromiter((end - start for start, end in pairwise(ordinals)), dtype=int)
-
 
     def hp(self, ordinals):
         distribution = self.p_distr(ordinals)
@@ -240,6 +240,7 @@ def entropy(P):
     '''
     h = -np.fromiter((i * np.log2(i) for i in P if i > 0), dtype=np.float64).sum()
     return h
+
 
 def pairwise(iterable):
     "s -> (s0,s1), (s1,s2), (s2, s3), ..."
@@ -280,7 +281,7 @@ def last_ordinate(y_bin):
 
 
 def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
-    x_axis_partition, y_axis_partition = group_points_by_partition({point:p[point] for point in p.points()}), group_points_by_partition(q)
+    x_axis_partition, y_axis_partition = group_points_by_partition({point: p[point] for point in p.points()}), group_points_by_partition(q)
 
     from itertools import chain
 
@@ -309,22 +310,22 @@ def plot_partitions(p, q, file_name='example_grid.png', output_dir='/home/floren
     plt.title(str(x_partition_size) + ' - by - ' + str(y_partition_size) + ' Grid')
     plt.savefig(output_dir + file_name)
 
+
 def plot_char_matrix_surface(m, file_name='example_grid.png', output_dir='/home/florents/workspace/mine/doc/examples/'):
     x = np.arange(m.shape[0])
     y = np.arange(m.shape[1])
-    xx, yy = np.meshgrid(x,y)
+    xx, yy = np.meshgrid(x, y)
 
     @np.vectorize
-    def char_value(x,y):
+    def char_value(x, y):
         return m[x][y]
 
-
-    z = char_value(xx,yy)
+    z = char_value(xx, yy)
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='3d')
 
-    surf = ax.plot_surface(x,y,z, rstride=1, cstride=1, cmap=cm.coolwarm,
+    surf = ax.plot_surface(x, y, z, rstride=1, cstride=1, cmap=cm.coolwarm,
             linewidth=0, antialiased=False)
     ax.set_zlim3d(-1.01, 1.01)
 

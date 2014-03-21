@@ -7,7 +7,7 @@ EXAMPLES_DIR=doc/examples
 install:
 	virtualenv $(VIRTUAL_ENV_DIR) && \
 	. $(VIRTUAL_ENV_DIR)/bin/activate && \
-	pip install matplotlib numpy gprof2dot pandas
+	pip install matplotlib numpy gprof2dot pandas pep8ify
 
 pdf:
 	cd doc && \
@@ -40,6 +40,9 @@ run_experiments:
 plot_examples:
 	mkdir -p $(EXAMPLES_DIR)
 	python mine/examples.py
+
+format_code:
+	pep8ify -w -n mine/
 
 all:
 	make install && \

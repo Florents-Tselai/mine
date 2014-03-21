@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 "+chr(94)+"
 functions = OrderedDict()
 functions['Linear'] = "$y=x$"
@@ -24,7 +23,8 @@ functions['Random'] = "$random number generator$"
 
 def get_y(x, f):
     if f == 'Linear':
-        return x;
+        return x
+
     if f == 'Parabolic':
         return 4 * (x - 1. / 2) ** 2
     if f == 'Cubic':
@@ -86,7 +86,8 @@ def experiment_1():
 
 
 def print_functions_definition():
-    df = pd.DataFrame();
+    df = pd.DataFrame()
+
     df['Relationship Name'] = functions.keys()
     df['Description'] = df['Relationship Name'].map(functions.get)
     output = df.to_latex(index=False)
