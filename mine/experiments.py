@@ -52,10 +52,7 @@ def run(f, n):
     from mine import MINE
 
     m = MINE(x, y)
-    b = pow(len(x), 0.6)
-    M = m.approx_char_matrix(m.D, b)
-    mic = np.max(M[~np.isnan(M)])
-
+    mic = m.compute_mic();
     t = time()
     return np.round(t - t0, 3)
 
