@@ -196,14 +196,21 @@ class mine__test(unittest.TestCase):
     def test_optimize_x_axis(self):
 
         x = np.arange(1063)
-        y = x ** 2 - 2 * x + 2
+        y = np.sin(x)
         m = MINE(x, y)
         q = m.equipartition_y_axis(m.Dy, 10)
         x_size = 10
         opt = m.optimize_x_axis(m.Dx, q, x_size, k_hat=6)
         assert len(opt) == x_size - 1
 
+    def test_approx_max_mi(self):
+        pass
 
+    def test_approx_char_matrix(self):
+        x = np.linspace(0, 1, 200)
+        y = np.sin(10 * np.pi * x) + x
+        m = MINE(x, y)
+        print m.compute_mic()
 
 
 if __name__ == '__main__':

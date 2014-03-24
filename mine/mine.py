@@ -29,49 +29,49 @@ p_x, p_y = lambda p: p[0], lambda p: p[1]
 
 
 class MINE:
-    def __init__(self, x, y):
+    def __init__(self, x, y, alpha=0.6, c=15):
         self.D = np.core.records.fromarrays([x, y], names='x,y')
         self.D_orth = list(np.core.records.fromarrays([y, x], names='x,y'))
         self.Dx = [tuple(p) for p in self.D[self.D.argsort(order='x')]]
         self.Dy = [tuple(p) for p in self.D[self.D.argsort(order='y')]]
         self.n = len(self.D)
+        self.alpha = alpha
+        self.c = c;
+        self.b = int(self.n ** self.alpha)
 
-    def approx_max_mi(self, d, x, y):
+    def compute_mic(self):
+        M = self.approx_char_matrix(self.D, self.b, self.c)
+        return M.max()
+
+    def approx_max_mi(self, d, x, y, k_hat):
         q = self.equipartition_y_axis(self.Dy, y)
         return self.optimize_x_axis(self.Dx, q, x, k_hat)
-        #return self.optimize_x_axis(self.Dx, q, x)
 
-    def approx_char_matrix(self, d, b):
+    def approx_char_matrix(self, d, b, c):
         from math import ceil, floor
 
-        s = int(floor(b / 2)) + 1
+        s = int(floor(b/2))
 
-        I = np.zeros(shape=(s, s), dtype=float64)
-        I_orth = np.zeros(shape=(s, s), dtype=float64)
-        M = np.zeros(shape=(s, s), dtype=float64)
+        I = np.zeros(shape=(s+1, s+1), dtype=float64)
+        I_orth = np.zeros(shape=(s+1, s+1), dtype=float64)
+        M = np.zeros(shape=(s+1, s+1), dtype=float64)
 
         for y in range(2, int(floor(b / 2)) + 1):
             x = int(floor(b / y))
-            assert len(self.approx_max_mi(self.D, x, y)) == x - 1
-            print x, y
-            #print "==="
-            #print len(I[2:x+1][y]), len(self.approx_max_mi(self.D, x, y))
-            I[2:x + 1][y] = self.approx_max_mi(self.D, x, y)
-            for i, v in enumerate(self.approx_max_mi(self.D, x, y)):
+
+            for i, v in enumerate(self.approx_max_mi(self.D, x, y, c*x)):
                 I[i + 2][y] = v
 
-            for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y)):
+            for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y, c*x)):
                 I_orth[i + 2][y] = v
 
-        def characteristic_value(x, y):
-            return max(I[x][y], I_orth[y][x]) if (x * y) <= b and x != 0 and y != 0 else np.nan
+        for x in xrange(M.shape[0]):
+            for y in xrange(M.shape[1]):
+                if 0 < x*y <= b:
+                    I[x][y] = max(I[x][y], I_orth[y][x])
+                    M[x][y] = I[x][y] / min(log2(x), log2(y))
 
-        I = np.fromfunction(np.vectorize(characteristic_value), (s, s), dtype=np.float64)
-
-        def normalize(x, y):
-            return I[x][y] / min(log2(x), log2(y)) if (x * y) <= b and x != 0 and y != 0 else np.nan
-
-        M = np.fromfunction(np.vectorize(normalize), (s, s), dtype=np.float64)
+        M = np.nan_to_num(M)
         return M
 
     def create_partition(self, ordinals, axis='x'):
