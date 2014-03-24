@@ -195,12 +195,12 @@ class mine__test(unittest.TestCase):
 
     def test_optimize_x_axis(self):
 
-        x = np.arange(1000)
+        x = np.arange(1063)
         y = x ** 2 - 2 * x + 2
         m = MINE(x, y)
-        q = m.equipartition_y_axis(m.Dy, 5)
+        q = m.equipartition_y_axis(m.Dy, 10)
         x_size = 10
-        opt = m.optimize_x_axis(m.Dx, q, x_size)
+        opt = m.optimize_x_axis(m.Dx, q, x_size, k_hat=6)
         assert len(opt) == x_size - 1
 
 

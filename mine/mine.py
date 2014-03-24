@@ -23,6 +23,7 @@ from matplotlib import cm
 from numpy import vstack, lexsort, shape, where, log2, fliplr, float64
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
 
@@ -37,8 +38,8 @@ class MINE:
 
     def approx_max_mi(self, d, x, y):
         q = self.equipartition_y_axis(self.Dy, y)
-        #return self.optimize_x_axis(self.Dx, q, x, k_hat)
-        return self.optimize_x_axis(self.Dx, q, x)
+        return self.optimize_x_axis(self.Dx, q, x, k_hat)
+        #return self.optimize_x_axis(self.Dx, q, x)
 
     def approx_char_matrix(self, d, b):
         from math import ceil, floor
@@ -84,8 +85,8 @@ class MINE:
                 p[self.Dx[p_index]] = i
         return p
 
-    def optimize_x_axis(self, d_x, q, x):
-        c = self.get_c(self.get_clumps_partition(q))
+    def optimize_x_axis(self, d_x, q, x, k_hat=sys.maxint):
+        c = self.get_c(self.get_super_clumps_partition(q, k_hat))
         k = len(c) - 1
         I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
         P = np.empty(shape=(k + 1, x + 1), dtype=np.ndarray)
@@ -173,7 +174,6 @@ class MINE:
 
     def get_super_clumps_partition(self, q, k_hat):
         p_tilde = self.get_clumps_partition(q)
-
         k = len(p_tilde)
         if k > k_hat:
             d_p_tilde = sorted([(0, p_tilde[p]) for p in self.Dx], key=lambda point: point[1])
