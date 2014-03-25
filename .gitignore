@@ -21,4 +21,7 @@
 mine_env
 doc/experiments
 *.o
-
+mine_cpp/bin
+mine_cpp/obj
+*.cbp
+*.layout
