@@ -20,3 +20,5 @@
 *pstats
 mine_env
 doc/experiments
+*.cpp
+*.o
