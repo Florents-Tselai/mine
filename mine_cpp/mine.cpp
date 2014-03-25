@@ -11,6 +11,26 @@
 using namespace std;
 
 
+void
+sort_by_x(vector<const Point*> &d) {
+    sort(d.begin(), d.end(), less_x);
+}
+
+void
+sort_by_y(vector<const Point*> &d) {
+    sort(d.begin(), d.end(), less_y);
+}
+
+
+int
+number_of_clumps(const Partition_map &p) {
+    set<int> temp;
+    for(auto e : p) {
+        temp.insert(e.second);
+    }
+    return temp.size();
+}
+
 Partition_map
 equipartition_y_axis(const vector<Point> &d, int y) {
     int n = d.size();
@@ -19,9 +39,10 @@ equipartition_y_axis(const vector<Point> &d, int y) {
     //TODO OPTIMIZATION: exploit y ordering
     for (int i = 0; i < n; i++)
         dy[i] = &(d[i]);
-    sort(dy.begin(), dy.end(), less_y);
 
-    map<const Point*,int> q;
+    sort_by_y(dy);
+
+    Partition_map q;
 
     double desiredRowSize = double(n) / y;
     int i = 0;
@@ -68,7 +89,7 @@ get_clumps_partition(const vector<Point> &d, const Partition_map &q) {
     //TODO OPTIMIZATION: exploit y ordering
     for (int i = 0; i < n; i++)
         dx[i] = &(d[i]);
-    sort(dx.begin(), dx.end(), less_x);
+    sort_by_x(dx);
 
     int i = 0;
     int c = -1;
@@ -112,13 +133,8 @@ Partition_map
 get_superclumps_partition(const vector<Point> &dx, Partition_map q, int k_hat) {
     Partition_map p_tilde = get_clumps_partition(dx, q);
 
-    set<int> temp;
-    for(auto e : q) {
-        temp.insert(e.second);
-    }
-    int k = temp.size();
-
-    if (k>k_hat) {
+    int k = number_of_clumps(p_tilde);
+    if (k > k_hat) {
         vector<Point> d_p_tilde(dx.size());
         for(auto point : dx) {
             Point p(0, p_tilde[&point]);
@@ -128,6 +144,7 @@ get_superclumps_partition(const vector<Point> &dx, Partition_map q, int k_hat) {
         for(auto point : dx) {
             int i = p_tilde[&point];
             Point temp = Point(0, i);
+            cout << point << endl;;
             int j = p_hat[&temp];
             p.insert(make_pair(&point, j));
         }
@@ -142,6 +159,7 @@ get_superclumps_partition(const vector<Point> &dx, Partition_map q, int k_hat) {
 void test_equipartition_y_axis() {
     Point p[] = {{1,1}, {1,2}, {9,2}, {9,1}, {1,3}, {1,4}, {2,3}, {2,4}, {8,3}, {3,5}, {4,6}, {5,6}, {6,6}, {7,5} };
     vector <Point> points(p, p + 14);
+
     map<const Point*, int> q = equipartition_y_axis(points, 3);
 }
 
@@ -149,8 +167,11 @@ void test_get_clumps_partition() {
     Point points[] = {{1,1}, {1,2}, {9,2}, {9,1}, {1,3}, {1,4}, {2,3}, {2,4}, {8,3}, {3,5}, {4,6}, {5,6}, {6,6}, {7,5} };
     vector <Point> data(points, points + 14);
     Partition_map q = equipartition_y_axis(data, 3);
-    Partition_map p = get_clumps_partition(data, q);
-    cout << p;
+    Partition_map clumps = get_clumps_partition(data, q);
+    cout << number_of_clumps(clumps) << endl;
+    Partition_map superclumps = get_superclumps_partition(data, q, 4);
+    cout << superclumps;
+    cout << number_of_clumps(superclumps) << endl;
 }
 
 void run_tests() {
