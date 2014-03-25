@@ -25,3 +25,4 @@ mine_cpp/bin
 mine_cpp/obj
 *.cbp
 *.layout
+.depend

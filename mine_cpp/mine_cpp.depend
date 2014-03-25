@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1395767072 source:/home/florents/workspace/mine/mine_cpp/mine.cpp
+	<iostream>
+	"assert.h"
+	<vector>
+	<algorithm>
+	<iterator>
+	<map>
+	<set>
+	"Point.h"
+	"mine.h"
+
+1395765006 /home/florents/workspace/mine/mine_cpp/Point.h
+	<iostream>
+
+1395760941 /home/florents/workspace/mine/mine_cpp/mine.h
+

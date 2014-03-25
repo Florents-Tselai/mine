@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <map>
+#include <set>
 #include "Point.h"
 #include "mine.h"
 
@@ -105,6 +106,37 @@ get_clumps_partition(const vector<Point> &d, const Partition_map &q) {
         p.insert(make_pair(dx[j], i));
     }
     return p;
+}
+
+Partition_map
+get_superclumps_partition(const vector<Point> &dx, Partition_map q, int k_hat) {
+    Partition_map p_tilde = get_clumps_partition(dx, q);
+
+    set<int> temp;
+    for(auto e : q) {
+        temp.insert(e.second);
+    }
+    int k = temp.size();
+
+    if (k>k_hat) {
+        vector<Point> d_p_tilde(dx.size());
+        for(auto point : dx) {
+            Point p(0, p_tilde[&point]);
+        }
+        Partition_map p_hat = equipartition_y_axis(d_p_tilde, k_hat);
+        Partition_map p;
+        for(auto point : dx) {
+            int i = p_tilde[&point];
+            Point temp = Point(0, i);
+            int j = p_hat[&temp];
+            p.insert(make_pair(&point, j));
+        }
+        return p;
+    }
+
+    else {
+        return p_tilde;
+    }
 }
 
 void test_equipartition_y_axis() {
