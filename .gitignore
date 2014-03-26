@@ -27,3 +27,5 @@ mine_cpp/obj
 *.layout
 .depend
 *.depend
+
+cpp/
