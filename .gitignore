@@ -29,3 +29,4 @@ mine_cpp/obj
 *.depend
 
 cpp/
+mine_cpp/mine
