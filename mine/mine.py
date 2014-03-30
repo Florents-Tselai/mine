@@ -39,9 +39,11 @@ class MINE:
         self.c = c;
         self.b = int(self.n ** self.alpha)
 
-    def compute_mic(self):
-        M = self.approx_char_matrix(self.D, self.b, self.c)
-        return M.max()
+    def compute(self):
+        self.char_matrix = self.approx_char_matrix(self.D, self.b, self.c)
+
+    def mic(self):
+        return self.char_matrix.max()
 
     def approx_max_mi(self, d, x, y, k_hat):
         q = self.equipartition_y_axis(self.Dy, y)
@@ -56,7 +58,7 @@ class MINE:
         I_orth = np.zeros(shape=(s+1, s+1), dtype=float64)
         M = np.zeros(shape=(s+1, s+1), dtype=float64)
 
-        for y in range(2, int(floor(b / 2)) + 1):
+        for y in xrange(2, int(floor(b / 2)) + 1):
             x = int(floor(b / y))
 
             for i, v in enumerate(self.approx_max_mi(self.D, x, y, c*x)):
@@ -65,11 +67,12 @@ class MINE:
             for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y, c*x)):
                 I_orth[i + 2][y] = v
 
-        for x in xrange(M.shape[0]):
-            for y in xrange(M.shape[1]):
-                if 0 < x*y <= b:
-                    I[x][y] = max(I[x][y], I_orth[y][x])
-                    M[x][y] = I[x][y] / min(log2(x), log2(y))
+        for x in xrange(2, s+1):
+            for y in xrange(2, s+1):
+                if x*y > b:
+                    continue
+                I[x][y] = max(I[x][y], I_orth[y][x])
+                M[x][y] = I[x][y] / min(log2(x), log2(y))
 
         M = np.nan_to_num(M)
         return M
@@ -176,7 +179,7 @@ class MINE:
         p_tilde = self.get_clumps_partition(q)
         k = len(p_tilde)
         if k > k_hat:
-            d_p_tilde = sorted([(0, p_tilde[p]) for p in self.Dx], key=lambda point: point[1])
+            d_p_tilde = [(0, p_tilde[p]) for p in self.Dx]
             p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
             p = {point: p_hat[(0, p_tilde[point])] for point in self.Dx}
             return p
