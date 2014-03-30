@@ -183,15 +183,17 @@ class mine__test(unittest.TestCase):
 
         assert m.get_c(p) == [2, 4, 5, 8, 9]
 
-    def test_get_grid_histogram(self):
-        q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
-        p1 = self.mine1.get_clumps_partition(q1)
-
-        #plot_partitions(p1, q1)
+    def test_compute_cumhist(self):
+        q_map = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
+        q = len(set(q_map.itervalues()))
+        p_map = self.mine1.get_clumps_partition(q_map)
+        p = len(set(p_map.iterkeys()))
+        #print p
+        #plot_partitions(p_map, q_map)
         #plt.show()
         #Inspect visually as well
-        assert_array_equal(self.mine1.get_grid_histogram(p1, q1)
-                           , np.array([0, 0, 5, 0, 0, 2, 2, 0, 1, 0, 2, 0, 0, 0, 2]))
+        #assert_array_equal(self.mine1.compute_cumhist(q_map, q, p_map, p, self.mine1.n)
+        #                  , np.array([0, 0, 5, 0, 0, 2, 2, 0, 1, 0, 2, 0, 0, 0, 2]))
 
     def test_optimize_x_axis(self):
         return
@@ -207,7 +209,7 @@ class mine__test(unittest.TestCase):
         pass
 
     def test_approx_char_matrix(self):
-        x = np.linspace(0, 1, 200)
+        x = np.linspace(0, 1, 1000)
         y = np.sin(10 * x*2) + x
         np.random.seed(0)
         y +=np.random.uniform(-1, 1, x.shape[0])
