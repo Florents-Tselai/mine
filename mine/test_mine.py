@@ -17,7 +17,7 @@ import unittest
 
 import numpy as np
 from numpy.testing import assert_array_equal
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 from mine import *
 
@@ -207,12 +207,25 @@ class mine__test(unittest.TestCase):
         pass
 
     def test_approx_char_matrix(self):
-        x = np.linspace(0, 1, 200)
-        y = np.sin(10 * x*2) + x
-        np.random.seed(0)
-        y +=np.random.uniform(-1, 1, x.shape[0])
+        x = np.linspace(0, 1, 201)
+        y = np.sin(10 * np.pi * x) + x
         m = MINE(x, y)
+
+        '''
+        0.108 0.146 0.226 0.347 0.434 0.545 0.639 0.740 0.863 0.932 1.000
+        0.199 0.138 0.169 0.256 0.298 0.379 0.427
+        0.237 0.190 0.217 0.286 0.324
+        0.247 0.198 0.191
+        0.262 0.213 0.232
+        0.272 0.225
+        0.286 0.237
+        0.296
+        0.308
+        0.321
+        0.333
+        '''
         m.compute()
+        print np.round(m.char_matrix,3)
         print m.mic()
 
 
