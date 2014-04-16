@@ -88,8 +88,97 @@ class MINE:
                 p[self.Dx[p_index]] = i
         return p
 
+    def compute_cumhist(self, q_map, p_map):
+        q = len(set(q_map.itervalues()))
+        p = len(set(p_map.itervalues()))
+        print q, p
+        cumhist = np.zeros(shape=(q, p), dtype=int)
+
+        for i in range(self.n):
+            cumhist[q_map[self.Dx[i]]][p_map[self.Dx[i]]] += 1
+
+        for i in range(q):
+            for j in range(1, p):
+                cumhist[i][j] += cumhist[i][j-1]
+        return cumhist
+
+    def hq(self, cumhist, q, p, n):
+        prob, H = 0.0
+        total = float(n)
+
+        for i in range(q):
+            if cumhist[i][p-1] != 0:
+                prob = cumhist[i][p-1] / total
+                H -= prob * log2(prob)
+        return H
+
+    def hp3(self, c, s, t):
+        sum = 0
+        prob, H = 0.0
+
+        total = float(c[t-1])
+
+        if s==t:
+            return 0.0
+        if c[s-1] != 0:
+            prob = c[s-1] / total
+            H -= prob*log2(prob)
+        sum = c[t-1] - c[s-1]
+
+        if sum != 0:
+            prob = sum / total
+            H -= prob *log2(prob)
+        return H
+
+    def hp3q(self, cumhist, c, q, p, s, t):
+        prob, H = 0.0
+        total = float(c[t-1])
+
+        for i in range(q):
+            if cumhist[i][s-1] != 0:
+                prob = cumhist[i][s-1] / total
+                H -= prob * log2(prob)
+            sum = cumhist[i][t-1] - cumhist[i][s-1]
+            if sum != 0:
+                prob = sum / total
+                H -= prob * log2(prob)
+        return H
+
+    def hp2q(self, cumhist, c, q, p, s, t):
+        prob, H = 0.0, 0.0
+        total = float(c[t-1] - c[s-1])
+
+        if s == t:
+            return 0.0
+        for i in range(q):
+            sum = cumhist[i][t-1] - cumhist[i][s-1]
+            if sum != 0:
+                prob = sum / total
+                H -= prob * log2(prob)
+        return H
+
+    def compute_HP2Q(self, cumhist, c, q, p):
+        HP2Q = np.zeros(shape=(p+1, p+1), dtype=int)
+        for t in range(3, p+1):
+            for s in range(2, t+1):
+                HP2Q[s][t] = self.hp2q(cumhist, c, q, p, s, t)
+
+
     def optimize_x_axis(self, d_x, q, x, k_hat=sys.maxint):
-        c = self.get_c(self.get_super_clumps_partition(q, k_hat))
+        p_map = self.get_super_clumps_partition(q, k_hat)
+        q_map = q
+        p = len(set(p_map.iterkeys()))
+        q = len(set(q_map.iterkeys()))
+
+        if p == 1:
+            return np.array([0 for i in range(x-1)], dtype=float)
+
+        c = self.compute_c(p_map)
+        #print c
+        cumhist = self.compute_cumhist(q_map, p_map)
+        HP2Q = self.compute_HP2Q(cumhist, c, q, p)
+        HQ = self.hq(cumhist, q, p, n)
+        print cumhist
         k = len(c) - 1
         I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
         P = np.empty(shape=(k + 1, x + 1), dtype=np.ndarray)
@@ -98,20 +187,28 @@ class MINE:
             return (c[s] / c[t]) * (I[s][l - 1] - self.hq(q)) - (c[t] - c[s] / c[t]) * self.hpq([c[s], c[t]], q)
 
         #Find the optimal partitions of size 2
-        for t in xrange(2, k + 1):
-            s = max(range(1, t + 1), key=lambda a: self.hp([c[0], c[a], c[t]]) - self.hpq([c[0], c[a], c[t]], q))
-            P[t][2] = np.array([c[0], c[s], c[t]])
-            I[t][2] = self.hq(q) + self.hp(P[t][2]) - self.hpq(P[t][2], q)
+        for t in xrange(2, p + 1):
+            F_max = - np.inf
+            for s in range(1, t+1):
+                F = self.hp3(c, s, t) - self.hp3q(cumhist, c, q, p, s, t)
+                if F > F_max:
+                    I[t][2] = HQ + F
+                    F_max = F
 
         #Inductively build the rest of the table of optimal partitions
         for l in xrange(3, x + 1):
-            for t in xrange(l, k + 1):
-                s = max(xrange(l - 1, t + 1), key=lambda s_: F(s_, t, l))
-                P[t][l] = self.extend(P[s][l - 1], c[t])
-                I[t][l] = self.hq(q) + self.hp(P[t][l]) - self.hpq(P[t][l], q)
+            for t in xrange(1, p + 1):
+                ct = float(c[t-1])
+                F_max = -np.inf
+                for s in range(l-1, t+1):
+                    cs = float(c[s-1])
+                    F = (cs/ct * I[s][l-1]-HQ) - (((ct-cs)/ct) * HP2Q[s][t])
+                    if F > F_max:
+                        I[t][l] = HQ + F
+                        F_max = F
 
-        for l in range(k + 1, x + 1):
-            I[k][l] = I[k][k]
+        for i in range(p + 1, x + 1):
+            I[p][i] = I[p][p]
 
         return I[k][2:x + 1]
 
@@ -196,16 +293,14 @@ class MINE:
         return np.array(new_ordinals)
 
     #TODO optimize
-    def get_c(self, p_map):
-
-        p_grouped = group_points_by_partition(p_map)
-        c0 = [self.Dx.index(get_leftest_point(p_grouped[0])) - 1]
-
-        def last_point_index(partition_index):
-            return self.Dx.index(get_rightest_point(p_grouped[partition_index]))
-
-        c1_k = map(last_point_index, p_grouped.iterkeys())
-        c = c0 + c1_k
+    def compute_c(self, p_map):
+        p = len(set(p_map.itervalues()))
+        c = [0 for i in range(p)]
+        for i in range(self.n):
+            c[p_map[self.Dx[i]]] += 1
+        for i in range(1, p):
+            c[i] += c[i-1]
+        assert len(c) == p
         return c
 
     def p_distr(self, ordinals):
@@ -214,11 +309,6 @@ class MINE:
     def hp(self, ordinals):
         distribution = self.p_distr(ordinals)
         return entropy(distribution / distribution.sum())
-
-    def hq(self, q):
-        n = len(q)
-        distribution = np.fromiter(Counter(q.itervalues()).itervalues(), dtype=int)
-        return entropy(distribution / n)
 
     #TODO x_partition it would be better to be ordinals instead of map
     def hpq(self, x_ordinals, y_map):

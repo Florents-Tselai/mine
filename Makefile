@@ -51,3 +51,9 @@ all:
 	make run_experiments && \
 	make profile && \
 	make pdf
+
+run_minepy_example:
+	cd minepy/examples && \
+	gcc c_example.c -Wall ../libmine/mine.c -I../libmine/ -lm && \
+	./a.out
+	

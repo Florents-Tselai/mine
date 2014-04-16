@@ -123,11 +123,11 @@ class mine__test(unittest.TestCase):
         m = MINE(x, y)
         q = m.equipartition_y_axis(m.Dy, 20)
         clumps = m.get_clumps_partition(q)
-        c_clumps = m.get_c(clumps)
+        c_clumps = m.compute_c(clumps)
         k_clumps = len(c_clumps) - 1
         k_hat = 7
         super_clumps = m.get_super_clumps_partition(q, k_hat)
-        c_super_clumps = m.get_c(super_clumps)
+        c_super_clumps = m.compute_c(super_clumps)
         k_super_clumps = len(c_super_clumps) - 1
         assert k_super_clumps <= k_hat
         assert clumps.keys() == super_clumps.keys()
@@ -169,7 +169,7 @@ class mine__test(unittest.TestCase):
              (8, 8): 3,
              (9, 9): 4
             }
-        assert m.get_c(p) == [-1, 2, 4, 5, 8, 9]
+        assert m.compute_c(p) == [-1, 2, 4, 5, 8, 9]
 
         p = {
              (3, 3): 0,
@@ -181,7 +181,7 @@ class mine__test(unittest.TestCase):
              (9, 9): 3
             }
 
-        assert m.get_c(p) == [2, 4, 5, 8, 9]
+        assert m.compute_c(p) == [2, 4, 5, 8, 9]
 
     def test_get_grid_histogram(self):
         q1 = self.mine1.equipartition_y_axis(self.mine1.Dy, 3)
