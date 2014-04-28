@@ -18,7 +18,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from collections import defaultdict, Counter
 from copy import copy
 from itertools import *
-from math import floor
+from math import floor, ceil
 from matplotlib import cm
 from numpy import vstack, lexsort, shape, where, log2, fliplr, float64
 import matplotlib.pyplot as plt
@@ -26,304 +26,6 @@ import numpy as np
 import sys
 
 p_x, p_y = lambda p: p[0], lambda p: p[1]
-
-
-class MINE:
-    def __init__(self, x, y, alpha=0.6, c=15):
-        self.D = np.core.records.fromarrays([x, y], names='x,y')
-        self.D_orth = list(np.core.records.fromarrays([y, x], names='x,y'))
-        self.Dx = [tuple(p) for p in self.D[self.D.argsort(order='x')]]
-        self.Dy = [tuple(p) for p in self.D[self.D.argsort(order='y')]]
-        self.n = len(self.D)
-        self.alpha = alpha
-        self.c = c;
-        self.b = int(self.n ** self.alpha)
-
-    def compute(self):
-        self.char_matrix = self.approx_char_matrix(self.D, self.b, self.c)
-
-    def mic(self):
-        return self.char_matrix.max()
-
-    def approx_max_mi(self, d, x, y, k_hat):
-        q = self.equipartition_y_axis(self.Dy, y)
-        return self.optimize_x_axis(self.Dx, q, x, k_hat)
-
-    def approx_char_matrix(self, d, b, c):
-        from math import ceil, floor
-
-        s = int(floor(b/2))
-
-        I = np.zeros(shape=(s+1, s+1), dtype=float64)
-        I_orth = np.zeros(shape=(s+1, s+1), dtype=float64)
-        M = np.zeros(shape=(s+1, s+1), dtype=float64)
-
-        for y in xrange(2, int(floor(b / 2)) + 1):
-            x = int(floor(b / y))
-
-            for i, v in enumerate(self.approx_max_mi(self.D, x, y, c*x)):
-                I[i + 2][y] = v
-
-            for i, v in enumerate(self.approx_max_mi(self.D_orth, x, y, c*x)):
-                I_orth[i + 2][y] = v
-
-        for x in xrange(2, s+1):
-            for y in xrange(2, s+1):
-                if x*y > b:
-                    continue
-                I[x][y] = max(I[x][y], I_orth[y][x])
-                M[x][y] = I[x][y] / min(log2(x), log2(y))
-
-        M = np.nan_to_num(M)
-        return M
-
-    def create_partition(self, ordinals, axis='x'):
-        assert axis == 'x' or axis == 'y'
-
-        p = {}
-        i = -1
-        for p_start, p_end in pairwise(ordinals):
-            i += 1
-            for p_index in range(p_start + 1, p_end + 1):
-                p[self.Dx[p_index]] = i
-        return p
-
-    def compute_cumhist(self, q_map, p_map):
-        q = len(set(q_map.itervalues()))
-        p = len(set(p_map.itervalues()))
-        print q, p
-        cumhist = np.zeros(shape=(q, p), dtype=int)
-
-        for i in range(self.n):
-            cumhist[q_map[self.Dx[i]]][p_map[self.Dx[i]]] += 1
-
-        for i in range(q):
-            for j in range(1, p):
-                cumhist[i][j] += cumhist[i][j-1]
-        return cumhist
-
-    def hq(self, cumhist, q, p, n):
-        prob, H = 0.0
-        total = float(n)
-
-        for i in range(q):
-            if cumhist[i][p-1] != 0:
-                prob = cumhist[i][p-1] / total
-                H -= prob * log2(prob)
-        return H
-
-    def hp3(self, c, s, t):
-        sum = 0
-        prob, H = 0.0
-
-        total = float(c[t-1])
-
-        if s==t:
-            return 0.0
-        if c[s-1] != 0:
-            prob = c[s-1] / total
-            H -= prob*log2(prob)
-        sum = c[t-1] - c[s-1]
-
-        if sum != 0:
-            prob = sum / total
-            H -= prob *log2(prob)
-        return H
-
-    def hp3q(self, cumhist, c, q, p, s, t):
-        prob, H = 0.0
-        total = float(c[t-1])
-
-        for i in range(q):
-            if cumhist[i][s-1] != 0:
-                prob = cumhist[i][s-1] / total
-                H -= prob * log2(prob)
-            sum = cumhist[i][t-1] - cumhist[i][s-1]
-            if sum != 0:
-                prob = sum / total
-                H -= prob * log2(prob)
-        return H
-
-    def hp2q(self, cumhist, c, q, p, s, t):
-        prob, H = 0.0, 0.0
-        total = float(c[t-1] - c[s-1])
-
-        if s == t:
-            return 0.0
-        for i in range(q):
-            sum = cumhist[i][t-1] - cumhist[i][s-1]
-            if sum != 0:
-                prob = sum / total
-                H -= prob * log2(prob)
-        return H
-
-    def compute_HP2Q(self, cumhist, c, q, p):
-        HP2Q = np.zeros(shape=(p+1, p+1), dtype=int)
-        for t in range(3, p+1):
-            for s in range(2, t+1):
-                HP2Q[s][t] = self.hp2q(cumhist, c, q, p, s, t)
-
-
-    def optimize_x_axis(self, d_x, q, x, k_hat=sys.maxint):
-        p_map = self.get_super_clumps_partition(q, k_hat)
-        q_map = q
-        p = len(set(p_map.iterkeys()))
-        q = len(set(q_map.iterkeys()))
-
-        if p == 1:
-            return np.array([0 for i in range(x-1)], dtype=float)
-
-        c = self.compute_c(p_map)
-        #print c
-        cumhist = self.compute_cumhist(q_map, p_map)
-        HP2Q = self.compute_HP2Q(cumhist, c, q, p)
-        HQ = self.hq(cumhist, q, p, n)
-        print cumhist
-        k = len(c) - 1
-        I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
-        P = np.empty(shape=(k + 1, x + 1), dtype=np.ndarray)
-
-        def F(s, t, l):
-            return (c[s] / c[t]) * (I[s][l - 1] - self.hq(q)) - (c[t] - c[s] / c[t]) * self.hpq([c[s], c[t]], q)
-
-        #Find the optimal partitions of size 2
-        for t in xrange(2, p + 1):
-            F_max = - np.inf
-            for s in range(1, t+1):
-                F = self.hp3(c, s, t) - self.hp3q(cumhist, c, q, p, s, t)
-                if F > F_max:
-                    I[t][2] = HQ + F
-                    F_max = F
-
-        #Inductively build the rest of the table of optimal partitions
-        for l in xrange(3, x + 1):
-            for t in xrange(1, p + 1):
-                ct = float(c[t-1])
-                F_max = -np.inf
-                for s in range(l-1, t+1):
-                    cs = float(c[s-1])
-                    F = (cs/ct * I[s][l-1]-HQ) - (((ct-cs)/ct) * HP2Q[s][t])
-                    if F > F_max:
-                        I[t][l] = HQ + F
-                        F_max = F
-
-        for i in range(p + 1, x + 1):
-            I[p][i] = I[p][p]
-
-        return I[k][2:x + 1]
-
-    @staticmethod
-    def equipartition_y_axis(d, y):
-        n = len(d)
-
-        desired_row_size = n / y
-        i = 0
-        sharp = 0
-        current_row = 0
-        q = {}
-        while i < n:
-            s = len([p for p in d if d[i][1] == p[1]])
-            lhs = abs(float64(sharp) + float64(s) - desired_row_size)
-            rhs = abs(float64(sharp) - desired_row_size)
-
-            if sharp != 0 and lhs >= rhs:
-                sharp = 0
-                current_row += 1
-                temp1 = n - i
-                temp2 = y - current_row
-                desired_row_size = temp1 / temp2
-
-            for j in xrange(s):
-                q[d[i + j]] = current_row
-
-            i += s
-            sharp += s
-
-        return q
-
-    def get_clumps_partition(self, q):
-        q_tilde = copy(q)
-        i = 0
-        c = -1
-
-        while i < self.n:
-            s = 1
-            flag = False
-            for j in xrange(i + 1, self.n):
-                if self.Dx[i][0] == self.Dx[j][0]:
-                    s += 1
-                    if q_tilde[self.Dx[i]] != q_tilde[self.Dx[j]]:
-                        flag = True
-                else:
-                    break
-
-            if s > 1 and flag:
-                for j in xrange(s):
-                    q_tilde[self.Dx[i + j]] = c
-                c -= 1
-            i += s
-
-        i = 0
-        p = {self.Dx[0]: 0}
-        for j in xrange(1, self.n):
-            if q_tilde[self.Dx[j]] != q_tilde[self.Dx[j - 1]]:
-                i += 1
-            p[self.Dx[j]] = i
-
-        return p
-
-    def get_super_clumps_partition(self, q, k_hat):
-        p_tilde = self.get_clumps_partition(q)
-        k = len(p_tilde)
-        if k > k_hat:
-            d_p_tilde = [(0, p_tilde[p]) for p in self.Dx]
-            p_hat = self.equipartition_y_axis(d_p_tilde, k_hat)
-            p = {point: p_hat[(0, p_tilde[point])] for point in self.Dx}
-            return p
-        else:
-            return p_tilde
-
-    def extend(self, ordinals, c):
-        if any(c == existing for existing in ordinals):
-            new_ordinals = ordinals
-        else:
-            from bisect import insort
-            new_ordinals = list(ordinals)
-            insort(new_ordinals, c)
-        return np.array(new_ordinals)
-
-    #TODO optimize
-    def compute_c(self, p_map):
-        p = len(set(p_map.itervalues()))
-        c = [0 for i in range(p)]
-        for i in range(self.n):
-            c[p_map[self.Dx[i]]] += 1
-        for i in range(1, p):
-            c[i] += c[i-1]
-        assert len(c) == p
-        return c
-
-    def p_distr(self, ordinals):
-        return np.fromiter((end - start for start, end in pairwise(ordinals)), dtype=int)
-
-    def hp(self, ordinals):
-        distribution = self.p_distr(ordinals)
-        return entropy(distribution / distribution.sum())
-
-    #TODO x_partition it would be better to be ordinals instead of map
-    def hpq(self, x_ordinals, y_map):
-        x_partition = self.create_partition(x_ordinals)
-        grid_hist = self.get_grid_histogram(x_partition, y_map)
-        return entropy(grid_hist / len(x_partition))
-
-    def get_grid_histogram(self, p_map, q_map):
-        rows, columns = group_points_by_partition(q_map), group_points_by_partition(p_map)
-
-        def grid_cell_size(row_index, column_index):
-            return len(set(rows[row_index]) & set(columns[column_index]))
-
-        grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
-        return np.fromiter(grid_points_distribution, dtype=int)
 
 
 def entropy(P):
@@ -425,3 +127,207 @@ def plot_char_matrix_surface(m, file_name='example_grid.png', output_dir='/home/
     fig.colorbar(surf, shrink=0.5, aspect=10)
 
     plt.savefig(output_dir + file_name)
+
+def sort_points(d, sort_by='x'):
+    return sorted(d, key=p_x) if sort_by=='x' else sorted(d, key=p_y)
+
+
+def equipartition_y_axis(d_y, y):
+    n = len(d_y)
+
+    desired_row_size = n / y
+    i = 0
+    sharp = 0
+    current_row = 0
+    q = {}
+    while i < n:
+        s = len([p for p in d_y if d_y[i][1] == p[1]])
+        lhs = abs(float64(sharp) + float64(s) - desired_row_size)
+        rhs = abs(float64(sharp) - desired_row_size)
+
+        if sharp != 0 and lhs >= rhs:
+            sharp = 0
+            current_row += 1
+            temp1 = n - i
+            temp2 = y - current_row
+            desired_row_size = temp1 / temp2
+
+        for j in xrange(s):
+            q[d_y[i + j]] = current_row
+
+        i += s
+        sharp += s
+
+    return q
+
+
+def get_clumps_partition(d_x, q):
+    q_tilde = copy(q)
+    n = len(d_x)
+    i = 0
+    c = -1
+
+    while i < n:
+        s = 1
+        flag = False
+        for j in xrange(i + 1, n):
+            if d_x[i][0] == d_x[j][0]:
+                s += 1
+                if q_tilde[d_x[i]] != q_tilde[d_x[j]]:
+                    flag = True
+            else:
+                break
+
+        if s > 1 and flag:
+            for j in xrange(s):
+                q_tilde[d_x[i + j]] = c
+            c -= 1
+        i += s
+
+    i = 0
+    p = {d_x[0]: 0}
+    for j in xrange(1, n):
+        if q_tilde[d_x[j]] != q_tilde[d_x[j - 1]]:
+            i += 1
+        p[d_x[j]] = i
+
+    return p
+
+
+def get_superclumps_partition(d_x, q, k_hat):
+    p_tilde = get_clumps_partition(d_x, q)
+    k = len(p_tilde)
+    if k > k_hat:
+        d_p_tilde = [(0, p_tilde[p]) for p in d_x]
+        p_hat = equipartition_y_axis(d_p_tilde, k_hat)
+        p = {point: p_hat[(0, p_tilde[point])] for point in d_x}
+        return p
+    else:
+        return p_tilde
+
+def p_distr(ordinals):
+    return np.fromiter((end - start for start, end in pairwise(ordinals)), dtype=int)
+
+def hp(ordinals):
+    distribution = p_distr(ordinals)
+    return entropy(distribution / distribution.sum())
+
+def hq(q):
+    n = len(q)
+    distribution = np.fromiter(Counter(q.itervalues()).itervalues(), dtype=int)
+    return entropy(distribution / n)
+
+def create_partition(d_x, ordinals, axis='x'):
+    assert axis == 'x' or axis == 'y'
+
+    p = {}
+    i = -1
+    for p_start, p_end in pairwise(ordinals):
+        i += 1
+        for p_index in range(p_start + 1, p_end + 1):
+            p[d_x[p_index]] = i
+    return p
+
+def hpq(d_x, x_ordinals, y_map):
+        x_partition = create_partition(d_x, x_ordinals)
+        grid_hist = get_grid_histogram(x_partition, y_map)
+        return entropy(grid_hist / len(x_partition))
+
+def get_grid_histogram(p_map, q_map):
+    rows, columns = group_points_by_partition(q_map), group_points_by_partition(p_map)
+
+    def grid_cell_size(row_index, column_index):
+        return len(set(rows[row_index]) & set(columns[column_index]))
+
+    grid_points_distribution = (grid_cell_size(r, c) for r in reversed(xrange(len(rows))) for c in xrange(len(columns)))
+    return np.fromiter(grid_points_distribution, dtype=int)
+
+def extend(ordinals, c):
+    if any(c == existing for existing in ordinals):
+        new_ordinals = ordinals
+    else:
+        from bisect import insort
+        new_ordinals = list(ordinals)
+        insort(new_ordinals, c)
+    return np.array(new_ordinals)
+
+
+def compute_c(d_x, p_map):
+    p_grouped = group_points_by_partition(p_map)
+    c0 = [d_x.index(get_leftest_point(p_grouped[0])) - 1]
+
+    def last_point_index(partition_index):
+        return d_x.index(get_rightest_point(p_grouped[partition_index]))
+
+    c1_k = map(last_point_index, p_grouped.iterkeys())
+    c = c0 + c1_k
+    return c
+
+def optimize_x_axis(d_x, q, x, k_hat):
+    c = compute_c(d_x, get_superclumps_partition(d_x, q, k_hat))
+    k = len(c) - 1
+    I = np.zeros(shape=(k + 1, x + 1), dtype=np.float64)
+    P = np.empty(shape=(k + 1, x + 1), dtype=np.ndarray)
+
+    def F(s, t, l):
+        return (c[s] / c[t]) * (I[s][l - 1] - hq(q)) - (c[t] - c[s] / c[t]) * hpq(d_x, [c[s], c[t]], q)
+
+    #Find the optimal partitions of size 2
+    for t in xrange(2, k + 1):
+        s = max(range(1, t + 1), key=lambda a: hp([c[0], c[a], c[t]]) - hpq(d_x, [c[0], c[a], c[t]], q))
+        P[t][2] = np.array([c[0], c[s], c[t]])
+        I[t][2] = hq(q) + hp(P[t][2]) - hpq(d_x, P[t][2], q)
+
+    #Inductively build the rest of the table of optimal partitions
+    for l in xrange(3, x + 1):
+        for t in xrange(l, k + 1):
+            s = max(xrange(l - 1, t + 1), key=lambda s_: F(s_, t, l))
+            P[t][l] = extend(P[s][l - 1], c[t])
+            I[t][l] = hq(q) + hp(P[t][l]) - hpq(d_x, P[t][l], q)
+
+    for l in range(k + 1, x + 1):
+        I[k][l] = I[k][k]
+    return I[k][2:x + 1]
+
+
+def approx_max_mi(d_x, d_y, x, y, k_hat):
+    q = equipartition_y_axis(d_y, y)
+    return optimize_x_axis(d_x, q, x, k_hat)
+
+
+def approx_characteristic_matrix(d, b, c):
+    d_x = sort_points(d, 'x')
+    d_y = sort_points(d, 'y')
+
+    d_orth = [tuple(reversed(p)) for p in d]
+    d_orth_x = sort_points(d_orth, 'x')
+    d_orth_y = sort_points(d_orth, 'y')
+    s = int(floor(b/2))
+
+    I = np.zeros(shape=(s+1, s+1), dtype=float64)
+    I_orth = np.zeros(shape=(s+1, s+1), dtype=float64)
+    M = np.zeros(shape=(s+1, s+1), dtype=float64)
+
+    for y in xrange(2, int(floor(b / 2)) + 1):
+        x = int(floor(b / y))
+
+        for i, v in enumerate(approx_max_mi(d_x, d_y, x, y, c*x)):
+            I[i + 2][y] = v
+
+        for i, v in enumerate(approx_max_mi(d_orth_x, d_orth_y, x, y, c*x)):
+            I_orth[i + 2][y] = v
+
+    for x in xrange(2, s+1):
+        for y in xrange(2, s+1):
+            if x*y > b:
+                continue
+            I[x][y] = max(I[x][y], I_orth[y][x])
+            M[x][y] = I[x][y] / min(log2(x), log2(y))
+
+    M = np.nan_to_num(M)
+    return M
+
+x = np.linspace(0, 1, 201)
+y = np.sin(10 * np.pi * x) + x
+d = [tuple(p) for p in zip(x,y)]
+print np.round(approx_characteristic_matrix(d, 201**0.6, 15), 3)
